@@ -87,9 +87,12 @@ aiweb/
 │   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
 │   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
 │   └── static/index.html                   临时页面（后续由 Vue 前端取代）
+├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器
 └── docs/题库数据格式说明.md                  统一数据格式规范
 ```
+
+> 前端与后端放在同一个仓库里，方便一次提交、一次评审。
 
 ---
 
@@ -146,6 +149,20 @@ mvn spring-boot:run
 | http://localhost:8080/swagger-ui.html | 接口文档 |
 
 **数据库无需手动建库建表**——启动时自动创建 `aiweb` 库及相关表，并导入院校专业数据。
+
+### 前端运行
+
+前端是独立的 Vue 3 工程，放在 `frontend/` 目录。
+
+```bash
+cd frontend
+npm install --registry=https://registry.npmmirror.com
+npm run dev
+```
+
+前端跑在 http://localhost:5173，它会把 `/api` 请求自动转发到后端 8080（Vite 代理，不需要后端配跨域）。
+
+**必须先启动后端**，否则前端页面右上角会显示「后端未连接」。详细说明见 `frontend/README.md`。
 
 ---
 
