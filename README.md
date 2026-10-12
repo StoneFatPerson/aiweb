@@ -1,128 +1,191 @@
-# AI Web — AI 驱动的 Web 应用
+# 智研 · AI 考研备考助手
 
-全国高校 AI Web 开发挑战赛参赛项目。后端 Java + Spring Boot + Spring AI，前端原生 HTML/JS，大模型使用智谱 GLM-4.7-Flash。
+> 面向在校大学生（大二 ~ 大四）的考研备考助手，帮助考生搞清「**该不该考、考什么、怎么考**」，并输出可执行的备考路径。
+>
+> 参赛项目：全国高校 AI Web 开发挑战赛（主题「智启未来：AI 驱动的 Web 应用创新挑战」）
 
-## 一、技术栈
+---
+
+## 一、项目简介
+
+考研备考的典型困境不是"不努力"，而是**信息不对称与计划失焦**：不知道流程和时间节点、不清楚自己哪块薄弱、计划做出来却执行不下去。
+
+本项目用 AI 打通三条链路：
+
+| 环节 | 解决的问题 | 做法 |
+|---|---|---|
+| **认知科普** | 不懂流程和名词 | 基于自建知识库的 RAG 问答，答案可溯源，不靠模型自由发挥 |
+| **学情诊断** | 不知道自己哪不会 | 知识点体系 + 测评 + 掌握度建模，把"感觉不行"变成"具体哪章不行" |
+| **计划与复盘** | 计划做不出、执行不下去 | 掌握度驱动计划权重；按实际进度动态调整；错题间隔重复 |
+
+**核心设计原则**：事实与算法放在代码里（可复现、可测试、可验证），大模型只负责组织语言与个性化推理。这条原则贯穿整个项目，也是避免 AI 幻觉的根本手段。
+
+---
+
+## 二、当前进度
+
+| 模块 | 状态 |
+|---|---|
+| 后端骨架（Spring Boot + Spring AI + MyBatis-Plus + MySQL） | ✅ 已完成 |
+| AI 对话（接入智谱 GLM，多轮上下文，历史落库） | ✅ 已完成 |
+| 考研院校专业库（28 所院校 / 104 个专业，山东为主） | ✅ 已完成 |
+| 数学题库第一批（14 章节 / 25 知识点 / 34 道原创题） | ✅ 已完成 |
+| 知识点体系与统一数据格式 | ✅ 已完成 |
+| 测评 / 掌握度 / 诊断 | 🚧 开发中 |
+| 计划生成与动态调整 | 🚧 开发中 |
+| 科普知识库 + RAG 问答 | 🚧 开发中 |
+| Vue 3 前端 | 🚧 开发中 |
+
+---
+
+## 三、技术架构
 
 | 层 | 选型 | 版本 | 理由 |
 |---|---|---|---|
-| 语言 | Java | 17 (LTS) | Spring Boot 3.x 的基线版本，生态最稳 |
-| 框架 | Spring Boot | 3.5.16 | 自带服务器，无需额外安装 Tomcat |
-| AI 框架 | Spring AI | 1.1.8 | Spring 官方出品；换模型只改一行配置；自带 RAG、对话记忆、MCP 扩展点 |
-| 大模型 | 智谱 GLM-4.7-Flash | 免费 | 永久免费、200K 上下文、兼容 OpenAI 协议，国内直连 |
-| 数据层 | MyBatis-Plus + MySQL | 3.5.17 / 8.0 | 少写 SQL，开发快 |
-| 构建 | Maven | 3.9.x | 本机已安装 |
+| 运行时 | Java | 17 (LTS) | Spring Boot 3.x 基线版本 |
+| 主框架 | Spring Boot | 3.5.16 | 自带 Web 容器，无需额外部署 |
+| AI 框架 | Spring AI | 1.1.8 | 换模型只改一行配置；自带 RAG / 对话记忆 / MCP 扩展点 |
+| 大模型 | 智谱 GLM-4.7-Flash | 免费档 | 国内直连、200K 上下文、兼容 OpenAI 协议 |
+| 数据层 | MySQL + MyBatis-Plus | 8.0 / 3.5.17 | 关系数据，开发效率高 |
+| RAG | 本地 ONNX Embedding + SimpleVectorStore | — | **无需任何 API Key、无需注册、无需额外运维** |
+| Agent 编排 | 自研 Orchestrator | — | 逻辑可控、好排查，避免过度依赖框架 |
 | 接口文档 | springdoc-openapi | 2.9.1 | 自动生成文档页 |
 
 > 版本已锁定，请勿升级到 Spring AI 2.x（里程碑版，包名有变动）。
 
-## 二、启动前必须配置的环境变量
-
-| 变量名 | 必填 | 说明 | 缺失时的表现 |
-|---|---|---|---|
-| `ZHIPU_API_KEY` | ✅ 必填 | 智谱开放平台的 API Key，从 https://open.bigmodel.cn 控制台获取 | **启动失败**，控制台打印中文排查指引 |
-| `DB_PASSWORD` | ❌ 选填 | MySQL root 密码 | 启动报警告，以空密码尝试连接，可能 `Access denied` |
-
-> 变量清单另见 `.env.example`。注意：**Java 不会自动读取 `.env` 文件**，
-> 那个文件只是模板/备忘，真正生效必须配到 Windows 系统环境变量里。
-
-### 代码里是怎么读的
-
-Java 没有 `os.environ` / `process.env`，等价写法是 `System.getenv()`。本项目没有手写它，
-而是用 Spring Boot 的**占位符**机制，写在 `src/main/resources/application.yml`：
-
-```yaml
-api-key: ${ZHIPU_API_KEY}     # 启动时自动去系统环境变量里找同名变量
-password: ${DB_PASSWORD:}     # 冒号后是默认值，留空表示不设默认
-```
-
-额外的启动前检查写在 `AiwebApplication.main()` 里，用 `System.getenv()` 读取，
-缺失时打印中文指引并 `System.exit(1)`，避免你面对一大段英文堆栈。
-
-### Windows 设置步骤
-
-1. `Win + S` 搜索「编辑系统环境变量」→ 打开 → 点「环境变量」
-2. 在「用户变量」区域点「新建」
-3. 变量名 `ZHIPU_API_KEY`，变量值填你的 Key
-4. 需要的话再新建 `DB_PASSWORD`
-5. 全部点确定，**然后重启 IntelliJ IDEA**（不重启读不到）
-
-命令行验证（新开一个 CMD）：
-```
-echo %ZHIPU_API_KEY%
-```
-
-> 密钥只存在系统环境变量里，代码中只有 `${ZHIPU_API_KEY}` 占位符，**不会进 Git 仓库**。
-
-## 三、启动方式
-
-### 方式 A：IDEA 中运行（推荐）
-
-1. IDEA → File → Open → 选择 `aiweb` 文件夹
-2. 等待 Maven 依赖下载完成（右下角进度条走完）
-3. 打开 `src/main/java/com/aiweb/AiwebApplication.java`
-4. 点 `main` 方法左边的绿色三角 → Run
-
-### 方式 B：命令行运行
+**分层结构**：
 
 ```
-cd C:\Users\DELL\Desktop\AI_Web\aiweb
+前端（Vue 3）
+  ↓
+编排层 Orchestrator（意图判断 → 选 Agent → 调工具 → 汇总 → 附来源）
+  ↓
+专职 Agent（科普 / 诊断 / 计划 / 复盘）
+  ↓
+算法层（掌握度、自适应选题、间隔重复、阶段切分）  ← 纯 Java，不经过模型
+  ↓
+数据层（MySQL：知识点 / 题目 / 作答记录 / 掌握度 / 院校专业）
+```
+
+---
+
+## 四、目录结构
+
+```
+aiweb/
+├── pom.xml                                 依赖与构建配置
+├── src/main/java/com/aiweb/
+│   ├── AiwebApplication.java               启动入口 + 环境变量检查
+│   ├── config/CollegeDataInitializer.java  启动时自动导入院校数据
+│   ├── controller/                         ChatController / CollegeController / MajorController
+│   ├── entity/                             ChatMessage / College / Major
+│   ├── mapper/                             数据访问接口
+│   └── service/                            ChatService / CollegeService
+├── src/main/resources/
+│   ├── application.yml                     配置（密钥走环境变量）
+│   ├── schema.sql                          建表脚本（启动自动执行）
+│   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
+│   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
+│   └── static/index.html                   临时页面（后续由 Vue 前端取代）
+├── scripts/                                题库生成器与校验器
+└── docs/题库数据格式说明.md                  统一数据格式规范
+```
+
+---
+
+## 五、环境要求
+
+| 组件 | 版本 |
+|---|---|
+| JDK | 17 |
+| Maven | 3.9+ |
+| MySQL | 8.0+ |
+| Node.js（前端，后续需要） | 18+ |
+
+---
+
+## 六、环境变量
+
+| 变量名 | 必填 | 说明 |
+|---|---|---|
+| `ZHIPU_API_KEY` | ✅ | 智谱开放平台 API Key（https://open.bigmodel.cn） |
+| `DB_PASSWORD` | ❌ | MySQL 密码，未设置时以空密码连接 |
+
+### Windows 配置步骤
+
+1. `Win + S` → 搜索「编辑系统环境变量」→ 打开 → 点「环境变量」
+2. 「用户变量」→ 新建 → 变量名 `ZHIPU_API_KEY`，变量值填你的 Key
+3. 需要的话再新建 `DB_PASSWORD`
+4. 确定后**重启 IDE**（不重启读不到）
+
+验证：`echo %ZHIPU_API_KEY%`
+
+> **密钥只存在系统环境变量中，代码中只有 `${ZHIPU_API_KEY}` 占位符，绝不入库。**
+> 详见 `.env.example`。
+
+---
+
+## 七、安装与运行
+
+```bash
+# 1. 编译
+mvn clean compile
+
+# 2. 启动
 mvn spring-boot:run
 ```
 
-启动成功后访问：
+或在 IDE 中直接运行 `AiwebApplication.java`。
+
+启动后访问：
 
 | 地址 | 内容 |
 |---|---|
-| http://localhost:8080 | 聊天页面 |
+| http://localhost:8080 | 应用首页 |
 | http://localhost:8080/api/health | 健康检查 |
-| http://localhost:8080/swagger-ui.html | 自动生成的接口文档 |
+| http://localhost:8080/swagger-ui.html | 接口文档 |
 
-## 四、接口一览
+**数据库无需手动建库建表**——启动时自动创建 `aiweb` 库及相关表，并导入院校专业数据。
+
+---
+
+## 八、接口一览
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/health` | 健康检查 |
-| POST | `/api/chat` | 普通对话，body：`{"sessionId":"可选","message":"你好"}` |
-| GET | `/api/chat/stream` | 流式对话，参数：`message`、`sessionId` |
-| GET | `/api/history` | 查询历史，参数：`sessionId` |
+| POST | `/api/chat` | AI 对话 |
+| GET | `/api/chat/stream` | 流式对话（打字机效果） |
+| GET | `/api/history` | 对话历史 |
+| GET | `/api/colleges` | 院校查询（支持城市/层次/985/211/自划线/关键词） |
+| GET | `/api/colleges/{id}` | 院校详情（含专业列表） |
+| GET | `/api/majors` | 专业查询（支持门类/学位类型/关键词） |
 
-## 五、数据库
+---
 
-- 数据库名：`aiweb`，**启动时自动创建**（连接串里有 `createDatabaseIfNotExist=true`）
-- 表：`chat_message`（对话历史），**启动时自动建表**（`src/main/resources/schema.sql`）
-- 如需手动执行：
+## 九、数据与合规
 
-```sql
-CREATE DATABASE IF NOT EXISTS aiweb DEFAULT CHARSET utf8mb4;
-USE aiweb;
--- 然后执行 src/main/resources/schema.sql
-```
+| 项 | 说明 |
+|---|---|
+| 院校专业数据 | 自行整理的结构化信息，**不收录分数线**（每年变动且易产生幻觉）。当前标记 `verified=0`，正式提交前需与研招网逐条核对 |
+| 题库 | **全部原创编写**，不照搬任何真实真题原文；题目来源用 `source` 字段严格区分（原创种子题 / AI 生成题 / 用户导入 / 官方公开） |
+| 第三方内容 | **不抓取**任何需要登录或有反爬的站点，避免著作权与个人信息风险 |
+| 密钥 | 全部走环境变量，不进入版本库 |
 
-## 六、目录结构
+---
 
-```
-aiweb/
-├── pom.xml                          依赖与构建配置
-├── src/main/java/com/aiweb/
-│   ├── AiwebApplication.java        启动入口
-│   ├── controller/ChatController.java  对外接口
-│   ├── service/ChatService.java     AI 对话核心逻辑
-│   ├── entity/ChatMessage.java      数据库表对应类
-│   └── mapper/ChatMessageMapper.java   数据库操作
-├── src/main/resources/
-│   ├── application.yml              所有配置（含 AI 与数据库）
-│   ├── schema.sql                   建表脚本
-│   └── static/index.html            聊天页面
-└── src/test/java/com/aiweb/         测试
-```
+## 十、团队信息
 
-## 七、常见问题
+| 项 | 内容 |
+|---|---|
+| 参赛组别 | 待填写 |
+| 成员 | 待填写 |
+| 指导教师 | 待填写 |
+| 院校 | 待填写 |
 
-| 现象 | 原因 | 解决 |
-|---|---|---|
-| `【启动失败】缺少环境变量 ZHIPU_API_KEY` | 环境变量没配，或配完没重启 IDEA | 配好后**重启 IDEA** |
-| `Access denied for user 'root'` | MySQL 密码不对或未设 `DB_PASSWORD` | 设置 `DB_PASSWORD` 为真实密码 |
-| `Communications link failure` | MySQL 没启动 | 启动 MySQL 服务 |
-| 依赖下载很慢 / 超时 | 网络问题 | 已配置阿里云镜像；仍慢可改用华为云或腾讯云镜像 |
-| 端口被占用 | 8080 已被别的程序占用 | 改 `application.yml` 里的 `server.port` |
+---
+
+## 十一、许可与声明
+
+- 本项目为参赛作品，题目与知识点数据为整理/原创内容，仅供参考。
+- 涉及考试政策、时间节点、招生信息的内容，**一律以中国研究生招生信息网等官方渠道公告为准**。
