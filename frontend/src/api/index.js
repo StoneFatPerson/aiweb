@@ -1,0 +1,60 @@
+import axios from 'axios'
+
+/**
+ * 统一的后端请求封装。
+ *
+ * 为什么 baseURL 只写 '/api'：
+ * 开发时 Vite 会把 /api 开头的请求转发到 http://localhost:8080（见 vite.config.js），
+ * 所以前端代码里不需要写死后端地址，部署时也不用改代码。
+ */
+const request = axios.create({
+  baseURL: '/api',
+  timeout: 120000,
+  headers: { 'Content-Type': 'application/json' }
+})
+
+// 响应拦截：直接返回 data，页面里少写一层 .data
+request.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const message =
+      (error.response && error.response.data && error.response.data.error) ||
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      '请求失败，请检查后端服务是否已启动'
+    return Promise.reject(new Error(message))
+  }
+)
+
+/* ---------------- 通用 ---------------- */
+
+/** 健康检查 */
+export const checkHealth = () => request.get('/health')
+
+/* ---------------- AI 对话 ---------------- */
+
+/** 发送一条消息，返回 { sessionId, answer } */
+export const sendChat = (payload) => request.post('/chat', payload)
+
+/** 查询某个会话的历史消息 */
+export const getHistory = (sessionId) => request.get('/history', { params: { sessionId } })
+
+/* ---------------- 院校专业库 ---------------- */
+
+/** 院校列表，params 支持 city / level / is985 / is211 / isSelfLine / keyword */
+export const listColleges = (params) => request.get('/colleges', { params })
+
+/** 院校详情（含专业列表） */
+export const getCollege = (id) => request.get(`/colleges/${id}`)
+
+/** 所有城市（下拉筛选用） */
+export const getCities = () => request.get('/colleges/cities')
+
+/** 题库/院校库统计 */
+export const getStats = () => request.get('/colleges/stats')
+
+/** 专业列表，params 支持 collegeId / category / degreeType / keyword */
+export const listMajors = (params) => request.get('/majors', { params })
+
+/** 所有学科门类（下拉筛选用） */
+export const getCategories = () => request.get('/majors/categories')

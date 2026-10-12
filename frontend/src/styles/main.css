@@ -1,0 +1,82 @@
+/* 全局样式：只放最基础的约定，具体样式尽量写在组件的 <style scoped> 里 */
+
+:root {
+  --brand: #2563eb;
+  --brand-dark: #1d4ed8;
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --text: #1f2328;
+  --text-muted: #6b7280;
+  --line: #e5e7eb;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', 'PingFang SC',
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+/* 键盘可达性：聚焦时给出清晰的焦点圈 */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* 页面容器：统一最大宽度，保证大屏下不会拉得太宽 */
+.page-container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* 卡片式区块 */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.panel + .panel {
+  margin-top: 16px;
+}
+
+.section-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.section-desc {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* 尊重系统的「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
