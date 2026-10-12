@@ -1,0 +1,1073 @@
+{
+  "schemaVersion": "1.0",
+  "batch": "math-batch-1",
+  "title": "考研数学第一批原创种子题",
+  "createdAt": "2026-10-12",
+  "scopeNote": "全部为原创编写，不照搬任何真实真题原文。知识点范围以通用考研数学大纲为准，不针对特定院校或专业。",
+  "mathNotation": "plain-text（暂不使用 LaTeX）；如需渲染公式，JSON 里反斜杠必须写成双反斜杠。",
+  "subject": {
+    "code": "math",
+    "name": "数学"
+  },
+  "chapters": [
+    {
+      "code": "MATH-01",
+      "name": "函数、极限、连续",
+      "order": 1,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-01-01",
+          "name": "极限的四则运算与两个重要极限",
+          "order": 1
+        },
+        {
+          "code": "MATH-01-02",
+          "name": "无穷小的比较与等价无穷小替换",
+          "order": 2
+        },
+        {
+          "code": "MATH-01-03",
+          "name": "函数的连续性与间断点类型",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "code": "MATH-02",
+      "name": "一元函数微分学",
+      "order": 2,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-02-01",
+          "name": "导数与微分的计算",
+          "order": 1
+        },
+        {
+          "code": "MATH-02-02",
+          "name": "中值定理与导数应用（单调性、极值）",
+          "order": 2
+        },
+        {
+          "code": "MATH-02-03",
+          "name": "洛必达法则与未定式极限",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "code": "MATH-03",
+      "name": "一元函数积分学",
+      "order": 3,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-03-01",
+          "name": "不定积分的基本方法",
+          "order": 1
+        },
+        {
+          "code": "MATH-03-02",
+          "name": "定积分计算与几何应用",
+          "order": 2
+        },
+        {
+          "code": "MATH-03-03",
+          "name": "变限积分函数求导",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "code": "MATH-04",
+      "name": "多元函数微分学",
+      "order": 4,
+      "applicableTo": [
+        "math1",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-04-01",
+          "name": "偏导数与全微分",
+          "order": 1
+        },
+        {
+          "code": "MATH-04-02",
+          "name": "多元函数极值与条件极值",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "code": "MATH-05",
+      "name": "二重积分",
+      "order": 5,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-05-01",
+          "name": "直角坐标下的二重积分计算",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "code": "MATH-06",
+      "name": "无穷级数",
+      "order": 6,
+      "applicableTo": [
+        "math1",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-06-01",
+          "name": "正项级数的敛散性判别",
+          "order": 1
+        },
+        {
+          "code": "MATH-06-02",
+          "name": "幂级数的收敛半径",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "code": "MATH-07",
+      "name": "常微分方程",
+      "order": 7,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-07-01",
+          "name": "一阶可分离变量微分方程",
+          "order": 1
+        },
+        {
+          "code": "MATH-07-02",
+          "name": "二阶常系数齐次线性微分方程",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "code": "MATH-08",
+      "name": "行列式",
+      "order": 8,
+      "points": [
+        {
+          "code": "MATH-08-01",
+          "name": "行列式的计算与基本性质",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "code": "MATH-09",
+      "name": "矩阵",
+      "order": 9,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-09-01",
+          "name": "逆矩阵与伴随矩阵",
+          "order": 1
+        },
+        {
+          "code": "MATH-09-02",
+          "name": "矩阵的幂",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "code": "MATH-10",
+      "name": "向量",
+      "order": 10,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-10-01",
+          "name": "向量组的线性相关性",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "code": "MATH-11",
+      "name": "线性方程组",
+      "order": 11,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-11-01",
+          "name": "线性方程组解的判定",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "code": "MATH-12",
+      "name": "特征值与特征向量、二次型",
+      "order": 12,
+      "applicableTo": [
+        "math1",
+        "math2",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-12-01",
+          "name": "矩阵特征值与特征向量的求解",
+          "order": 1
+        },
+        {
+          "code": "MATH-12-02",
+          "name": "二次型正定性的判定",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "code": "MATH-13",
+      "name": "随机事件与概率",
+      "order": 13,
+      "applicableTo": [
+        "math1",
+        "math3"
+      ],
+      "points": [
+        {
+          "code": "MATH-13-01",
+          "name": "古典概型与条件概率",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "code": "MATH-14",
+      "name": "数字特征",
+      "order": 14,
+      "points": [
+        {
+          "code": "MATH-14-01",
+          "name": "数学期望与方差",
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "code": "MATH-Q0001",
+      "subjectCode": "math",
+      "chapterCode": "MATH-01",
+      "pointCodes": [
+        "MATH-01-01"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 1,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "极限 lim(x→0) sin(3x)/x 的值为（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "0"
+        },
+        {
+          "key": "B",
+          "content": "1"
+        },
+        {
+          "key": "C",
+          "content": "3"
+        },
+        {
+          "key": "D",
+          "content": "不存在"
+        }
+      ],
+      "answer": "C",
+      "explanation": "令 t = 3x，则 x→0 时 t→0，且 x = t/3。于是原式 = lim(t→0) sin t / (t/3) = 3·lim(t→0) sin t / t = 3×1 = 3。这里用到第一个重要极限 lim(t→0) sin t / t = 1。最高频的错误是选 B——分子是 sin(3x) 而不是 sin x，凑出来的系数 3 不能丢。",
+      "keywords": [
+        "重要极限",
+        "等价无穷小",
+        "变量代换"
+      ]
+    },
+    {
+      "code": "MATH-Q0002",
+      "subjectCode": "math",
+      "chapterCode": "MATH-01",
+      "pointCodes": [
+        "MATH-01-01"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "极限 lim(x→∞) (1 + 2/x)^x 的值为（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "e"
+        },
+        {
+          "key": "B",
+          "content": "e^2"
+        },
+        {
+          "key": "C",
+          "content": "2e"
+        },
+        {
+          "key": "D",
+          "content": "1"
+        }
+      ],
+      "answer": "B",
+      "explanation": "令 t = x/2，则 2/x = 1/t，x = 2t，且 x→∞ 时 t→∞。原式 = lim(t→∞)[(1+1/t)^t]^2 = e^2。这是第二个重要极限 lim(t→∞)(1+1/t)^t = e 的标准变形，核心是把指数凑成与括号内的倒数同形。",
+      "keywords": [
+        "重要极限",
+        "1的无穷次方型"
+      ]
+    },
+    {
+      "code": "MATH-Q0003",
+      "subjectCode": "math",
+      "chapterCode": "MATH-01",
+      "pointCodes": [
+        "MATH-01-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "极限 lim(x→0) (tan x − sin x) / x^3 = ______",
+      "options": [],
+      "answer": "1/2",
+      "explanation": "先化简分子，避免直接洛必达导致计算量爆炸：tan x − sin x = sin x·(1/cos x − 1) = sin x·(1 − cos x)/cos x。当 x→0 时，sin x ~ x，1 − cos x ~ x²/2，cos x → 1，所以分子 ~ x·(x²/2) = x³/2，原式 = 1/2。注意：等价无穷小只能对乘除因子整体替换，加减位置必须先恒等变形。",
+      "keywords": [
+        "等价无穷小",
+        "极限计算",
+        "泰勒公式"
+      ]
+    },
+    {
+      "code": "MATH-Q0004",
+      "subjectCode": "math",
+      "chapterCode": "MATH-01",
+      "pointCodes": [
+        "MATH-01-03"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 f(x) = sin x / x（x ≠ 0），f(0) = a。若 f(x) 在 x = 0 处连续，则 a =（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "0"
+        },
+        {
+          "key": "B",
+          "content": "1"
+        },
+        {
+          "key": "C",
+          "content": "-1"
+        },
+        {
+          "key": "D",
+          "content": "不存在"
+        }
+      ],
+      "answer": "B",
+      "explanation": "连续性要求 lim(x→0) f(x) = f(0)。左边 = lim(x→0) sin x / x = 1（第一个重要极限），右边 = f(0) = a，故 a = 1。通用套路：分段函数在分段点连续，等价于该点极限存在且等于函数值；先求极限，再令两者相等即可。",
+      "keywords": []
+    },
+    {
+      "code": "MATH-Q0005",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 1,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 f(x) = x^3 − 3x^2，则 f'(1) = ______",
+      "options": [],
+      "answer": "-3",
+      "explanation": "先求导：f'(x) = 3x² − 6x；再代入 x = 1 得 f'(1) = 3 − 6 = −3。易错点是顺序——必须先求导再代值。若先把 x=1 代入得到常数 −2 再求导，结果会错成 0。",
+      "keywords": []
+    },
+    {
+      "code": "MATH-Q0006",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-02"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "函数 f(x) = x^3 − 3x^2 − 9x + 5 的单调递减区间是（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "(-∞, -1)"
+        },
+        {
+          "key": "B",
+          "content": "(-1, 3)"
+        },
+        {
+          "key": "C",
+          "content": "(3, +∞)"
+        },
+        {
+          "key": "D",
+          "content": "(-∞, +∞)"
+        }
+      ],
+      "answer": "B",
+      "explanation": "求导：f'(x) = 3x² − 6x − 9 = 3(x² − 2x − 3) = 3(x−3)(x+1)。令 f'(x) < 0，即 (x−3)(x+1) < 0，解得 −1 < x < 3，故递减区间为 (−1, 3)。顺带可得：递增区间为 (−∞,−1) 与 (3,+∞)；极大值 f(−1) = 10，极小值 f(3) = −22。",
+      "keywords": []
+    },
+    {
+      "code": "MATH-Q0007",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-03"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "极限 lim(x→0) (e^x − 1 − x) / x^2 的值为 ______",
+      "options": [],
+      "answer": "1/2",
+      "explanation": "方法一（洛必达）：属 0/0 型，上下求导得 lim(e^x − 1)/(2x)，仍为 0/0 型，再求导得 lim e^x / 2 = 1/2。方法二（泰勒）：e^x = 1 + x + x²/2 + o(x²)，代入后分子 = x²/2 + o(x²)，故极限为 1/2。泰勒展开在这类题上更稳，不容易在多次洛必达中出错。",
+      "keywords": [
+        "洛必达法则",
+        "泰勒展开",
+        "未定式"
+      ]
+    },
+    {
+      "code": "MATH-Q0008",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "函数 f(x) = x^3 − 3x^2 的极小值为 ______",
+      "options": [],
+      "answer": "-4",
+      "explanation": "求导得 f'(x) = 3x² − 6x = 3x(x−2)，驻点为 x=0 与 x=2。再求二阶导 f''(x) = 6x − 6：f''(0) = −6 < 0，故 x=0 为极大值点，f(0) = 0；f''(2) = 6 > 0，故 x=2 为极小值点，f(2) = 8 − 12 = −4。",
+      "keywords": [
+        "极值",
+        "二阶导数判别法"
+      ]
+    },
+    {
+      "code": "MATH-Q0009",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "曲线 y = x^2 在点 (1, 1) 处的切线方程为 y = ______",
+      "options": [],
+      "answer": "2x − 1",
+      "explanation": "求导得 y' = 2x，在 x=1 处斜率 k=2。用点斜式：y − 1 = 2(x − 1)，化简得 y = 2x − 1。这类题固定三步：求导 → 代点求斜率 → 点斜式写方程。",
+      "keywords": [
+        "切线方程",
+        "导数的几何意义"
+      ]
+    },
+    {
+      "code": "MATH-Q0010",
+      "subjectCode": "math",
+      "chapterCode": "MATH-03",
+      "pointCodes": [
+        "MATH-03-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "不定积分 ∫ x·e^x dx = ______（结果含任意常数 C）",
+      "options": [],
+      "answer": "e^x·(x−1)+C",
+      "explanation": "用分部积分法：取 u = x、dv = e^x dx，则 du = dx、v = e^x。于是 ∫ x·e^x dx = x·e^x − ∫ e^x dx = x·e^x − e^x + C = e^x(x−1) + C。选 u 的口诀是「反对幂指三」，靠后的优先放进 dv；这里幂函数 x 排在指数函数之前，所以令 u = x。",
+      "keywords": [
+        "分部积分",
+        "不定积分"
+      ]
+    },
+    {
+      "code": "MATH-Q0011",
+      "subjectCode": "math",
+      "chapterCode": "MATH-03",
+      "pointCodes": [
+        "MATH-03-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "定积分 ∫(0→1) x·e^x dx = ______",
+      "options": [],
+      "answer": "1",
+      "explanation": "由上一题的原函数 e^x·(x−1)，代入上下限：[e^x(x−1)]₀¹ = e·0 − 1·(−1) = 0 + 1 = 1。定积分等于原函数上限值减下限值，注意符号别漏。",
+      "keywords": [
+        "定积分",
+        "牛顿-莱布尼茨公式"
+      ]
+    },
+    {
+      "code": "MATH-Q0012",
+      "subjectCode": "math",
+      "chapterCode": "MATH-03",
+      "pointCodes": [
+        "MATH-03-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "由曲线 y = x^2 与直线 y = x 所围成平面图形的面积为 ______",
+      "options": [],
+      "answer": "1/6",
+      "explanation": "第一步求交点：令 x² = x，得 x=0 或 x=1。第二步判断上下：在 (0,1) 上 x > x²。第三步列式积分：S = ∫₀¹(x − x²)dx = 1/2 − 1/3 = 1/6。平面图形面积题都按这个三步走。",
+      "keywords": [
+        "定积分应用",
+        "平面图形面积"
+      ]
+    },
+    {
+      "code": "MATH-Q0014",
+      "subjectCode": "math",
+      "chapterCode": "MATH-04",
+      "pointCodes": [
+        "MATH-04-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 z = x^2·y + x·y^2，则 ∂z/∂x = ______",
+      "options": [],
+      "answer": "2xy + y^2",
+      "explanation": "对 x 求偏导时把 y 当作常数：∂(x²y)/∂x = 2xy，∂(xy²)/∂x = y²。相加得 2xy + y^2。核心理解：偏导就是只让一个变量动，其余全部冻结成数字。",
+      "keywords": [
+        "偏导数",
+        "多元函数微分"
+      ]
+    },
+    {
+      "code": "MATH-Q0015",
+      "subjectCode": "math",
+      "chapterCode": "MATH-04",
+      "pointCodes": [
+        "MATH-04-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 z = x^2·y + x·y^2，则二阶混合偏导 ∂²z/(∂x∂y) = ______",
+      "options": [],
+      "answer": "2x + 2y",
+      "explanation": "先对 x 求偏导得 2xy + y²，再对 y 求偏导：∂(2xy + y²)/∂y = 2x + 2y。由于二阶偏导连续，混合偏导与求导次序无关——先 y 后 x 结果相同。",
+      "keywords": [
+        "二阶混合偏导",
+        "偏导数"
+      ]
+    },
+    {
+      "code": "MATH-Q0016",
+      "subjectCode": "math",
+      "chapterCode": "MATH-04",
+      "pointCodes": [
+        "MATH-04-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "函数 f(x,y) = x^2 + 2y^2 − 2x − 4y 的极小值为 ______",
+      "options": [],
+      "answer": "-3",
+      "explanation": "求一阶偏导并令其为零：∂f/∂x = 2x − 2 = 0 得 x = 1；∂f/∂y = 4y − 4 = 0 得 y = 1。再算二阶偏导：A = ∂²f/∂x² = 2，B = ∂²f/∂x∂y = 0，C = ∂²f/∂y² = 4。判别式 AC − B² = 8 > 0 且 A > 0，故 (1,1) 为极小值点。代入得 f(1,1) = 1 + 2 − 2 − 4 = −3。",
+      "keywords": [
+        "多元函数极值",
+        "二阶偏导判别法"
+      ]
+    },
+    {
+      "code": "MATH-Q0017",
+      "subjectCode": "math",
+      "chapterCode": "MATH-05",
+      "pointCodes": [
+        "MATH-05-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设积分区域 D = {(x,y) | 0 ≤ x ≤ 1, 0 ≤ y ≤ 1}，则二重积分 ∬_D x·y dσ = ______",
+      "options": [],
+      "answer": "1/4",
+      "explanation": "区域是矩形，且被积函数可分离为 x 与 y 的乘积，因此二重积分能拆成两个一元积分之积：(∫₀¹ x dx)(∫₀¹ y dy) = 1/2 × 1/2 = 1/4。注意：这个技巧只在矩形区域且函数能写成 f(x)·g(y) 时成立，一般区域不能拆。",
+      "keywords": [
+        "二重积分",
+        "可分离变量"
+      ]
+    },
+    {
+      "code": "MATH-Q0018",
+      "subjectCode": "math",
+      "chapterCode": "MATH-05",
+      "pointCodes": [
+        "MATH-05-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 D 是由直线 y = x、x = 1 及 x 轴围成的三角形区域，则二重积分 ∬_D x dσ = ______",
+      "options": [],
+      "answer": "1/3",
+      "explanation": "先把区域写成 0 ≤ x ≤ 1，0 ≤ y ≤ x。化为二次积分：∫₀¹ dx ∫₀ˣ x dy = ∫₀¹ x·x dx = ∫₀¹ x^2 dx = 1/3。易错点：对 y 积分时 x 当作常数提出，所以内层结果是 x·x = x^2，不是 x^2/2。",
+      "keywords": [
+        "二重积分",
+        "积分限确定"
+      ]
+    },
+    {
+      "code": "MATH-Q0019",
+      "subjectCode": "math",
+      "chapterCode": "MATH-06",
+      "pointCodes": [
+        "MATH-06-01"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "下列四个级数中，收敛的是（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "Σ(n=1→∞) 1/n"
+        },
+        {
+          "key": "B",
+          "content": "Σ(n=2→∞) 1/√n"
+        },
+        {
+          "key": "C",
+          "content": "Σ(n=1→∞) 1/n^2"
+        },
+        {
+          "key": "D",
+          "content": "Σ(n=2→∞) 1/ln n"
+        }
+      ],
+      "answer": "C",
+      "explanation": "用 p 级数判别法：Σ 1/n^p 在 p > 1 时收敛，p ≤ 1 时发散。A 是 p=1 的调和级数，发散；B 是 p=1/2 < 1，发散；D 中当 n≥2 时 ln n < n，故 1/ln n > 1/n，由比较判别法发散。只有 C 的 p=2>1，收敛。记忆要点：分界点 p=1 取不到等号。",
+      "keywords": [
+        "p级数",
+        "比较判别法",
+        "级数敛散性"
+      ]
+    },
+    {
+      "code": "MATH-Q0020",
+      "subjectCode": "math",
+      "chapterCode": "MATH-06",
+      "pointCodes": [
+        "MATH-06-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "级数 Σ(n=1→∞) 1/(n(n+1)) 的和为 ______",
+      "options": [],
+      "answer": "1",
+      "explanation": "先裂项：1/(n(n+1)) = 1/n − 1/(n+1)。部分和 S_N = (1−1/2) + (1/2−1/3) + … + (1/N − 1/(N+1))，中间项全部抵消得 S_N = 1 − 1/(N+1)。令 N→∞，和为 1。裂项相消是级数求和最基础的手段。",
+      "keywords": [
+        "裂项相消",
+        "级数求和"
+      ]
+    },
+    {
+      "code": "MATH-Q0021",
+      "subjectCode": "math",
+      "chapterCode": "MATH-06",
+      "pointCodes": [
+        "MATH-06-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "幂级数 Σ(n=1→∞) x^n / (n·2^n) 的收敛半径 R = ______",
+      "options": [],
+      "answer": "2",
+      "explanation": "系数为 a_n = 1/(n·2^n)。用根值法：lim(n→∞) |a_n|^(1/n) = lim n^(−1/n) · (1/2) = 1 × 1/2 = 1/2，故收敛半径 R = 1 ÷ (1/2) = 2。延伸：端点 x=2 时级数为调和级数发散，x=−2 时为交错级数收敛，故收敛域为 [−2, 2)。",
+      "keywords": [
+        "幂级数",
+        "收敛半径"
+      ]
+    },
+    {
+      "code": "MATH-Q0022",
+      "subjectCode": "math",
+      "chapterCode": "MATH-07",
+      "pointCodes": [
+        "MATH-07-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "微分方程 y' = 2y 满足初值条件 y(0) = 3 的特解为 y = ______",
+      "options": [],
+      "answer": "3e^(2x)",
+      "explanation": "分离变量：dy/y = 2dx；两边积分得 ln|y| = 2x + C，即 y = Ce^(2x)。代入 y(0) = 3 得 C = 3，故特解为 y = 3e^(2x)。判断标准：能写成 g(y)dy = f(x)dx 形式的一阶方程都可以用分离变量法求解。",
+      "keywords": []
+    },
+    {
+      "code": "MATH-Q0023",
+      "subjectCode": "math",
+      "chapterCode": "MATH-07",
+      "pointCodes": [
+        "MATH-07-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "微分方程 y'' − 3y' + 2y = 0 的通解为 y = ______（C1、C2 为任意常数）",
+      "options": [],
+      "answer": "C1·e^x + C2·e^(2x)",
+      "explanation": "写出特征方程 r² − 3r + 2 = 0，因式分解 (r−1)(r−2) = 0，得两个不等实根 r1 = 1、r2 = 2。对应的两个线性无关解为 e^x 与 e^(2x)，故通解 y = C1·e^x + C2·e^(2x)。记忆点：二阶常系数齐次方程的通解结构完全由特征根类型决定——不等实根、重根、共轭复根三种情形，各记一个模板即可。",
+      "keywords": []
+    },
+    {
+      "code": "MATH-Q0024",
+      "subjectCode": "math",
+      "chapterCode": "MATH-08",
+      "pointCodes": [
+        "MATH-08-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 1,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "二阶行列式 |1 2; 3 4| 的值为 ______",
+      "options": [],
+      "answer": "-2",
+      "explanation": "二阶行列式按对角线法则：主对角线之积减副对角线之积，即 1×4 − 2×3 = 4 − 6 = −2。常用口诀是「主对角线减副对角线」，别减反了。",
+      "keywords": [
+        "行列式",
+        "二阶行列式"
+      ]
+    },
+    {
+      "code": "MATH-Q0025",
+      "subjectCode": "math",
+      "chapterCode": "MATH-08",
+      "pointCodes": [
+        "MATH-08-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "三阶对角行列式 |1 0 0; 0 2 0; 0 0 3| 的值为 ______",
+      "options": [],
+      "answer": "6",
+      "explanation": "对角行列式的值等于主对角线元素之积：1 × 2 × 3 = 6。推广结论：对角行列式、上三角行列式、下三角行列式的值都等于主对角线元素之积，记住它能省掉大量计算。",
+      "keywords": [
+        "对角行列式",
+        "行列式性质"
+      ]
+    },
+    {
+      "code": "MATH-Q0026",
+      "subjectCode": "math",
+      "chapterCode": "MATH-09",
+      "pointCodes": [
+        "MATH-09-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 A = [[1,0],[0,2]]，则 A 的逆矩阵 A^(-1) = ______",
+      "options": [],
+      "answer": "[[1,0],[0,1/2]]",
+      "explanation": "对角矩阵的逆矩阵就是把主对角元逐个取倒数，所以 A^(-1) = [[1,0],[0,1/2]]。验证：A·A^(-1) = [[1,0],[0,1]] = I。通用结论：diag(d1,…,dn)（各 di ≠ 0）的逆是 diag(1/d1,…,1/dn)。",
+      "keywords": [
+        "逆矩阵",
+        "对角矩阵"
+      ]
+    },
+    {
+      "code": "MATH-Q0027",
+      "subjectCode": "math",
+      "chapterCode": "MATH-09",
+      "pointCodes": [
+        "MATH-09-02"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 A = [[1,1],[0,1]]，则 A^n = ______（n 为正整数）",
+      "options": [],
+      "answer": "[[1,n],[0,1]]",
+      "explanation": "把 A 写成 A = I + N，其中 N = [[0,1],[0,0]]。由于 N^2 = 0，即 N 是幂零矩阵，二项式展开只剩前两项：A^n = (I+N)^n = I + nN = [[1,n],[0,1]]。方法要点：遇到「单位矩阵 + 幂零矩阵」的形式，直接用二项式展开，高阶项会自动消失，比数学归纳法快得多。",
+      "keywords": [
+        "矩阵幂",
+        "幂零矩阵",
+        "二项式展开"
+      ]
+    },
+    {
+      "code": "MATH-Q0028",
+      "subjectCode": "math",
+      "chapterCode": "MATH-10",
+      "pointCodes": [
+        "MATH-10-01"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "向量组 α1=(1,0)ᵀ，α2=(0,1)ᵀ，α3=(1,1)ᵀ 的线性相关性是（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "线性无关"
+        },
+        {
+          "key": "B",
+          "content": "线性相关"
+        },
+        {
+          "key": "C",
+          "content": "无法判断"
+        },
+        {
+          "key": "D",
+          "content": "仅当第三个分量为零时相关"
+        }
+      ],
+      "answer": "B",
+      "explanation": "方式一（维数定理）：这是二维空间中的 3 个向量，向量个数大于空间维数，必线性相关。方式二（构造系数）：直接观察得 α3 = α1 + α2，即存在不全为零的系数 1、1、−1 使 α1 + α2 − α3 = 0，故线性相关。要点：「个数超过维数必相关」是常考的判定捷径，能省掉繁琐的行列式计算。",
+      "keywords": [
+        "线性相关性",
+        "向量组"
+      ]
+    },
+    {
+      "code": "MATH-Q0029",
+      "subjectCode": "math",
+      "chapterCode": "MATH-11",
+      "pointCodes": [
+        "MATH-11-01"
+      ],
+      "type": "SINGLE_CHOICE",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "方程组 x + y = 1 与 2x + 2y = 2 的解的情况是（　）",
+      "options": [
+        {
+          "key": "A",
+          "content": "无解"
+        },
+        {
+          "key": "B",
+          "content": "唯一解"
+        },
+        {
+          "key": "C",
+          "content": "无穷多解"
+        }
+      ],
+      "answer": "C",
+      "explanation": "第二个方程恰好是第一个方程的 2 倍，两个方程等价，实际只提供一个独立约束 x + y = 1。两个未知数、一个独立方程，故有无穷多解，通解为 (x, y) = (t, 1 − t)。判定法则：比较系数矩阵与增广矩阵的秩，r(A) = r(A|b) < n 时有无穷多解。",
+      "keywords": [
+        "线性方程组",
+        "矩阵的秩",
+        "解的判定"
+      ]
+    },
+    {
+      "code": "MATH-Q0030",
+      "subjectCode": "math",
+      "chapterCode": "MATH-12",
+      "pointCodes": [
+        "MATH-12-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "矩阵 A = [[2,0],[0,3]] 的全部特征值为 ______",
+      "options": [],
+      "answer": "λ1 = 2，λ2 = 3",
+      "explanation": "方法一：对角矩阵的特征值就是其主对角线上的元素，故为 2 与 3。方法二：解特征方程 |λE − A| = (λ−2)(λ−3) = 0，得 λ1 = 2、λ2 = 3。延伸：对应的特征向量可取 (1,0)ᵀ 与 (0,1)ᵀ。",
+      "keywords": [
+        "特征值",
+        "对角矩阵"
+      ]
+    },
+    {
+      "code": "MATH-Q0031",
+      "subjectCode": "math",
+      "chapterCode": "MATH-13",
+      "pointCodes": [
+        "MATH-13-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "袋中有 3 个白球、2 个黑球，从中任取 1 个球，取到白球的概率为 ______",
+      "options": [],
+      "answer": "3/5",
+      "explanation": "古典概型公式：P = 有利结果数 ÷ 全部等可能结果数。全部结果为 5 个球，其中白球 3 个，故 P = 3/5。易错点：古典概型要求每个结果等可能，本题中每个球被取到的概率相同，条件满足。",
+      "keywords": [
+        "古典概型",
+        "概率计算"
+      ]
+    },
+    {
+      "code": "MATH-Q0032",
+      "chapterCode": "MATH-13",
+      "pointCodes": [
+        "MATH-13-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "stem": "设随机变量 X 服从区间 (0, 2) 上的均匀分布，则 P(X < 1) = ______",
+      "options": [],
+      "answer": "1/2",
+      "explanation": "均匀分布 U(0,2) 的概率密度为 f(x) = 1/(2−0) = 1/2（0 < x < 2）。于是 P(X<1) = ∫₀¹ (1/2)dx = 1/2。几何理解：均匀分布下概率只与区间长度成正比，(1−0)/(2−0) = 1/2。",
+      "keywords": [
+        "均匀分布",
+        "概率计算"
+      ]
+    },
+    {
+      "code": "MATH-Q0033",
+      "chapterCode": "MATH-14",
+      "pointCodes": [
+        "MATH-14-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 3,
+      "stem": "设随机变量 X 服从参数为 λ 的泊松分布，则 E(X) = ______",
+      "options": [],
+      "answer": "λ",
+      "explanation": "泊松分布 P(λ) 的期望与方差都等于参数 λ，即 E(X) = λ、D(X) = λ。这是它区别于二项分布（期望 np、方差 np(1−p)）的重要特征，建议直接记牢。",
+      "keywords": [
+        "泊松分布",
+        "数学期望"
+      ]
+    },
+    {
+      "code": "MATH-Q0034",
+      "chapterCode": "MATH-14",
+      "pointCodes": [
+        "MATH-14-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "stem": "设随机变量 X 服从参数为 n=3、p=1/2 的二项分布，则 P(X=2) = ______",
+      "options": [],
+      "answer": "3/8",
+      "explanation": "二项分布概率公式：P(X=k) = C(n,k)·p^k·(1−p)^(n−k)。代入 n=3、k=2、p=1/2：C(3,2) = 3，p^2 = 1/4，(1−p)^1 = 1/2，故 P(X=2) = 3 × 1/4 × 1/2 = 3/8。",
+      "keywords": [
+        "二项分布",
+        "概率计算"
+      ]
+    },
+    {
+      "code": "MATH-Q0035",
+      "subjectCode": "math",
+      "chapterCode": "MATH-02",
+      "pointCodes": [
+        "MATH-02-01"
+      ],
+      "type": "FILL_BLANK",
+      "difficulty": 2,
+      "year": null,
+      "source": "ORIGINAL_SEED",
+      "stem": "设 f(x) = ln(x)，则 f'(1) = ______",
+      "options": [],
+      "answer": "1",
+      "explanation": "对数函数的导数为 f'(x) = 1/x，代入 x=1 得 f'(1) = 1。这是最常用的基本导数之一，建议连同 (e^x)' = e^x、(sin x)' = cos x 一起记牢。",
+      "keywords": [
+        "导数计算",
+        "对数函数求导"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aiweb
+
+  # 数据库配置
+  # createDatabaseIfNotExist=true 表示：数据库 aiweb 不存在时自动创建，无需手动建库
+  datasource:
+    url: jdbc:mysql://localhost:3306/aiweb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    # 从环境变量 DB_PASSWORD 读取。这里故意不写默认值，避免把密码写进代码仓库。
+    # 未设置时为空白，程序启动时会在控制台给出警告。
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 启动时自动执行 schema.sql 建表（表已存在则跳过，可重复执行）
+  sql:
+    init:
+      mode: always
+
+  # ===== AI 大模型配置（智谱 GLM）=====
+  ai:
+    # 免费版模型并发极低（约 1），很容易被限流。
+    # 这里用「更耐心」的重试策略：最多 4 次，等待 3s → 6s → 12s。
+    # 实测免费档成功率约 40%，加大间隔后能明显提高成功率。
+    # 注意：GLM-4.7-Flash 是带思考（reasoning）的模型，本身响应就偏慢，别把间隔设太短。
+    retry:
+      max-attempts: 4
+      backoff:
+        initial-interval: 3s
+        multiplier: 2
+        max-interval: 12s
+    openai:
+      # 从环境变量 ZHIPU_API_KEY 读取，密钥绝不写死在这里
+      api-key: ${ZHIPU_API_KEY}
+      # 智谱的 OpenAI 兼容地址，末尾不要加斜杠
+      base-url: https://open.bigmodel.cn/api/paas/v4
+      chat:
+        # 关键：Spring AI 默认会拼 "/v1/chat/completions"（OpenAI 的路径），
+        # 而智谱的路径是 "/chat/completions"，不覆盖会报 404。
+        completions-path: /chat/completions
+        options:
+          model: glm-4.7-flash
+          temperature: 0.7
+
+mybatis-plus:
+  configuration:
+    # 在控制台打印 SQL，方便调试
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+logging:
+  level:
+    com.aiweb: debug
