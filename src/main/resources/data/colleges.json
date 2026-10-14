@@ -1,274 +1,1434 @@
 [
   {
-    "code": "10422", "name": "山东大学", "shortName": "山大", "city": "济南", "level": "985",
-    "is985": 1, "is211": 1, "isDoubleFirst": 1, "isSelfLine": 1, "website": "https://www.sdu.edu.cn",
+    "code": "10422",
+    "name": "山东大学",
+    "shortName": "山大",
+    "city": "济南",
+    "level": "985",
+    "is985": 1,
+    "is211": 1,
+    "isDoubleFirst": 1,
+    "isSelfLine": 1,
+    "website": "https://www.sdu.edu.cn",
     "majors": [
-      {"code": "085404", "name": "计算机技术", "degreeType": "专硕", "category": "工学", "discipline": "计算机科学与技术", "department": "计算机科学与技术学院", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "085405", "name": "软件工程", "degreeType": "专硕", "category": "工学", "discipline": "软件工程", "department": "软件学院", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "105100", "name": "临床医学", "degreeType": "专硕", "category": "医学", "discipline": "临床医学", "department": "齐鲁医学院", "publicCourses": "政治+英一+临床医学综合能力", "duration": 3},
-      {"code": "025100", "name": "金融", "degreeType": "专硕", "category": "经济学", "discipline": "金融", "department": "经济学院", "publicCourses": "政治+英二+经济类联考", "duration": 2},
-      {"code": "035101", "name": "法律（非法学）", "degreeType": "专硕", "category": "法学", "discipline": "法律", "department": "法学院", "publicCourses": "政治+英一+法硕联考", "duration": 3},
-      {"code": "055200", "name": "新闻与传播", "degreeType": "专硕", "category": "文学", "discipline": "新闻传播学", "department": "新闻传播学院", "publicCourses": "政治+英二+新闻与传播专业综合能力", "duration": 2}
+      {
+        "code": "085404",
+        "name": "计算机技术",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "计算机科学与技术学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "085405",
+        "name": "软件工程",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "软件工程",
+        "department": "软件学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "105100",
+        "name": "临床医学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "临床医学",
+        "department": "齐鲁医学院",
+        "publicCourses": "政治+英一+临床医学综合能力",
+        "duration": 3
+      },
+      {
+        "code": "025100",
+        "name": "金融",
+        "degreeType": "专硕",
+        "category": "经济学",
+        "discipline": "金融",
+        "department": "经济学院",
+        "publicCourses": "政治+英二+经济类联考",
+        "duration": 2
+      },
+      {
+        "code": "035101",
+        "name": "法律（非法学）",
+        "degreeType": "专硕",
+        "category": "法学",
+        "discipline": "法律",
+        "department": "法学院",
+        "publicCourses": "政治+英一+法硕联考",
+        "duration": 3
+      },
+      {
+        "code": "055200",
+        "name": "新闻与传播",
+        "degreeType": "专硕",
+        "category": "文学",
+        "discipline": "新闻传播学",
+        "department": "新闻传播学院",
+        "publicCourses": "政治+英二+新闻与传播专业综合能力",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": "10423", "name": "中国海洋大学", "shortName": "海大", "city": "青岛", "level": "985",
-    "is985": 1, "is211": 1, "isDoubleFirst": 1, "isSelfLine": 0, "website": "https://www.ouc.edu.cn",
+    "code": "10423",
+    "name": "中国海洋大学",
+    "shortName": "海大",
+    "city": "青岛",
+    "level": "985",
+    "is985": 1,
+    "is211": 1,
+    "isDoubleFirst": 1,
+    "isSelfLine": 0,
+    "website": "https://www.ouc.edu.cn",
     "majors": [
-      {"code": "070700", "name": "海洋科学", "degreeType": "学硕", "category": "理学", "discipline": "海洋科学", "department": "海洋与大气学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "090800", "name": "水产", "degreeType": "学硕", "category": "农学", "discipline": "水产", "department": "水产学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "083000", "name": "环境科学与工程", "degreeType": "学硕", "category": "工学", "discipline": "环境科学与工程", "department": "环境科学与工程学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "085404", "name": "计算机技术", "degreeType": "专硕", "category": "工学", "discipline": "计算机科学与技术", "department": "信息科学与工程学部", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "125300", "name": "会计", "degreeType": "专硕", "category": "管理学", "discipline": "会计", "department": "管理学院", "publicCourses": "管理类联考+英二", "duration": 2}
+      {
+        "code": "070700",
+        "name": "海洋科学",
+        "degreeType": "学硕",
+        "category": "理学",
+        "discipline": "海洋科学",
+        "department": "海洋与大气学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "090800",
+        "name": "水产",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "水产",
+        "department": "水产学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "083000",
+        "name": "环境科学与工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "环境科学与工程",
+        "department": "环境科学与工程学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "085404",
+        "name": "计算机技术",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "信息科学与工程学部",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "125300",
+        "name": "会计",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "会计",
+        "department": "管理学院",
+        "publicCourses": "管理类联考+英二",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": "10425", "name": "中国石油大学（华东）", "shortName": "石大", "city": "青岛", "level": "211",
-    "is985": 0, "is211": 1, "isDoubleFirst": 1, "isSelfLine": 0, "website": "https://www.upc.edu.cn",
+    "code": "10425",
+    "name": "中国石油大学（华东）",
+    "shortName": "石大",
+    "city": "青岛",
+    "level": "211",
+    "is985": 0,
+    "is211": 1,
+    "isDoubleFirst": 1,
+    "isSelfLine": 0,
+    "website": "https://www.upc.edu.cn",
     "majors": [
-      {"code": "082000", "name": "石油与天然气工程", "degreeType": "学硕", "category": "工学", "discipline": "石油与天然气工程", "department": "石油工程学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "081800", "name": "地质资源与地质工程", "degreeType": "学硕", "category": "工学", "discipline": "地质资源与地质工程", "department": "地球科学与技术学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "081700", "name": "化学工程与技术", "degreeType": "学硕", "category": "工学", "discipline": "化学工程与技术", "department": "化学化工学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "085700", "name": "资源与环境", "degreeType": "专硕", "category": "工学", "discipline": "资源与环境", "department": "地球科学与技术学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "082000",
+        "name": "石油与天然气工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "石油与天然气工程",
+        "department": "石油工程学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "081800",
+        "name": "地质资源与地质工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "地质资源与地质工程",
+        "department": "地球科学与技术学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "081700",
+        "name": "化学工程与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "化学工程与技术",
+        "department": "化学化工学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "085700",
+        "name": "资源与环境",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "资源与环境",
+        "department": "地球科学与技术学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "哈尔滨工业大学（威海）", "shortName": "哈工大威海", "city": "威海", "level": "985",
-    "is985": 1, "is211": 1, "isDoubleFirst": 1, "isSelfLine": 1, "website": "https://www.hitwh.edu.cn",
+    "code": "10213",
+    "name": "哈尔滨工业大学（威海）",
+    "shortName": "哈工大威海",
+    "city": "威海",
+    "level": "985",
+    "is985": 1,
+    "is211": 1,
+    "isDoubleFirst": 1,
+    "isSelfLine": 1,
+    "website": "https://www.hitwh.edu.cn",
     "majors": [
-      {"code": "085404", "name": "计算机技术", "degreeType": "专硕", "category": "工学", "discipline": "计算机科学与技术", "department": "计算机科学与技术学院", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "085500", "name": "机械", "degreeType": "专硕", "category": "工学", "discipline": "机械工程", "department": "机械工程系", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "085400", "name": "电子信息", "degreeType": "专硕", "category": "工学", "discipline": "信息与通信工程", "department": "信息科学与工程系", "publicCourses": "政治+英二+数二", "duration": 3},
-      {"code": "085600", "name": "材料与化工", "degreeType": "专硕", "category": "工学", "discipline": "材料科学与工程", "department": "材料科学与工程系", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "085404",
+        "name": "计算机技术",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "计算机科学与技术学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "085500",
+        "name": "机械",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "机械工程",
+        "department": "机械工程系",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "085400",
+        "name": "电子信息",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "信息与通信工程",
+        "department": "信息科学与工程系",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      },
+      {
+        "code": "085600",
+        "name": "材料与化工",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "材料科学与工程",
+        "department": "材料科学与工程系",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": "10445", "name": "山东师范大学", "shortName": "山师", "city": "济南", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdnu.edu.cn",
+    "code": "10445",
+    "name": "山东师范大学",
+    "shortName": "山师",
+    "city": "济南",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdnu.edu.cn",
     "majors": [
-      {"code": "040100", "name": "教育学", "degreeType": "学硕", "category": "教育学", "discipline": "教育学", "department": "教育学部", "publicCourses": "政治+英一+教育学专业基础", "duration": 3},
-      {"code": "040200", "name": "心理学", "degreeType": "学硕", "category": "教育学", "discipline": "心理学", "department": "心理学院", "publicCourses": "政治+英一+心理学专业基础", "duration": 3},
-      {"code": "050100", "name": "中国语言文学", "degreeType": "学硕", "category": "文学", "discipline": "中国语言文学", "department": "文学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "045102", "name": "学科教学（思政）", "degreeType": "专硕", "category": "教育学", "discipline": "学科教学", "department": "马克思主义学院", "publicCourses": "政治+英二+教育综合", "duration": 2},
-      {"code": "045400", "name": "应用心理", "degreeType": "专硕", "category": "教育学", "discipline": "应用心理", "department": "心理学院", "publicCourses": "政治+英二+心理学专业综合", "duration": 2}
+      {
+        "code": "040100",
+        "name": "教育学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "教育学",
+        "department": "教育学部",
+        "publicCourses": "政治+英一+教育学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "040200",
+        "name": "心理学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "心理学",
+        "department": "心理学院",
+        "publicCourses": "政治+英一+心理学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "050100",
+        "name": "中国语言文学",
+        "degreeType": "学硕",
+        "category": "文学",
+        "discipline": "中国语言文学",
+        "department": "文学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "045102",
+        "name": "学科教学（思政）",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "学科教学",
+        "department": "马克思主义学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      },
+      {
+        "code": "045400",
+        "name": "应用心理",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "应用心理",
+        "department": "心理学院",
+        "publicCourses": "政治+英二+心理学专业综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "山东财经大学", "shortName": "山财", "city": "济南", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdufe.edu.cn",
+    "code": "10456",
+    "name": "山东财经大学",
+    "shortName": "山财",
+    "city": "济南",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdufe.edu.cn",
     "majors": [
-      {"code": "120201", "name": "会计学", "degreeType": "学硕", "category": "管理学", "discipline": "工商管理", "department": "会计学院", "publicCourses": "政治+英一+数三", "duration": 3},
-      {"code": "125300", "name": "会计", "degreeType": "专硕", "category": "管理学", "discipline": "会计", "department": "会计学院", "publicCourses": "管理类联考+英二", "duration": 2},
-      {"code": "025100", "name": "金融", "degreeType": "专硕", "category": "经济学", "discipline": "金融", "department": "金融学院", "publicCourses": "政治+英二+经济类联考", "duration": 2},
-      {"code": "025700", "name": "审计", "degreeType": "专硕", "category": "管理学", "discipline": "审计", "department": "会计学院", "publicCourses": "管理类联考+英二", "duration": 2},
-      {"code": "025200", "name": "应用统计", "degreeType": "专硕", "category": "经济学", "discipline": "应用统计", "department": "统计与数学学院", "publicCourses": "政治+英二+数三", "duration": 2}
+      {
+        "code": "120201",
+        "name": "会计学",
+        "degreeType": "学硕",
+        "category": "管理学",
+        "discipline": "工商管理",
+        "department": "会计学院",
+        "publicCourses": "政治+英一+数三",
+        "duration": 3
+      },
+      {
+        "code": "125300",
+        "name": "会计",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "会计",
+        "department": "会计学院",
+        "publicCourses": "管理类联考+英二",
+        "duration": 2
+      },
+      {
+        "code": "025100",
+        "name": "金融",
+        "degreeType": "专硕",
+        "category": "经济学",
+        "discipline": "金融",
+        "department": "金融学院",
+        "publicCourses": "政治+英二+经济类联考",
+        "duration": 2
+      },
+      {
+        "code": "025700",
+        "name": "审计",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "审计",
+        "department": "会计学院",
+        "publicCourses": "管理类联考+英二",
+        "duration": 2
+      },
+      {
+        "code": "025200",
+        "name": "应用统计",
+        "degreeType": "专硕",
+        "category": "经济学",
+        "discipline": "应用统计",
+        "department": "统计与数学学院",
+        "publicCourses": "政治+英二+数三",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "青岛大学", "shortName": "青大", "city": "青岛", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.qdu.edu.cn",
+    "code": "11065",
+    "name": "青岛大学",
+    "shortName": "青大",
+    "city": "青岛",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.qdu.edu.cn",
     "majors": [
-      {"code": "105100", "name": "临床医学", "degreeType": "专硕", "category": "医学", "discipline": "临床医学", "department": "医学部", "publicCourses": "政治+英一+临床医学综合能力", "duration": 3},
-      {"code": "081200", "name": "计算机科学与技术", "degreeType": "学硕", "category": "工学", "discipline": "计算机科学与技术", "department": "计算机科学技术学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "082100", "name": "纺织科学与工程", "degreeType": "学硕", "category": "工学", "discipline": "纺织科学与工程", "department": "纺织服装学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "085405", "name": "软件工程", "degreeType": "专硕", "category": "工学", "discipline": "软件工程", "department": "软件学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "105100",
+        "name": "临床医学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "临床医学",
+        "department": "医学部",
+        "publicCourses": "政治+英一+临床医学综合能力",
+        "duration": 3
+      },
+      {
+        "code": "081200",
+        "name": "计算机科学与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "计算机科学技术学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "082100",
+        "name": "纺织科学与工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "纺织科学与工程",
+        "department": "纺织服装学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "085405",
+        "name": "软件工程",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "软件工程",
+        "department": "软件学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东科技大学", "shortName": "山科大", "city": "青岛", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdust.edu.cn",
+    "code": "10424",
+    "name": "山东科技大学",
+    "shortName": "山科大",
+    "city": "青岛",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdust.edu.cn",
     "majors": [
-      {"code": "081900", "name": "矿业工程", "degreeType": "学硕", "category": "工学", "discipline": "矿业工程", "department": "矿业学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "083700", "name": "安全科学与工程", "degreeType": "学硕", "category": "工学", "discipline": "安全科学与工程", "department": "安全与环境工程学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "081600", "name": "测绘科学与技术", "degreeType": "学硕", "category": "工学", "discipline": "测绘科学与技术", "department": "测绘与空间信息学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "085404", "name": "计算机技术", "degreeType": "专硕", "category": "工学", "discipline": "计算机科学与技术", "department": "计算机科学与工程学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "081900",
+        "name": "矿业工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "矿业工程",
+        "department": "矿业学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "083700",
+        "name": "安全科学与工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "安全科学与工程",
+        "department": "安全与环境工程学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "081600",
+        "name": "测绘科学与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "测绘科学与技术",
+        "department": "测绘与空间信息学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "085404",
+        "name": "计算机技术",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "计算机科学与工程学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "青岛科技大学", "shortName": "青科大", "city": "青岛", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.qust.edu.cn",
+    "code": "10426",
+    "name": "青岛科技大学",
+    "shortName": "青科大",
+    "city": "青岛",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.qust.edu.cn",
     "majors": [
-      {"code": "081700", "name": "化学工程与技术", "degreeType": "学硕", "category": "工学", "discipline": "化学工程与技术", "department": "化工学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "080500", "name": "材料科学与工程", "degreeType": "学硕", "category": "工学", "discipline": "材料科学与工程", "department": "材料科学与工程学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "080200", "name": "机械工程", "degreeType": "学硕", "category": "工学", "discipline": "机械工程", "department": "机电工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "085600", "name": "材料与化工", "degreeType": "专硕", "category": "工学", "discipline": "材料与化工", "department": "化工学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "081700",
+        "name": "化学工程与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "化学工程与技术",
+        "department": "化工学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "080500",
+        "name": "材料科学与工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "材料科学与工程",
+        "department": "材料科学与工程学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "080200",
+        "name": "机械工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "机械工程",
+        "department": "机电工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "085600",
+        "name": "材料与化工",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "材料与化工",
+        "department": "化工学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东农业大学", "shortName": "山农", "city": "泰安", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdau.edu.cn",
+    "code": "10434",
+    "name": "山东农业大学",
+    "shortName": "山农",
+    "city": "泰安",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdau.edu.cn",
     "majors": [
-      {"code": "090100", "name": "作物学", "degreeType": "学硕", "category": "农学", "discipline": "作物学", "department": "农学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "090200", "name": "园艺学", "degreeType": "学硕", "category": "农学", "discipline": "园艺学", "department": "园艺科学与工程学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "090400", "name": "植物保护", "degreeType": "学硕", "category": "农学", "discipline": "植物保护", "department": "植物保护学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "095137", "name": "农业管理", "degreeType": "专硕", "category": "管理学", "discipline": "农业管理", "department": "经济管理学院", "publicCourses": "政治+英二+农业知识综合", "duration": 2}
+      {
+        "code": "090100",
+        "name": "作物学",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "作物学",
+        "department": "农学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "090200",
+        "name": "园艺学",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "园艺学",
+        "department": "园艺科学与工程学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "090400",
+        "name": "植物保护",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "植物保护",
+        "department": "植物保护学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "095137",
+        "name": "农业管理",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "农业管理",
+        "department": "经济管理学院",
+        "publicCourses": "政治+英二+农业知识综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "山东中医药大学", "shortName": "山中医", "city": "济南", "level": "省属重点",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdutcm.edu.cn",
+    "code": "10441",
+    "name": "山东中医药大学",
+    "shortName": "山中医",
+    "city": "济南",
+    "level": "省属重点",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdutcm.edu.cn",
     "majors": [
-      {"code": "100500", "name": "中医学", "degreeType": "学硕", "category": "医学", "discipline": "中医学", "department": "中医学院", "publicCourses": "政治+英一+中医综合", "duration": 3},
-      {"code": "100600", "name": "中西医结合", "degreeType": "学硕", "category": "医学", "discipline": "中西医结合", "department": "中西医结合学院", "publicCourses": "政治+英一+中医综合", "duration": 3},
-      {"code": "105500", "name": "药学", "degreeType": "专硕", "category": "医学", "discipline": "药学", "department": "药学院", "publicCourses": "政治+英二+药学综合", "duration": 3},
-      {"code": "100800", "name": "中药学", "degreeType": "学硕", "category": "医学", "discipline": "中药学", "department": "药学院", "publicCourses": "政治+英一+专业自命题", "duration": 3}
+      {
+        "code": "100500",
+        "name": "中医学",
+        "degreeType": "学硕",
+        "category": "医学",
+        "discipline": "中医学",
+        "department": "中医学院",
+        "publicCourses": "政治+英一+中医综合",
+        "duration": 3
+      },
+      {
+        "code": "100600",
+        "name": "中西医结合",
+        "degreeType": "学硕",
+        "category": "医学",
+        "discipline": "中西医结合",
+        "department": "中西医结合学院",
+        "publicCourses": "政治+英一+中医综合",
+        "duration": 3
+      },
+      {
+        "code": "105500",
+        "name": "药学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "药学",
+        "department": "药学院",
+        "publicCourses": "政治+英二+药学综合",
+        "duration": 3
+      },
+      {
+        "code": "100800",
+        "name": "中药学",
+        "degreeType": "学硕",
+        "category": "医学",
+        "discipline": "中药学",
+        "department": "药学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东建筑大学", "shortName": "山建大", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdjzu.edu.cn",
+    "code": "10430",
+    "name": "山东建筑大学",
+    "shortName": "山建大",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdjzu.edu.cn",
     "majors": [
-      {"code": "081300", "name": "建筑学", "degreeType": "学硕", "category": "工学", "discipline": "建筑学", "department": "建筑城规学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "081400", "name": "土木工程", "degreeType": "学硕", "category": "工学", "discipline": "土木工程", "department": "土木工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "083300", "name": "城乡规划学", "degreeType": "学硕", "category": "工学", "discipline": "城乡规划学", "department": "建筑城规学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "085900", "name": "土木水利", "degreeType": "专硕", "category": "工学", "discipline": "土木水利", "department": "土木工程学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "081300",
+        "name": "建筑学",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "建筑学",
+        "department": "建筑城规学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "081400",
+        "name": "土木工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "土木工程",
+        "department": "土木工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "083300",
+        "name": "城乡规划学",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "城乡规划学",
+        "department": "建筑城规学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "085900",
+        "name": "土木水利",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "土木水利",
+        "department": "土木工程学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "青岛理工大学", "shortName": "青理工", "city": "青岛", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.qut.edu.cn",
+    "code": "10429",
+    "name": "青岛理工大学",
+    "shortName": "青理工",
+    "city": "青岛",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.qut.edu.cn",
     "majors": [
-      {"code": "081400", "name": "土木工程", "degreeType": "学硕", "category": "工学", "discipline": "土木工程", "department": "土木工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "081300", "name": "建筑学", "degreeType": "学硕", "category": "工学", "discipline": "建筑学", "department": "建筑与城乡规划学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "080200", "name": "机械工程", "degreeType": "学硕", "category": "工学", "discipline": "机械工程", "department": "机械与汽车工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "085900", "name": "土木水利", "degreeType": "专硕", "category": "工学", "discipline": "土木水利", "department": "土木工程学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "081400",
+        "name": "土木工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "土木工程",
+        "department": "土木工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "081300",
+        "name": "建筑学",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "建筑学",
+        "department": "建筑与城乡规划学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "080200",
+        "name": "机械工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "机械工程",
+        "department": "机械与汽车工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "085900",
+        "name": "土木水利",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "土木水利",
+        "department": "土木工程学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "济南大学", "shortName": "济大", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.ujn.edu.cn",
+    "code": "10427",
+    "name": "济南大学",
+    "shortName": "济大",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.ujn.edu.cn",
     "majors": [
-      {"code": "080500", "name": "材料科学与工程", "degreeType": "学硕", "category": "工学", "discipline": "材料科学与工程", "department": "材料科学与工程学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "081200", "name": "计算机科学与技术", "degreeType": "学硕", "category": "工学", "discipline": "计算机科学与技术", "department": "信息科学与工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "081700", "name": "化学工程与技术", "degreeType": "学硕", "category": "工学", "discipline": "化学工程与技术", "department": "化学化工学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "125300", "name": "会计", "degreeType": "专硕", "category": "管理学", "discipline": "会计", "department": "商学院", "publicCourses": "管理类联考+英二", "duration": 2}
+      {
+        "code": "080500",
+        "name": "材料科学与工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "材料科学与工程",
+        "department": "材料科学与工程学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "081200",
+        "name": "计算机科学与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "信息科学与工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "081700",
+        "name": "化学工程与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "化学工程与技术",
+        "department": "化学化工学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "125300",
+        "name": "会计",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "会计",
+        "department": "商学院",
+        "publicCourses": "管理类联考+英二",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "山东理工大学", "shortName": "山理工", "city": "淄博", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdut.edu.cn",
+    "code": "10433",
+    "name": "山东理工大学",
+    "shortName": "山理工",
+    "city": "淄博",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdut.edu.cn",
     "majors": [
-      {"code": "082800", "name": "农业工程", "degreeType": "学硕", "category": "工学", "discipline": "农业工程", "department": "农业工程与食品科学学院", "publicCourses": "政治+英一+数二", "duration": 3},
-      {"code": "080200", "name": "机械工程", "degreeType": "学硕", "category": "工学", "discipline": "机械工程", "department": "机械工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "080800", "name": "电气工程", "degreeType": "学硕", "category": "工学", "discipline": "电气工程", "department": "电气与电子工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "085500", "name": "机械", "degreeType": "专硕", "category": "工学", "discipline": "机械", "department": "机械工程学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "082800",
+        "name": "农业工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "农业工程",
+        "department": "农业工程与食品科学学院",
+        "publicCourses": "政治+英一+数二",
+        "duration": 3
+      },
+      {
+        "code": "080200",
+        "name": "机械工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "机械工程",
+        "department": "机械工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "080800",
+        "name": "电气工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "电气工程",
+        "department": "电气与电子工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "085500",
+        "name": "机械",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "机械",
+        "department": "机械工程学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "曲阜师范大学", "shortName": "曲师", "city": "曲阜", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.qfnu.edu.cn",
+    "code": "10446",
+    "name": "曲阜师范大学",
+    "shortName": "曲师",
+    "city": "曲阜",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.qfnu.edu.cn",
     "majors": [
-      {"code": "040100", "name": "教育学", "degreeType": "学硕", "category": "教育学", "discipline": "教育学", "department": "教育学院", "publicCourses": "政治+英一+教育学专业基础", "duration": 3},
-      {"code": "050100", "name": "中国语言文学", "degreeType": "学硕", "category": "文学", "discipline": "中国语言文学", "department": "文学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "070100", "name": "数学", "degreeType": "学硕", "category": "理学", "discipline": "数学", "department": "数学科学学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "045103", "name": "学科教学（语文）", "degreeType": "专硕", "category": "教育学", "discipline": "学科教学", "department": "文学院", "publicCourses": "政治+英二+教育综合", "duration": 2}
+      {
+        "code": "040100",
+        "name": "教育学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "教育学",
+        "department": "教育学院",
+        "publicCourses": "政治+英一+教育学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "050100",
+        "name": "中国语言文学",
+        "degreeType": "学硕",
+        "category": "文学",
+        "discipline": "中国语言文学",
+        "department": "文学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "070100",
+        "name": "数学",
+        "degreeType": "学硕",
+        "category": "理学",
+        "discipline": "数学",
+        "department": "数学科学学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "045103",
+        "name": "学科教学（语文）",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "学科教学",
+        "department": "文学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "聊城大学", "shortName": "聊大", "city": "聊城", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.lcu.edu.cn",
+    "code": "10447",
+    "name": "聊城大学",
+    "shortName": "聊大",
+    "city": "聊城",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.lcu.edu.cn",
     "majors": [
-      {"code": "040100", "name": "教育学", "degreeType": "学硕", "category": "教育学", "discipline": "教育学", "department": "教育科学学院", "publicCourses": "政治+英一+教育学专业基础", "duration": 3},
-      {"code": "070300", "name": "化学", "degreeType": "学硕", "category": "理学", "discipline": "化学", "department": "化学化工学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "050100", "name": "中国语言文学", "degreeType": "学硕", "category": "文学", "discipline": "中国语言文学", "department": "文学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "045115", "name": "小学教育", "degreeType": "专硕", "category": "教育学", "discipline": "小学教育", "department": "教育科学学院", "publicCourses": "政治+英二+教育综合", "duration": 2}
+      {
+        "code": "040100",
+        "name": "教育学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "教育学",
+        "department": "教育科学学院",
+        "publicCourses": "政治+英一+教育学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "070300",
+        "name": "化学",
+        "degreeType": "学硕",
+        "category": "理学",
+        "discipline": "化学",
+        "department": "化学化工学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "050100",
+        "name": "中国语言文学",
+        "degreeType": "学硕",
+        "category": "文学",
+        "discipline": "中国语言文学",
+        "department": "文学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "045115",
+        "name": "小学教育",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "小学教育",
+        "department": "教育科学学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "烟台大学", "shortName": "烟大", "city": "烟台", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.ytu.edu.cn",
+    "code": "11066",
+    "name": "烟台大学",
+    "shortName": "烟大",
+    "city": "烟台",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.ytu.edu.cn",
     "majors": [
-      {"code": "030100", "name": "法学", "degreeType": "学硕", "category": "法学", "discipline": "法学", "department": "法学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "035101", "name": "法律（非法学）", "degreeType": "专硕", "category": "法学", "discipline": "法律", "department": "法学院", "publicCourses": "政治+英一+法硕联考", "duration": 3},
-      {"code": "105500", "name": "药学", "degreeType": "专硕", "category": "医学", "discipline": "药学", "department": "药学院", "publicCourses": "政治+英二+药学综合", "duration": 3},
-      {"code": "081200", "name": "计算机科学与技术", "degreeType": "学硕", "category": "工学", "discipline": "计算机科学与技术", "department": "计算机与控制工程学院", "publicCourses": "政治+英一+数一", "duration": 3}
+      {
+        "code": "030100",
+        "name": "法学",
+        "degreeType": "学硕",
+        "category": "法学",
+        "discipline": "法学",
+        "department": "法学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "035101",
+        "name": "法律（非法学）",
+        "degreeType": "专硕",
+        "category": "法学",
+        "discipline": "法律",
+        "department": "法学院",
+        "publicCourses": "政治+英一+法硕联考",
+        "duration": 3
+      },
+      {
+        "code": "105500",
+        "name": "药学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "药学",
+        "department": "药学院",
+        "publicCourses": "政治+英二+药学综合",
+        "duration": 3
+      },
+      {
+        "code": "081200",
+        "name": "计算机科学与技术",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "计算机科学与技术",
+        "department": "计算机与控制工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "鲁东大学", "shortName": "鲁东", "city": "烟台", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.ldu.edu.cn",
+    "code": "10451",
+    "name": "鲁东大学",
+    "shortName": "鲁东",
+    "city": "烟台",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.ldu.edu.cn",
     "majors": [
-      {"code": "040100", "name": "教育学", "degreeType": "学硕", "category": "教育学", "discipline": "教育学", "department": "教育科学学院", "publicCourses": "政治+英一+教育学专业基础", "duration": 3},
-      {"code": "050100", "name": "中国语言文学", "degreeType": "学硕", "category": "文学", "discipline": "中国语言文学", "department": "文学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "070500", "name": "地理学", "degreeType": "学硕", "category": "理学", "discipline": "地理学", "department": "资源与环境工程学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "045104", "name": "学科教学（数学）", "degreeType": "专硕", "category": "教育学", "discipline": "学科教学", "department": "数学与统计科学学院", "publicCourses": "政治+英二+教育综合", "duration": 2}
+      {
+        "code": "040100",
+        "name": "教育学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "教育学",
+        "department": "教育科学学院",
+        "publicCourses": "政治+英一+教育学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "050100",
+        "name": "中国语言文学",
+        "degreeType": "学硕",
+        "category": "文学",
+        "discipline": "中国语言文学",
+        "department": "文学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "070500",
+        "name": "地理学",
+        "degreeType": "学硕",
+        "category": "理学",
+        "discipline": "地理学",
+        "department": "资源与环境工程学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "045104",
+        "name": "学科教学（数学）",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "学科教学",
+        "department": "数学与统计科学学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "青岛农业大学", "shortName": "青农", "city": "青岛", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.qau.edu.cn",
+    "code": "10435",
+    "name": "青岛农业大学",
+    "shortName": "青农",
+    "city": "青岛",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.qau.edu.cn",
     "majors": [
-      {"code": "090100", "name": "作物学", "degreeType": "学硕", "category": "农学", "discipline": "作物学", "department": "农学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "090200", "name": "园艺学", "degreeType": "学硕", "category": "农学", "discipline": "园艺学", "department": "园艺学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "090500", "name": "畜牧学", "degreeType": "学硕", "category": "农学", "discipline": "畜牧学", "department": "动物科技学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "095137", "name": "农业管理", "degreeType": "专硕", "category": "管理学", "discipline": "农业管理", "department": "经济管理学院", "publicCourses": "政治+英二+农业知识综合", "duration": 2}
+      {
+        "code": "090100",
+        "name": "作物学",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "作物学",
+        "department": "农学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "090200",
+        "name": "园艺学",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "园艺学",
+        "department": "园艺学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "090500",
+        "name": "畜牧学",
+        "degreeType": "学硕",
+        "category": "农学",
+        "discipline": "畜牧学",
+        "department": "动物科技学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "095137",
+        "name": "农业管理",
+        "degreeType": "专硕",
+        "category": "管理学",
+        "discipline": "农业管理",
+        "department": "经济管理学院",
+        "publicCourses": "政治+英二+农业知识综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "临沂大学", "shortName": "临大", "city": "临沂", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.lyu.edu.cn",
+    "code": "10452",
+    "name": "临沂大学",
+    "shortName": "临大",
+    "city": "临沂",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.lyu.edu.cn",
     "majors": [
-      {"code": "040100", "name": "教育学", "degreeType": "学硕", "category": "教育学", "discipline": "教育学", "department": "教育学院", "publicCourses": "政治+英一+教育学专业基础", "duration": 3},
-      {"code": "070300", "name": "化学", "degreeType": "学硕", "category": "理学", "discipline": "化学", "department": "化学化工学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "045115", "name": "小学教育", "degreeType": "专硕", "category": "教育学", "discipline": "小学教育", "department": "教育学院", "publicCourses": "政治+英二+教育综合", "duration": 2}
+      {
+        "code": "040100",
+        "name": "教育学",
+        "degreeType": "学硕",
+        "category": "教育学",
+        "discipline": "教育学",
+        "department": "教育学院",
+        "publicCourses": "政治+英一+教育学专业基础",
+        "duration": 3
+      },
+      {
+        "code": "070300",
+        "name": "化学",
+        "degreeType": "学硕",
+        "category": "理学",
+        "discipline": "化学",
+        "department": "化学化工学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "045115",
+        "name": "小学教育",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "小学教育",
+        "department": "教育学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "山东交通学院", "shortName": "山交", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdjtu.edu.cn",
+    "code": "11510",
+    "name": "山东交通学院",
+    "shortName": "山交",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdjtu.edu.cn",
     "majors": [
-      {"code": "082300", "name": "交通运输工程", "degreeType": "学硕", "category": "工学", "discipline": "交通运输工程", "department": "交通与物流工程学院", "publicCourses": "政治+英一+数一", "duration": 3},
-      {"code": "086100", "name": "交通运输", "degreeType": "专硕", "category": "工学", "discipline": "交通运输", "department": "交通与物流工程学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "082300",
+        "name": "交通运输工程",
+        "degreeType": "学硕",
+        "category": "工学",
+        "discipline": "交通运输工程",
+        "department": "交通与物流工程学院",
+        "publicCourses": "政治+英一+数一",
+        "duration": 3
+      },
+      {
+        "code": "086100",
+        "name": "交通运输",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "交通运输",
+        "department": "交通与物流工程学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东政法学院", "shortName": "山政", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": null,
+    "code": "14100",
+    "name": "山东政法学院",
+    "shortName": "山政",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": null,
     "majors": [
-      {"code": "035101", "name": "法律（非法学）", "degreeType": "专硕", "category": "法学", "discipline": "法律", "department": "法学院", "publicCourses": "政治+英一+法硕联考", "duration": 3},
-      {"code": "035102", "name": "法律（法学）", "degreeType": "专硕", "category": "法学", "discipline": "法律", "department": "法学院", "publicCourses": "政治+英一+法硕联考", "duration": 2}
+      {
+        "code": "035101",
+        "name": "法律（非法学）",
+        "degreeType": "专硕",
+        "category": "法学",
+        "discipline": "法律",
+        "department": "法学院",
+        "publicCourses": "政治+英一+法硕联考",
+        "duration": 3
+      },
+      {
+        "code": "035102",
+        "name": "法律（法学）",
+        "degreeType": "专硕",
+        "category": "法学",
+        "discipline": "法律",
+        "department": "法学院",
+        "publicCourses": "政治+英一+法硕联考",
+        "duration": 2
+      }
     ]
   },
   {
-    "code": null, "name": "滨州医学院", "shortName": "滨医", "city": "烟台", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.bzmc.edu.cn",
+    "code": "10440",
+    "name": "滨州医学院",
+    "shortName": "滨医",
+    "city": "烟台",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.bzmc.edu.cn",
     "majors": [
-      {"code": "105100", "name": "临床医学", "degreeType": "专硕", "category": "医学", "discipline": "临床医学", "department": "临床医学院", "publicCourses": "政治+英一+临床医学综合能力", "duration": 3},
-      {"code": "105500", "name": "药学", "degreeType": "专硕", "category": "医学", "discipline": "药学", "department": "药学院", "publicCourses": "政治+英二+药学综合", "duration": 3},
-      {"code": "105400", "name": "护理", "degreeType": "专硕", "category": "医学", "discipline": "护理", "department": "护理学院", "publicCourses": "政治+英一+护理综合", "duration": 3}
+      {
+        "code": "105100",
+        "name": "临床医学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "临床医学",
+        "department": "临床医学院",
+        "publicCourses": "政治+英一+临床医学综合能力",
+        "duration": 3
+      },
+      {
+        "code": "105500",
+        "name": "药学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "药学",
+        "department": "药学院",
+        "publicCourses": "政治+英二+药学综合",
+        "duration": 3
+      },
+      {
+        "code": "105400",
+        "name": "护理",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "护理",
+        "department": "护理学院",
+        "publicCourses": "政治+英一+护理综合",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "济宁医学院", "shortName": "济医", "city": "济宁", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.jnmc.edu.cn",
+    "code": "10443",
+    "name": "济宁医学院",
+    "shortName": "济医",
+    "city": "济宁",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.jnmc.edu.cn",
     "majors": [
-      {"code": "105100", "name": "临床医学", "degreeType": "专硕", "category": "医学", "discipline": "临床医学", "department": "临床医学院", "publicCourses": "政治+英一+临床医学综合能力", "duration": 3},
-      {"code": "105400", "name": "护理", "degreeType": "专硕", "category": "医学", "discipline": "护理", "department": "护理学院", "publicCourses": "政治+英一+护理综合", "duration": 3}
+      {
+        "code": "105100",
+        "name": "临床医学",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "临床医学",
+        "department": "临床医学院",
+        "publicCourses": "政治+英一+临床医学综合能力",
+        "duration": 3
+      },
+      {
+        "code": "105400",
+        "name": "护理",
+        "degreeType": "专硕",
+        "category": "医学",
+        "discipline": "护理",
+        "department": "护理学院",
+        "publicCourses": "政治+英一+护理综合",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东艺术学院", "shortName": "山艺", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdca.edu.cn",
+    "code": "10458",
+    "name": "山东艺术学院",
+    "shortName": "山艺",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdca.edu.cn",
     "majors": [
-      {"code": "130200", "name": "音乐与舞蹈学", "degreeType": "学硕", "category": "艺术学", "discipline": "音乐与舞蹈学", "department": "音乐学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "130400", "name": "美术学", "degreeType": "学硕", "category": "艺术学", "discipline": "美术学", "department": "美术学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "135700", "name": "设计", "degreeType": "专硕", "category": "艺术学", "discipline": "设计", "department": "设计学院", "publicCourses": "政治+英二+专业自命题", "duration": 3}
+      {
+        "code": "130200",
+        "name": "音乐与舞蹈学",
+        "degreeType": "学硕",
+        "category": "艺术学",
+        "discipline": "音乐与舞蹈学",
+        "department": "音乐学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "130400",
+        "name": "美术学",
+        "degreeType": "学硕",
+        "category": "艺术学",
+        "discipline": "美术学",
+        "department": "美术学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "135700",
+        "name": "设计",
+        "degreeType": "专硕",
+        "category": "艺术学",
+        "discipline": "设计",
+        "department": "设计学院",
+        "publicCourses": "政治+英二+专业自命题",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "德州学院", "shortName": "德院", "city": "德州", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.dzu.edu.cn",
+    "code": "10448",
+    "name": "德州学院",
+    "shortName": "德院",
+    "city": "德州",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.dzu.edu.cn",
     "majors": [
-      {"code": "045115", "name": "小学教育", "degreeType": "专硕", "category": "教育学", "discipline": "小学教育", "department": "教师教育学院", "publicCourses": "政治+英二+教育综合", "duration": 2},
-      {"code": "085400", "name": "电子信息", "degreeType": "专硕", "category": "工学", "discipline": "电子信息", "department": "物理与电子信息学院", "publicCourses": "政治+英二+数二", "duration": 3}
+      {
+        "code": "045115",
+        "name": "小学教育",
+        "degreeType": "专硕",
+        "category": "教育学",
+        "discipline": "小学教育",
+        "department": "教师教育学院",
+        "publicCourses": "政治+英二+教育综合",
+        "duration": 2
+      },
+      {
+        "code": "085400",
+        "name": "电子信息",
+        "degreeType": "专硕",
+        "category": "工学",
+        "discipline": "电子信息",
+        "department": "物理与电子信息学院",
+        "publicCourses": "政治+英二+数二",
+        "duration": 3
+      }
     ]
   },
   {
-    "code": null, "name": "山东工艺美术学院", "shortName": "山工艺", "city": "济南", "level": "省属",
-    "is985": 0, "is211": 0, "isDoubleFirst": 0, "isSelfLine": 0, "website": "https://www.sdada.edu.cn",
+    "code": "10908",
+    "name": "山东工艺美术学院",
+    "shortName": "山工艺",
+    "city": "济南",
+    "level": "省属",
+    "is985": 0,
+    "is211": 0,
+    "isDoubleFirst": 0,
+    "isSelfLine": 0,
+    "website": "https://www.sdada.edu.cn",
     "majors": [
-      {"code": "130500", "name": "设计学", "degreeType": "学硕", "category": "艺术学", "discipline": "设计学", "department": "视觉传达设计学院", "publicCourses": "政治+英一+专业自命题", "duration": 3},
-      {"code": "135700", "name": "设计", "degreeType": "专硕", "category": "艺术学", "discipline": "设计", "department": "研究生学院", "publicCourses": "政治+英二+专业自命题", "duration": 3}
+      {
+        "code": "130500",
+        "name": "设计学",
+        "degreeType": "学硕",
+        "category": "艺术学",
+        "discipline": "设计学",
+        "department": "视觉传达设计学院",
+        "publicCourses": "政治+英一+专业自命题",
+        "duration": 3
+      },
+      {
+        "code": "135700",
+        "name": "设计",
+        "degreeType": "专硕",
+        "category": "艺术学",
+        "discipline": "设计",
+        "department": "研究生学院",
+        "publicCourses": "政治+英二+专业自命题",
+        "duration": 3
+      }
     ]
   }
 ]
