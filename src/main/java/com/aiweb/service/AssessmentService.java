@@ -9,6 +9,7 @@ import com.aiweb.entity.KnowledgePoint;
 import com.aiweb.entity.Mastery;
 import com.aiweb.entity.Question;
 import com.aiweb.mapper.AnswerHistoryMapper;
+import com.aiweb.service.OcrService.OcrResult;
 import com.aiweb.mapper.KnowledgePointMapper;
 import com.aiweb.mapper.MasteryMapper;
 import com.aiweb.mapper.QuestionMapper;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,7 @@ public class AssessmentService {
     private final PlanService planService;
     private final ObjectMapper objectMapper;
     private final ChatClient chatClient;
+    private final OcrService ocrService;
 
     public AssessmentService(QuestionMapper questionMapper,
                              KnowledgePointMapper knowledgePointMapper,
@@ -49,7 +52,8 @@ public class AssessmentService {
                              DiagnosisService diagnosisService,
                              PlanService planService,
                              ObjectMapper objectMapper,
-                             ChatClient.Builder chatClientBuilder) {
+                             ChatClient.Builder chatClientBuilder,
+                             OcrService ocrService) {
         this.questionMapper = questionMapper;
         this.knowledgePointMapper = knowledgePointMapper;
         this.masteryMapper = masteryMapper;
@@ -58,6 +62,7 @@ public class AssessmentService {
         this.planService = planService;
         this.objectMapper = objectMapper;
         this.chatClient = chatClientBuilder.build();
+        this.ocrService = ocrService;
     }
 
     /** 开始测评：抽取题目返回（不含答案） */
@@ -94,7 +99,29 @@ public class AssessmentService {
                     new LambdaQueryWrapper<Question>().eq(Question::getCode, a.questionCode()));
             if (q == null) continue;
 
-            boolean ok = grade(q, a.answer());
+            // 两种提交方式并存：带图片走 OCR，否则走文字判分
+            boolean ok;
+            String finalUserAnswer;
+            boolean fromImage = a.imageBase64() != null && !a.imageBase64().isBlank();
+            if (fromImage) {
+                OcrResult ocr = ocrService.recognize(
+                        Base64.getDecoder().decode(a.imageBase64()),
+                        a.imageMime(),
+                        q.getAnswer(),
+                        q.getType());
+                // 判断题用识别字母精确比对（更可靠）；填空题用模型判等 + 归一化精确匹配兜底
+                if ("SINGLE_CHOICE".equals(q.getType())) {
+                    ok = ocr.answer() != null
+                            && ocr.answer().trim().equalsIgnoreCase(q.getAnswer().trim());
+                } else {
+                    ok = ocr.correct() || norm(ocr.answer()).equals(norm(q.getAnswer()));
+                }
+                String head = (ocr.error() != null) ? "[图片识别失败] " : "[图片识别] ";
+                finalUserAnswer = head + (ocr.answer() == null ? "" : ocr.answer());
+            } else {
+                ok = grade(q, a.answer());
+                finalUserAnswer = norm(a.answer());
+            }
             if (ok) correct++;
 
             // 该题涉及的知识点都要更新掌握度
@@ -106,13 +133,13 @@ public class AssessmentService {
             AnswerHistory history = new AnswerHistory();
             history.setStudentId(studentId);
             history.setQuestionCode(q.getCode());
-            history.setUserAnswer(norm(a.answer()));
+            history.setUserAnswer(finalUserAnswer);
             history.setCorrectAnswer(q.getAnswer());
             history.setIsCorrect(ok ? 1 : 0);
             answerHistoryMapper.insert(history);
 
             feedback.add(new AssessmentResult.QuestionFeedback(
-                    q.getCode(), ok, norm(a.answer()),
+                    q.getCode(), ok, finalUserAnswer,
                     q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
         }
 

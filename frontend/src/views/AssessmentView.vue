@@ -66,12 +66,32 @@
             </el-radio>
           </el-radio-group>
 
-          <el-input
-            v-else
-            v-model="answers[q.code]"
-            placeholder="请输入答案，如 1/2"
-            class="q-fill"
-          />
+          <div v-else class="q-fill-wrap">
+            <el-input
+              v-model="answers[q.code]"
+              placeholder="请输入答案，如 1/2"
+              class="q-fill"
+            />
+            <div class="q-upload">
+              <el-upload
+                :auto-upload="false"
+                :show-file-list="false"
+                accept="image/*"
+                :on-change="(file) => onImageSelected(file, q.code)"
+              >
+                <el-button
+                  size="small"
+                  :type="images[q.code] ? 'success' : 'primary'"
+                  plain
+                >{{ images[q.code] ? '重传答案图片' : '上传答案图片' }}</el-button>
+              </el-upload>
+              <span class="q-upload-tip">含特殊符号不便打字时，可拍照/截图上传</span>
+              <div v-if="images[q.code]" class="q-img-preview">
+                <img :src="images[q.code].dataUrl" alt="答案图片" />
+                <el-button size="small" text type="danger" @click="removeImage(q.code)">移除</el-button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="actions">
@@ -129,22 +149,23 @@
           <div class="mastery-list">
             <div v-for="d in result.diagnosis" :key="d.pointCode" class="mastery-row">
               <span class="mastery-name">{{ d.pointName }}</span>
-              <el-progress
-                :percentage="Math.round(d.mastery * 100)"
-                :status="d.level === '薄弱' ? 'exception' : (d.level === '扎实' ? 'success' : '')"
-                :stroke-width="10"
-                class="mastery-bar"
-              />
+              <span class="mastery-pct">{{ Math.round(d.mastery * 100) }}%</span>
               <span class="mastery-level" :class="d.level">{{ d.level }}</span>
             </div>
           </div>
         </div>
 
-        <!-- 备考计划：二维甘特图 -->
+        <!-- 备考计划：文字摘要 + 三阶段列表（已移除二维图表） -->
         <div class="block">
           <h3 class="block-title">备考计划（基础 / 强化 / 冲刺）</h3>
           <p v-if="result.plan && result.plan.summary" class="plan-summary">{{ result.plan.summary }}</p>
-          <PlanChart v-if="result.plan && result.plan.phases" :phases="result.plan.phases" />
+          <ol v-if="result.plan && result.plan.phases" class="phase-list">
+            <li v-for="(p, i) in result.plan.phases" :key="i" class="phase-item">
+              <div class="phase-name">{{ i + 1 }}. {{ p.name }}</div>
+              <div class="phase-meta">周次：{{ p.weeks }}</div>
+              <div class="phase-focus">重点：{{ p.focus }}</div>
+            </li>
+          </ol>
         </div>
 
         <!-- 做题历史（含标准答案） -->
@@ -181,7 +202,6 @@ import {
   startAssessment, submitAssessment, getDiagnosis,
   getAnswerHistory, clearAssessment
 } from '@/api'
-import PlanChart from '@/views/PlanChart.vue'
 
 const step = ref('setup')
 const loading = ref(false)
@@ -191,6 +211,8 @@ const count = ref(10)
 
 const questions = ref([])
 const answers = reactive({})
+// 图片答案：以题号 code 为键，存 { base64, mime, dataUrl }（与文字答案并存）
+const images = reactive({})
 const result = ref(null)
 const history = ref([])
 
@@ -223,6 +245,7 @@ async function start() {
     })
     questions.value = data.questions || []
     for (const k in answers) delete answers[k]
+    for (const k in images) delete images[k]
     step.value = 'answering'
   } catch (e) {
     ElMessage.error(e.message || '抽题失败，请确认后端已启动')
@@ -241,7 +264,16 @@ async function submit() {
   try {
     const payload = {
       studentId: studentId.value,
-      answers: questions.value.map((q) => ({ questionCode: q.code, answer: answers[q.code] }))
+      answers: questions.value.map((q) => {
+        const img = images[q.code]
+        return {
+          questionCode: q.code,
+          answer: answers[q.code] || '',
+          // 带图片则随答案一起提交（后端优先用 OCR 结果判分），文字框保留可并行使用
+          imageBase64: img ? img.base64 : '',
+          imageMime: img ? img.mime : ''
+        }
+      })
     }
     result.value = await submitAssessment(payload)
     step.value = 'result'
@@ -251,6 +283,53 @@ async function submit() {
   } finally {
     loading.value = false
   }
+}
+
+/**
+ * 选好图片后：用 canvas 压到约 1000px 边、JPEG 质量 0.82，再转 base64 随答案提交。
+ * 为什么压缩：base64 图片直接塞进 JSON 请求体，太大既慢又容易超请求上限。
+ */
+async function onImageSelected(file, code) {
+  const raw = file && file.raw
+  if (!raw) return
+  try {
+    images[code] = await compressImage(raw)
+  } catch {
+    ElMessage.error('图片处理失败，请换一张或改用文字输入')
+  }
+}
+
+function removeImage(code) {
+  delete images[code]
+}
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const maxEdge = 1000
+        let { width, height } = img
+        if (width > maxEdge || height > maxEdge) {
+          const scale = maxEdge / Math.max(width, height)
+          width = Math.round(width * scale)
+          height = Math.round(height * scale)
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82)
+        const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1)
+        resolve({ base64, mime: 'image/jpeg', dataUrl })
+      }
+      img.onerror = reject
+      img.src = reader.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
 async function viewDiagnosis() {
@@ -348,13 +427,27 @@ async function clearData() {
 .weak-tag { margin-bottom: 4px; }
 
 .mastery-list { display: flex; flex-direction: column; gap: 8px; }
-.mastery-row { display: flex; align-items: center; gap: 12px; }
-.mastery-name { width: 240px; flex-shrink: 0; font-size: 13px; }
-.mastery-bar { flex: 1; }
-.mastery-level { width: 40px; text-align: right; font-size: 12px; }
+.mastery-row { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.mastery-name { flex: 1; min-width: 120px; font-size: 13px; }
+.mastery-pct { width: 52px; text-align: right; font-size: 13px; color: var(--text-secondary, #475569); flex-shrink: 0; }
+.mastery-level { width: 40px; text-align: right; font-size: 12px; flex-shrink: 0; }
 .mastery-level.薄弱 { color: #dc2626; }
 .mastery-level.中等 { color: #d97706; }
 .mastery-level.扎实 { color: #16a34a; }
+
+/* 填空题：文字输入 + 图片上传 两种提交方式并存 */
+.q-fill-wrap { margin-top: 10px; max-width: 360px; }
+.q-upload { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.q-upload-tip { font-size: 12px; color: var(--text-muted); }
+.q-img-preview { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.q-img-preview img { width: 120px; height: 90px; object-fit: cover; border: 1px solid var(--line); border-radius: 8px; }
+
+/* 备考计划：纯文字 + 列表（无图表） */
+.phase-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; }
+.phase-item { padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft, #f8fafc); }
+.phase-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.phase-meta { font-size: 13px; color: var(--text-secondary, #475569); margin-bottom: 2px; }
+.phase-focus { font-size: 13px; color: var(--text-muted); }
 
 .plan-summary { font-size: 14px; margin: 0 0 16px; }
 

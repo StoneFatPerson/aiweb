@@ -37,7 +37,7 @@
           </div>
         </div>
 
-        <!-- 三阶段计划（二维甘特图，替代冗长文本时间线） -->
+        <!-- 三阶段计划：文字摘要 + 列表（已移除二维图表） -->
         <div class="block">
           <h3 class="block-title">为你定制的计划</h3>
           <el-alert
@@ -47,10 +47,16 @@
             :title="data.plan.summary"
             class="plan-alert"
           />
-          <PlanChart v-if="data.plan && data.plan.phases" :phases="data.plan.phases" />
+          <ol v-if="data.plan && data.plan.phases" class="phase-list">
+            <li v-for="(p, i) in data.plan.phases" :key="i" class="phase-item">
+              <div class="phase-name">{{ i + 1 }}. {{ p.name }}</div>
+              <div class="phase-meta">周次：{{ p.weeks }}</div>
+              <div class="phase-focus">重点：{{ p.focus }}</div>
+            </li>
+          </ol>
         </div>
 
-        <!-- 掌握度明细 -->
+        <!-- 掌握度明细：纯文字百分比 + 等级，不使用进度条等图形 -->
         <div class="block">
           <h3 class="block-title">各知识点掌握度</h3>
           <div class="mastery-list">
@@ -60,12 +66,7 @@
               class="mastery-row"
             >
               <span class="mastery-name">{{ d.pointName }}</span>
-              <el-progress
-                :percentage="Math.round(d.mastery * 100)"
-                :status="d.level === '薄弱' ? 'exception' : (d.level === '扎实' ? 'success' : '')"
-                :stroke-width="10"
-                class="mastery-bar"
-              />
+              <span class="mastery-pct">{{ Math.round(d.mastery * 100) }}%</span>
               <span class="mastery-level" :class="d.level">{{ d.level }}</span>
             </div>
           </div>
@@ -109,7 +110,6 @@ import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDiagnosis, getAiPlan } from '@/api'
 import { ElMessage } from 'element-plus'
-import PlanChart from '@/views/PlanChart.vue'
 
 const router = useRouter()
 const loading = ref(true)
@@ -199,16 +199,6 @@ onMounted(load)
 .plan-alert {
   margin-bottom: 16px;
 }
-.phase-focus {
-  margin: 0 0 8px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.phase-points {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 
 .weak-box {
   display: flex;
@@ -228,23 +218,36 @@ onMounted(load)
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: space-between;
 }
 .mastery-name {
-  width: 240px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 120px;
   font-size: 13px;
 }
-.mastery-bar {
-  flex: 1;
+.mastery-pct {
+  width: 52px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-secondary, #475569);
+  flex-shrink: 0;
 }
 .mastery-level {
   width: 40px;
   text-align: right;
   font-size: 12px;
+  flex-shrink: 0;
 }
 .mastery-level.薄弱 { color: #dc2626; }
 .mastery-level.中等 { color: #d97706; }
 .mastery-level.扎实 { color: #16a34a; }
+
+/* 备考计划：纯文字 + 列表（无图表） */
+.phase-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; }
+.phase-item { padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft, #f8fafc); }
+.phase-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.phase-meta { font-size: 13px; color: var(--text-secondary, #475569); margin-bottom: 2px; }
+.phase-focus { font-size: 13px; color: var(--text-muted); }
 
 .actions {
   margin-top: 24px;
