@@ -72,3 +72,6 @@ export const getDiagnosis = (studentId) => request.get('/assess/diagnosis', { pa
 
 /** 所有知识点（展示用） */
 export const getPoints = () => request.get('/assess/points')
+
+/** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底） */
+export const getAiPlan = (studentId) => request.post('/assess/plan/ai', { studentId })

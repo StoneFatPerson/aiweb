@@ -13,6 +13,7 @@ import com.aiweb.mapper.QuestionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,19 +37,22 @@ public class AssessmentService {
     private final DiagnosisService diagnosisService;
     private final PlanService planService;
     private final ObjectMapper objectMapper;
+    private final ChatClient chatClient;
 
     public AssessmentService(QuestionMapper questionMapper,
                              KnowledgePointMapper knowledgePointMapper,
                              MasteryMapper masteryMapper,
                              DiagnosisService diagnosisService,
                              PlanService planService,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper,
+                             ChatClient.Builder chatClientBuilder) {
         this.questionMapper = questionMapper;
         this.knowledgePointMapper = knowledgePointMapper;
         this.masteryMapper = masteryMapper;
         this.diagnosisService = diagnosisService;
         this.planService = planService;
         this.objectMapper = objectMapper;
+        this.chatClient = chatClientBuilder.build();
     }
 
     /** 开始测评：抽取题目返回（不含答案） */
@@ -123,6 +127,41 @@ public class AssessmentService {
                 .eq(Mastery::getStudentId, studentId));
         boolean assessed = assessedCount > 0;
         return new AssessmentResult.DiagnosisView(diagnosis, weak, planService.buildPlan(diagnosis), assessed);
+    }
+
+    /**
+     * 调用大模型，把规则计划 + 诊断润色成更贴近个人的专属解读。
+     * 这是「大模型集成」与「AI 安全可控」的体现：规则计划永远兜底，AI 仅做语言润色，
+     * 失败时返回 null，由前端继续展示规则计划（不拖垮核心功能）。
+     */
+    public String generateAiPlan(String studentId) {
+        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId);
+        AssessmentResult.StudyPlan rulePlan = planService.buildPlan(diagnosis);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("你是考研备考规划助手。下面是某位同学的数学学情诊断（BKT 算法得出）和三阶段规则计划。\n");
+        sb.append("请基于这些信息，用中文写一段 220 字以内的个性化备考建议：语气鼓励、具体、可执行；");
+        sb.append("重点针对薄弱知识点给出起步动作；不要编造数据，不要超出已知信息。\n\n");
+        sb.append("【知识点掌握度（0~1，0.4 以下为薄弱）】\n");
+        for (AssessmentResult.PointDiagnosis d : diagnosis) {
+            sb.append("- ").append(d.pointName()).append("：掌握度 ").append(d.mastery()).append("（").append(d.level()).append("）\n");
+        }
+        sb.append("\n【规则计划摘要】").append(rulePlan.summary()).append("\n");
+        for (AssessmentResult.PhasePlan ph : rulePlan.phases()) {
+            sb.append(ph.name()).append("（").append(ph.weeks()).append("）：").append(ph.focus()).append("\n");
+        }
+
+        String system = "你是专业、友好、严谨的考研备考规划助手，只基于给定信息回答，不编造任何数据。";
+        try {
+            return chatClient.prompt()
+                    .system(system)
+                    .user(sb.toString())
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            // 大模型限流或故障时返回 null，前端展示规则计划兜底
+            return null;
+        }
     }
 
     public List<KnowledgePoint> allPoints() {

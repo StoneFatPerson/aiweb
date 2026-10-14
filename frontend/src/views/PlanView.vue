@@ -89,6 +89,31 @@
           </div>
         </div>
 
+        <!-- AI 专属计划解读（可选增强，规则计划兜底） -->
+        <div class="block">
+          <h3 class="block-title">AI 专属计划解读</h3>
+          <p class="ai-tip">基于你的诊断，让大模型生成一段更个性化、更口语化的备考建议（规则计划始终保留在上方）。</p>
+          <el-button
+            type="warning"
+            :loading="aiLoading"
+            :disabled="aiLoading"
+            @click="aiPolish"
+          >✨ AI 生成专属计划解读</el-button>
+
+          <el-alert
+            v-if="aiFallback"
+            type="warning"
+            show-icon
+            :closable="false"
+            class="ai-fallback"
+            title="AI 润色暂不可用"
+            description="可能命中免费档限流，已为你保留上方规则计划。稍后可再试。"
+          />
+          <el-card v-else-if="aiPlan" class="ai-card" shadow="never">
+            <p class="ai-text">{{ aiPlan }}</p>
+          </el-card>
+        </div>
+
         <div class="actions">
           <el-button type="primary" @click="goAssess">重新测评</el-button>
         </div>
@@ -100,12 +125,17 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDiagnosis } from '@/api'
+import { getDiagnosis, getAiPlan } from '@/api'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const loading = ref(true)
 const data = ref(null)
+
+// AI 润色计划相关状态
+const aiLoading = ref(false)
+const aiPlan = ref('')
+const aiFallback = ref(false)
 
 // 掌握度从低到高排列，薄弱的排最前，方便优先看
 const sortedDiagnosis = computed(() => {
@@ -141,6 +171,27 @@ async function load() {
 
 function goAssess() {
   router.push('/assessment')
+}
+
+// AI 润色：调大模型把规则计划改写成个性化解读；失败则保留规则计划（兜底）
+async function aiPolish() {
+  aiLoading.value = true
+  aiPlan.value = ''
+  aiFallback.value = false
+  try {
+    const res = await getAiPlan(getStudentId())
+    if (res.fallback) {
+      aiFallback.value = true
+      ElMessage.warning(res.message || 'AI 润色暂不可用，已保留规则计划')
+    } else {
+      aiPlan.value = res.aiPlan
+    }
+  } catch (e) {
+    aiFallback.value = true
+    ElMessage.error(e.message || 'AI 润色失败，已保留规则计划')
+  } finally {
+    aiLoading.value = false
+  }
 }
 
 onMounted(load)
@@ -214,6 +265,25 @@ onMounted(load)
 
 .actions {
   margin-top: 24px;
+}
+
+.ai-tip {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.ai-fallback {
+  margin-top: 14px;
+}
+.ai-card {
+  margin-top: 14px;
+  background: var(--bg-soft, #f8fafc);
+}
+.ai-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 640px) {
