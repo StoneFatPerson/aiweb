@@ -48,6 +48,7 @@ import { checkHealth } from '@/api'
 const navItems = [
   { to: '/', label: '首页' },
   { to: '/college', label: '院校专业库' },
+  { to: '/assess', label: '学情诊断' },
   { to: '/plan', label: '备考计划' },
   { to: '/chat', label: 'AI 问答' }
 ]

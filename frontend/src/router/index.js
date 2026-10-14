@@ -29,6 +29,12 @@ const routes = [
     meta: { title: '备考计划' }
   },
   {
+    path: '/assess',
+    name: 'assess',
+    component: () => import('@/views/AssessmentView.vue'),
+    meta: { title: '学情诊断' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/'
   }

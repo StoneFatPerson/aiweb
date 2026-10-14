@@ -53,3 +53,52 @@ CREATE TABLE IF NOT EXISTS major (
     KEY idx_category (category),
     KEY idx_degree (degree_type)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研专业表';
+
+-- ============================================================
+-- 考研数学题库（第一批：34 道原创种子题，全部非真题）
+-- 来源：data/math-seed-batch1.json
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS question_bank (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    code           VARCHAR(32)  NOT NULL COMMENT '题目编号，如 MATH-Q0001',
+    subject_code   VARCHAR(16)  COMMENT '学科代码，如 math',
+    chapter_code   VARCHAR(16)  COMMENT '章节代码，如 MATH-01',
+    point_codes    VARCHAR(255) COMMENT '知识点代码（逗号分隔，可多个）',
+    applicable_to  VARCHAR(64)  COMMENT '适用数学类型：math1/math2/math3（逗号分隔）',
+    type           VARCHAR(16)  NOT NULL COMMENT '题型：SINGLE_CHOICE / FILL_BLANK',
+    difficulty     TINYINT      NOT NULL DEFAULT 1 COMMENT '难度 1-3',
+    year           VARCHAR(8)   COMMENT '年份，种子题多为 null',
+    source         VARCHAR(16)  NOT NULL DEFAULT 'ORIGINAL_SEED' COMMENT '来源：ORIGINAL_SEED / AI_GENERATED',
+    stem           TEXT         NOT NULL COMMENT '题干',
+    options        TEXT         COMMENT '选择题选项（JSON 数组 [{key,content}]）',
+    answer         TEXT         NOT NULL COMMENT '正确答案',
+    explanation    TEXT         COMMENT '解析',
+    keywords       VARCHAR(255) COMMENT '关键词（逗号分隔）',
+    verified       TINYINT      NOT NULL DEFAULT 0 COMMENT '是否已核对：0/1',
+    UNIQUE KEY uk_qcode (code),
+    KEY idx_point (point_codes(64)),
+    KEY idx_chapter (chapter_code),
+    KEY idx_type (type)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研数学题库';
+
+-- 知识点表：用于诊断时按知识点追踪掌握度（取自同一 JSON 的 chapters/points）
+CREATE TABLE IF NOT EXISTS knowledge_point (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    code           VARCHAR(32)  NOT NULL COMMENT '知识点代码，如 MATH-01-01',
+    name           VARCHAR(128) NOT NULL COMMENT '知识点名称',
+    chapter_code   VARCHAR(16)  COMMENT '所属章节代码',
+    chapter_name   VARCHAR(128) COMMENT '所属章节名称',
+    applicable_to  VARCHAR(64)  COMMENT '适用数学类型：math1/math2/math3',
+    UNIQUE KEY uk_pcode (code)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研数学知识点';
+
+-- 掌握度表：按「学生 + 知识点」记录 BKT 估计的掌握概率，支持持续追踪
+CREATE TABLE IF NOT EXISTS mastery (
+    student_id     VARCHAR(64) NOT NULL COMMENT '学生标识（前端 localStorage 生成）',
+    point_code     VARCHAR(32) NOT NULL COMMENT '知识点代码',
+    mastery_prob   DECIMAL(4,3) NOT NULL DEFAULT 0.300 COMMENT 'BKT 估计的掌握概率 0-1',
+    attempts       INT         NOT NULL DEFAULT 0 COMMENT '作答次数',
+    last_updated   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (student_id, point_code)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '学生各知识点掌握度（BKT 追踪）';

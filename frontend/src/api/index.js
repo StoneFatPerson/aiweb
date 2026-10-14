@@ -58,3 +58,17 @@ export const listMajors = (params) => request.get('/majors', { params })
 
 /** 所有学科门类（下拉筛选用） */
 export const getCategories = () => request.get('/majors/categories')
+
+/* ---------------- 学情诊断与题库 ---------------- */
+
+/** 开始测评：按学情抽题（不含答案） */
+export const startAssessment = (payload) => request.post('/assess/start', payload)
+
+/** 提交答案：判分 + BKT 诊断 + 生成计划 */
+export const submitAssessment = (payload) => request.post('/assess/submit', payload)
+
+/** 查看某学生的诊断与计划（不重新答题） */
+export const getDiagnosis = (studentId) => request.get('/assess/diagnosis', { params: { studentId } })
+
+/** 所有知识点（展示用） */
+export const getPoints = () => request.get('/assess/points')
