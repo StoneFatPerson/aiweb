@@ -37,7 +37,7 @@
           </div>
         </div>
 
-        <!-- 三阶段计划 -->
+        <!-- 三阶段计划（二维甘特图，替代冗长文本时间线） -->
         <div class="block">
           <h3 class="block-title">为你定制的计划</h3>
           <el-alert
@@ -47,25 +47,7 @@
             :title="data.plan.summary"
             class="plan-alert"
           />
-          <el-timeline class="plan-timeline">
-            <el-timeline-item
-              v-for="ph in data.plan.phases"
-              :key="ph.name"
-              :timestamp="`${ph.name}（${ph.weeks}）`"
-              placement="top"
-              type="primary"
-            >
-              <p class="phase-focus">{{ ph.focus }}</p>
-              <div class="phase-points">
-                <el-tag
-                  v-for="p in ph.points"
-                  :key="p"
-                  size="small"
-                  class="phase-tag"
-                >{{ p }}</el-tag>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          <PlanChart v-if="data.plan && data.plan.phases" :phases="data.plan.phases" />
         </div>
 
         <!-- 掌握度明细 -->
@@ -127,6 +109,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDiagnosis, getAiPlan } from '@/api'
 import { ElMessage } from 'element-plus'
+import PlanChart from '@/views/PlanChart.vue'
 
 const router = useRouter()
 const loading = ref(true)

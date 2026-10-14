@@ -75,3 +75,9 @@ export const getPoints = () => request.get('/assess/points')
 
 /** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底） */
 export const getAiPlan = (studentId) => request.post('/assess/plan/ai', { studentId })
+
+/** 查看某学生的做题历史（每条记录含对应题目的标准答案） */
+export const getAnswerHistory = (studentId) => request.get('/assess/history', { params: { studentId } })
+
+/** 清除某学生的历史学习数据（掌握度 + 做题历史），回到未测评状态 */
+export const clearAssessment = (studentId) => request.delete('/assess/clear', { params: { studentId } })

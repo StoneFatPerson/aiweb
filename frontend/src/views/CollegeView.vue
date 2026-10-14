@@ -12,7 +12,7 @@
         <el-form-item label="关键词">
           <el-input
             v-model="filters.keyword"
-            placeholder="院校名或简称，如「山大」"
+            placeholder="院校名或简称"
             clearable
             style="width: 180px"
             @keyup.enter="loadColleges"
@@ -32,12 +32,6 @@
             <el-option label="省属重点" value="省属重点" />
             <el-option label="省属" value="省属" />
           </el-select>
-        </el-form-item>
-
-        <el-form-item>
-          <el-checkbox v-model="filters.is985" :true-label="1" :false-label="null">
-            仅 985
-          </el-checkbox>
         </el-form-item>
 
         <el-form-item>
@@ -164,7 +158,6 @@ const filters = reactive({
   keyword: '',
   city: '',
   level: '',
-  is985: null,
   isSelfLine: null
 })
 
@@ -173,7 +166,6 @@ const buildParams = () => {
   if (filters.keyword) params.keyword = filters.keyword
   if (filters.city) params.city = filters.city
   if (filters.level) params.level = filters.level
-  if (filters.is985) params.is985 = 1
   if (filters.isSelfLine) params.isSelfLine = 1
   return params
 }
@@ -195,7 +187,6 @@ const resetFilters = () => {
   filters.keyword = ''
   filters.city = ''
   filters.level = ''
-  filters.is985 = null
   filters.isSelfLine = null
   loadColleges()
 }

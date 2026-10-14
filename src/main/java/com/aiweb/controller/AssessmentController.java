@@ -61,6 +61,27 @@ public class AssessmentController {
     }
 
     /**
+     * 做题历史（含标准答案）：GET /api/assess/history?studentId=xxx
+     * 返回该学生全部历史作答记录，每条附带对应题目的标准答案。
+     */
+    @GetMapping("/history")
+    public List<AssessmentResult.HistoryItem> history(@RequestParam String studentId) {
+        return assessmentService.getHistory(studentId);
+    }
+
+    /**
+     * 清除历史数据：DELETE /api/assess/clear?studentId=xxx
+     * 清除该学生的掌握度 + 做题历史，回到「未测评」状态。
+     */
+    @DeleteMapping("/clear")
+    public Map<String, Object> clear(@RequestParam String studentId) {
+        assessmentService.clearData(studentId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("cleared", true);
+        return result;
+    }
+
+    /**
      * AI 润色计划（可选增强）：用大模型把规则计划 + 诊断改写成个性化解读。
      * 规则计划始终兜底：若大模型不可用（如免费档限流），返回 fallback=true，前端保留规则计划。
      */

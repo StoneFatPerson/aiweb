@@ -38,4 +38,9 @@ public record AssessmentResult(
     /** 仅诊断视图（GET /api/assess/diagnosis 返回，不含逐题反馈） */
     public record DiagnosisView(List<PointDiagnosis> diagnosis, List<String> weakPoints, StudyPlan plan, boolean assessed) {
     }
+
+    /** 做题历史中的一条记录（含对应题目的标准答案） */
+    public record HistoryItem(String questionCode, String stem, String yourAnswer,
+                             String correctAnswer, boolean correct, String createdAt) {
+    }
 }

@@ -40,6 +40,7 @@
         <div class="actions">
           <el-button type="primary" :loading="loading" @click="start">开始测评</el-button>
           <el-button :disabled="loading" @click="viewDiagnosis">查看我的诊断</el-button>
+          <el-button text type="danger" :disabled="loading" @click="clearData">清除历史数据</el-button>
         </div>
       </div>
 
@@ -82,17 +83,24 @@
       <!-- 步骤 3：结果 -->
       <div v-else-if="step === 'result' && result">
         <el-result
+          v-if="!result.isView"
           :icon="result.score >= 60 ? 'success' : 'warning'"
           :title="`本次得分 ${result.score}`"
           :sub-title="`正确 ${result.correctCount} / ${result.total} 题`"
-        >
-          <template #extra>
-            <el-button @click="step = 'setup'">再做一次</el-button>
-          </template>
-        </el-result>
+        />
 
-        <!-- 逐题反馈 -->
-        <div class="block">
+        <el-alert
+          v-else
+          type="info"
+          :closable="false"
+          show-icon
+          title="这是你最近的学情诊断"
+          description="下方为各知识点掌握度、备考计划与历史做题记录。"
+          class="mb"
+        />
+
+        <!-- 逐题反馈（仅本次提交有） -->
+        <div v-if="!result.isView && result.feedback && result.feedback.length" class="block">
           <h3 class="block-title">逐题解析</h3>
           <el-collapse>
             <el-collapse-item v-for="(f, i) in result.feedback" :key="f.code" :name="i">
@@ -112,7 +120,7 @@
         <!-- 知识点诊断 -->
         <div class="block">
           <h3 class="block-title">知识点掌握度诊断</h3>
-          <div v-if="result.weakPoints.length" class="weak-box">
+          <div v-if="result.weakPoints && result.weakPoints.length" class="weak-box">
             <span class="weak-label">薄弱点：</span>
             <el-tag v-for="w in result.weakPoints" :key="w" type="danger" size="small" class="weak-tag">
               {{ w }}
@@ -132,24 +140,34 @@
           </div>
         </div>
 
-        <!-- 备考计划 -->
+        <!-- 备考计划：二维甘特图 -->
         <div class="block">
           <h3 class="block-title">备考计划（基础 / 强化 / 冲刺）</h3>
-          <p class="plan-summary">{{ result.plan.summary }}</p>
-          <el-timeline>
-            <el-timeline-item
-              v-for="ph in result.plan.phases"
-              :key="ph.name"
-              :timestamp="`${ph.name}（${ph.weeks}）`"
-              placement="top"
-              type="primary"
-            >
-              <p class="phase-focus">{{ ph.focus }}</p>
-              <div class="phase-points">
-                <el-tag v-for="p in ph.points" :key="p" size="small" class="phase-tag">{{ p }}</el-tag>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          <p v-if="result.plan && result.plan.summary" class="plan-summary">{{ result.plan.summary }}</p>
+          <PlanChart v-if="result.plan && result.plan.phases" :phases="result.plan.phases" />
+        </div>
+
+        <!-- 做题历史（含标准答案） -->
+        <div class="block">
+          <h3 class="block-title">做题历史（含标准答案）</h3>
+          <el-table :data="history" border size="small" empty-text="还没有做题记录" class="history-table">
+            <el-table-column prop="createdAt" label="提交时间" width="150" />
+            <el-table-column prop="stem" label="题目" min-width="220" show-overflow-tooltip />
+            <el-table-column prop="yourAnswer" label="你的答案" width="110" show-overflow-tooltip />
+            <el-table-column prop="correctAnswer" label="标准答案" width="110" show-overflow-tooltip />
+            <el-table-column label="结果" width="80" align="center">
+              <template #default="{ row }">
+                <el-tag :type="row.correct ? 'success' : 'danger'" size="small" disable-transitions>
+                  {{ row.correct ? '答对' : '答错' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="actions">
+          <el-button type="primary" @click="step = 'setup'">再做一次</el-button>
+          <el-button text type="danger" @click="clearData">清除历史数据</el-button>
         </div>
       </div>
     </section>
@@ -158,8 +176,12 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { startAssessment, submitAssessment, getDiagnosis } from '@/api'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  startAssessment, submitAssessment, getDiagnosis,
+  getAnswerHistory, clearAssessment
+} from '@/api'
+import PlanChart from '@/views/PlanChart.vue'
 
 const step = ref('setup')
 const loading = ref(false)
@@ -170,6 +192,7 @@ const count = ref(10)
 const questions = ref([])
 const answers = reactive({})
 const result = ref(null)
+const history = ref([])
 
 // 页面加载时取/建匿名 ID，存到 localStorage（无登录，纯本地）
 onMounted(() => {
@@ -180,6 +203,15 @@ onMounted(() => {
   }
   studentId.value = id
 })
+
+// 拉取该学生的做题历史（含标准答案），无论走「提交」还是「查看诊断」都刷新
+async function loadHistory() {
+  try {
+    history.value = (await getAnswerHistory(studentId.value)) || []
+  } catch {
+    history.value = []
+  }
+}
 
 async function start() {
   loading.value = true
@@ -200,7 +232,6 @@ async function start() {
 }
 
 async function submit() {
-  // 校验是否全部作答
   const missing = questions.value.filter((q) => !answers[q.code])
   if (missing.length) {
     ElMessage.warning(`还有 ${missing.length} 题没作答`)
@@ -214,6 +245,7 @@ async function submit() {
     }
     result.value = await submitAssessment(payload)
     step.value = 'result'
+    await loadHistory()
   } catch (e) {
     ElMessage.error(e.message || '提交失败')
   } finally {
@@ -224,12 +256,43 @@ async function submit() {
 async function viewDiagnosis() {
   loading.value = true
   try {
-    result.value = await getDiagnosis(studentId.value)
+    const res = await getDiagnosis(studentId.value)
+    // 用诊断视图拼一个「只读」结果对象，不显示本次得分/逐题解析
+    result.value = {
+      diagnosis: res.diagnosis,
+      weakPoints: res.weakPoints,
+      plan: res.plan,
+      assessed: res.assessed,
+      isView: true
+    }
     step.value = 'result'
+    await loadHistory()
   } catch (e) {
     ElMessage.error(e.message || '获取诊断失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 清除历史数据：清空掌握度 + 做题历史，回到未测评状态
+async function clearData() {
+  try {
+    await ElMessageBox.confirm(
+      '将清空你在本机的全部测评记录与掌握度数据（不可恢复），确定吗？',
+      '清除历史数据',
+      { type: 'warning', confirmButtonText: '确定清除', cancelButtonText: '取消' }
+    )
+  } catch {
+    return
+  }
+  try {
+    await clearAssessment(studentId.value)
+    ElMessage.success('已清除历史学习数据')
+    result.value = null
+    history.value = []
+    step.value = 'setup'
+  } catch (e) {
+    ElMessage.error(e.message || '清除失败')
   }
 }
 </script>
@@ -247,7 +310,7 @@ async function viewDiagnosis() {
 .field label { font-size: 13px; color: var(--text-muted); }
 .field .grow { width: 220px; }
 
-.actions { display: flex; gap: 12px; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .answering-head {
   display: flex;
@@ -294,8 +357,8 @@ async function viewDiagnosis() {
 .mastery-level.扎实 { color: #16a34a; }
 
 .plan-summary { font-size: 14px; margin: 0 0 16px; }
-.phase-focus { margin: 0 0 8px; font-size: 13px; color: var(--text-muted); }
-.phase-points { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.history-table { font-size: 13px; }
 
 @media (max-width: 640px) {
   .mastery-name { width: 120px; }

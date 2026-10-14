@@ -102,3 +102,18 @@ CREATE TABLE IF NOT EXISTS mastery (
     last_updated   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (student_id, point_code)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '学生各知识点掌握度（BKT 追踪）';
+
+-- 做题历史表：记录每次提交中每道题的作答（含标准答案），
+-- 用于「历史做题记录」展示与「清除历史数据」功能。
+CREATE TABLE IF NOT EXISTS answer_history (
+    id             BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    student_id     VARCHAR(64)  NOT NULL COMMENT '学生标识（前端 localStorage 生成）',
+    question_code  VARCHAR(32)  NOT NULL COMMENT '题目编号，如 MATH-Q0001',
+    user_answer    TEXT         COMMENT '用户作答（已归一化）',
+    correct_answer TEXT         NOT NULL COMMENT '该题标准答案',
+    is_correct     TINYINT      NOT NULL DEFAULT 0 COMMENT '是否正确：0 否 / 1 是',
+    created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '提交时间',
+    KEY idx_student (student_id),
+    KEY idx_qcode (question_code),
+    KEY idx_created (created_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '做题历史（含标准答案）';

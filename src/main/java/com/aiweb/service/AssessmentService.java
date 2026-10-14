@@ -4,9 +4,11 @@ import com.aiweb.dto.AssessmentResult;
 import com.aiweb.dto.AssessmentStartRequest;
 import com.aiweb.dto.AssessmentStartResponse;
 import com.aiweb.dto.AssessmentSubmitRequest;
+import com.aiweb.entity.AnswerHistory;
 import com.aiweb.entity.KnowledgePoint;
 import com.aiweb.entity.Mastery;
 import com.aiweb.entity.Question;
+import com.aiweb.mapper.AnswerHistoryMapper;
 import com.aiweb.mapper.KnowledgePointMapper;
 import com.aiweb.mapper.MasteryMapper;
 import com.aiweb.mapper.QuestionMapper;
@@ -34,6 +36,7 @@ public class AssessmentService {
     private final QuestionMapper questionMapper;
     private final KnowledgePointMapper knowledgePointMapper;
     private final MasteryMapper masteryMapper;
+    private final AnswerHistoryMapper answerHistoryMapper;
     private final DiagnosisService diagnosisService;
     private final PlanService planService;
     private final ObjectMapper objectMapper;
@@ -42,6 +45,7 @@ public class AssessmentService {
     public AssessmentService(QuestionMapper questionMapper,
                              KnowledgePointMapper knowledgePointMapper,
                              MasteryMapper masteryMapper,
+                             AnswerHistoryMapper answerHistoryMapper,
                              DiagnosisService diagnosisService,
                              PlanService planService,
                              ObjectMapper objectMapper,
@@ -49,6 +53,7 @@ public class AssessmentService {
         this.questionMapper = questionMapper;
         this.knowledgePointMapper = knowledgePointMapper;
         this.masteryMapper = masteryMapper;
+        this.answerHistoryMapper = answerHistoryMapper;
         this.diagnosisService = diagnosisService;
         this.planService = planService;
         this.objectMapper = objectMapper;
@@ -96,6 +101,15 @@ public class AssessmentService {
             for (String pc : splitCodes(q.getPointCodes())) {
                 updateMastery(studentId, pc, ok);
             }
+
+            // 落库「做题历史」：每条记录带标准答案，供历史做题记录展示
+            AnswerHistory history = new AnswerHistory();
+            history.setStudentId(studentId);
+            history.setQuestionCode(q.getCode());
+            history.setUserAnswer(norm(a.answer()));
+            history.setCorrectAnswer(q.getAnswer());
+            history.setIsCorrect(ok ? 1 : 0);
+            answerHistoryMapper.insert(history);
 
             feedback.add(new AssessmentResult.QuestionFeedback(
                     q.getCode(), ok, norm(a.answer()),
@@ -162,6 +176,47 @@ public class AssessmentService {
             // 大模型限流或故障时返回 null，前端展示规则计划兜底
             return null;
         }
+    }
+
+    /**
+     * 查询某学生的做题历史（含每题标准答案），按提交时间倒序。
+     * 用于「历史做题记录」展示：每条记录都附带对应题目的标准答案。
+     */
+    public List<AssessmentResult.HistoryItem> getHistory(String studentId) {
+        List<AnswerHistory> list = answerHistoryMapper.selectList(new LambdaQueryWrapper<AnswerHistory>()
+                .eq(AnswerHistory::getStudentId, studentId)
+                .orderByDesc(AnswerHistory::getCreatedAt));
+        if (list.isEmpty()) return List.of();
+
+        // 一次性把所有题目题干取出，避免 N 条 SQL
+        Map<String, String> stemMap = questionMapper.selectList(null).stream()
+                .collect(Collectors.toMap(Question::getCode, Question::getStem, (a, b) -> a));
+
+        List<AssessmentResult.HistoryItem> items = new ArrayList<>();
+        for (AnswerHistory h : list) {
+            String created = (h.getCreatedAt() != null)
+                    ? h.getCreatedAt().toString().replace("T", " ").substring(0, 16)
+                    : "";
+            items.add(new AssessmentResult.HistoryItem(
+                    h.getQuestionCode(),
+                    stemMap.getOrDefault(h.getQuestionCode(), ""),
+                    h.getUserAnswer(),
+                    h.getCorrectAnswer(),
+                    h.getIsCorrect() != null && h.getIsCorrect() == 1,
+                    created));
+        }
+        return items;
+    }
+
+    /**
+     * 清除某学生的全部历史学习数据：掌握度（mastery）+ 做题历史（answer_history）。
+     * 清除后该学生回到「未测评」状态（诊断仅显示先验值）。
+     */
+    public void clearData(String studentId) {
+        masteryMapper.delete(new LambdaQueryWrapper<Mastery>()
+                .eq(Mastery::getStudentId, studentId));
+        answerHistoryMapper.delete(new LambdaQueryWrapper<AnswerHistory>()
+                .eq(AnswerHistory::getStudentId, studentId));
     }
 
     public List<KnowledgePoint> allPoints() {
