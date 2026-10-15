@@ -35,6 +35,7 @@
 | 计划生成与动态调整（掌握度驱动 + 错题间隔重复） | ✅ 已完成 |
 | 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
 | Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
+| AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹） | ✅ 已完成 |
 
 ---
 
@@ -80,7 +81,8 @@ aiweb/
 │   ├── controller/                         Chat / College / Major / Assessment / Science（共 5 个）
 │   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
-│   └── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
+│   ├── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
+│   └── agent/                              Agent 编排：IntentTool / CollegeSearchTool / ScienceTool / DiagnosisTool / PlanTool + AgentOrchestrator（多步工具调用、轨迹透明）
 ├── src/main/resources/
 │   ├── application.yml                     配置（密钥走环境变量）
 │   ├── schema.sql                          建表脚本（启动自动执行）
@@ -201,6 +203,7 @@ npm run dev
 | POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
 | POST | `/api/science/ask` | RAG 问答（保留兼容） |
 | POST | `/api/science/chat` | 右侧 AI 答疑（会话式 RAG，带历史与上下文） |
+| POST | `/api/agent/run` | AI 规划助手：输入目标，多步编排（查院校 / 检索科普 / 学情诊断 / 出计划），返回每步执行轨迹 + 汇总建议 |
 
 ---
 
