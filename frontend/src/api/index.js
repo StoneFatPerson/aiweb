@@ -82,11 +82,16 @@ export const getAnswerHistory = (studentId) => request.get('/assess/history', { 
 /** 清除某学生的历史学习数据（掌握度 + 做题历史），回到未测评状态 */
 export const clearAssessment = (studentId) => request.delete('/assess/clear', { params: { studentId } })
 
-/* ---------------- 认知科普（RAG 检索问答） ---------------- */
+/* ---------------- 认知科普（RAG 主动说明式讲解） ---------------- */
 
 /**
- * 认知科普问答：把问题发给后端，后端先从考研知识库检索相关片段，
- * 再让大模型只依据这些片段作答（不瞎编），并返回命中的"参考来源"标题。
- * 返回 { answer, sources: string[] }
+ * 获取可讲解的主题列表（左侧目录）。返回 [{ key, title, query }]
  */
-export const askScience = (payload) => request.post('/science/ask', payload)
+export const getScienceTopics = () => request.get('/science/topics')
+
+/**
+ * 主动说明式讲解：传入主题 key，后端先去考研知识库检索相关资料，
+ * 再让大模型把资料组织成一段连贯、通俗的说明性文章（非问答），并返回参考来源。
+ * 返回 { title, content, sources: string[] }
+ */
+export const explainScience = (topic) => request.post('/science/explain', { topic })
