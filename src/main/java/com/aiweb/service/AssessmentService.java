@@ -35,6 +35,9 @@ import java.util.stream.Collectors;
 @Service
 public class AssessmentService {
 
+    /** 支持的科目代码 */
+    public static final List<String> SUBJECTS = List.of("math", "english", "politics");
+
     private final QuestionMapper questionMapper;
     private final KnowledgePointMapper knowledgePointMapper;
     private final MasteryMapper masteryMapper;
@@ -65,12 +68,18 @@ public class AssessmentService {
         this.ocrService = ocrService;
     }
 
-    /** 开始测评：抽取题目返回（不含答案） */
-    public AssessmentStartResponse start(String studentId, String targetMath, int count) {
-        List<Question> questions = questionMapper.selectList(null);
+    /** 开始测评：按科目抽取题目返回（不含答案） */
+    public AssessmentStartResponse start(String studentId, String subject, String targetMath, int count) {
+        // 科目代码：不传默认 math（兼容旧前端），并防止非法值穿透
+        String subj = (subject == null || subject.isBlank()) ? "math" : subject.trim().toLowerCase();
+        if (!SUBJECTS.contains(subj)) subj = "math";
+
+        // 按科目取题（英语/政治的 applicableTo 为空串，卷种筛选自然不过滤）
+        List<Question> questions = questionMapper.selectList(new LambdaQueryWrapper<Question>()
+                .eq(Question::getSubjectCode, subj));
 
         // 按目标数学类型筛选（所有种子题都适用于 math1/2/3，这里保留逻辑以备扩充）
-        if (targetMath != null && !targetMath.isBlank() && !"all".equalsIgnoreCase(targetMath)) {
+        if ("math".equals(subj) && targetMath != null && !targetMath.isBlank() && !"all".equalsIgnoreCase(targetMath)) {
             String t = targetMath.toLowerCase();
             questions = questions.stream()
                     .filter(q -> q.getApplicableTo() != null && q.getApplicableTo().toLowerCase().contains(t))
@@ -85,7 +94,8 @@ public class AssessmentService {
         List<AssessmentStartResponse.QuestionView> views =
                 picked.stream().map(this::toView).collect(Collectors.toList());
 
-        int totalPoints = Math.toIntExact(knowledgePointMapper.selectCount(null));
+        int totalPoints = Math.toIntExact(knowledgePointMapper.selectCount(new LambdaQueryWrapper<KnowledgePoint>()
+                .likeRight(KnowledgePoint::getCode, prefixOf(subj))));
         return new AssessmentStartResponse(UUID.randomUUID().toString(), picked.size(), totalPoints, views);
     }
 
@@ -146,7 +156,15 @@ public class AssessmentService {
         int total = answers.size();
         int score = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
 
-        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId);
+        // 本次提交的题目同属一个科目（前端按科目抽题），取第一题的科目作诊断维度
+        String subject = "math";
+        for (AssessmentSubmitRequest.AnswerSubmission a : answers) {
+            Question q = questionMapper.selectOne(
+                    new LambdaQueryWrapper<Question>().eq(Question::getCode, a.questionCode()));
+            if (q != null && q.getSubjectCode() != null) { subject = q.getSubjectCode(); break; }
+        }
+
+        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId, subject);
         List<String> weak = diagnosis.stream()
                 .filter(d -> d.mastery() < 0.4)
                 .map(AssessmentResult.PointDiagnosis::pointName)
@@ -156,16 +174,17 @@ public class AssessmentService {
         return new AssessmentResult(total, correct, score, feedback, diagnosis, weak, plan);
     }
 
-    /** 仅查看某学生的诊断与计划（不重新答题） */
-    public AssessmentResult.DiagnosisView getDiagnosis(String studentId) {
-        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId);
+    /** 仅查看某学生的诊断与计划（不重新答题），按科目查看 */
+    public AssessmentResult.DiagnosisView getDiagnosis(String studentId, String subject) {
+        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId, subject);
         List<String> weak = diagnosis.stream()
                 .filter(d -> d.mastery() < 0.4)
                 .map(AssessmentResult.PointDiagnosis::pointName)
                 .collect(Collectors.toList());
-        // 是否真正做过测评：掌握度表里该学生有记录才算「已测评」，否则只是先验值
+        // 是否真正做过测评：掌握度表里该学生在该科目下有记录才算「已测评」，否则只是先验值
         long assessedCount = masteryMapper.selectCount(new LambdaQueryWrapper<Mastery>()
-                .eq(Mastery::getStudentId, studentId));
+                .eq(Mastery::getStudentId, studentId)
+                .likeRight(Mastery::getPointCode, prefixOf(subject)));
         boolean assessed = assessedCount > 0;
         return new AssessmentResult.DiagnosisView(diagnosis, weak, planService.buildPlan(diagnosis), assessed);
     }
@@ -174,13 +193,16 @@ public class AssessmentService {
      * 调用大模型，把规则计划 + 诊断润色成更贴近个人的专属解读。
      * 这是「大模型集成」与「AI 安全可控」的体现：规则计划永远兜底，AI 仅做语言润色，
      * 失败时返回 null，由前端继续展示规则计划（不拖垮核心功能）。
+     *
+     * @param subject 科目代码（math / english / politics），决定诊断维度与提示词措辞
      */
-    public String generateAiPlan(String studentId) {
-        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId);
+    public String generateAiPlan(String studentId, String subject) {
+        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId, subject);
         AssessmentResult.StudyPlan rulePlan = planService.buildPlan(diagnosis);
+        String subjectName = subjectName(subject);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("你是考研备考规划助手。下面是某位同学的数学学情诊断（BKT 算法得出）和三阶段规则计划。\n");
+        sb.append("你是考研备考规划助手。下面是某位同学的").append(subjectName).append("学情诊断（BKT 算法得出）和三阶段规则计划。\n");
         sb.append("请基于这些信息，用中文写一段 220 字以内的个性化备考建议：语气鼓励、具体、可执行；");
         sb.append("重点针对薄弱知识点给出起步动作；不要编造数据，不要超出已知信息。\n\n");
         sb.append("【知识点掌握度（0~1，0.4 以下为薄弱）】\n");
@@ -246,15 +268,47 @@ public class AssessmentService {
                 .eq(AnswerHistory::getStudentId, studentId));
     }
 
-    public List<KnowledgePoint> allPoints() {
-        return knowledgePointMapper.selectList(null);
+    public List<KnowledgePoint> allPoints(String subject) {
+        return knowledgePointMapper.selectList(new LambdaQueryWrapper<KnowledgePoint>()
+                .likeRight(KnowledgePoint::getCode, prefixOf(subject)));
     }
 
+    /** 题库统计：总量 + 各科目分别统计（前端按学科展示） */
     public Map<String, Object> stats() {
         Map<String, Object> m = new HashMap<>();
         m.put("questionCount", questionMapper.selectCount(null));
         m.put("pointCount", knowledgePointMapper.selectCount(null));
+        Map<String, Object> bySubject = new HashMap<>();
+        for (String s : SUBJECTS) {
+            Map<String, Object> one = new HashMap<>();
+            one.put("questionCount", questionMapper.selectCount(new LambdaQueryWrapper<Question>()
+                    .eq(Question::getSubjectCode, s)));
+            one.put("pointCount", knowledgePointMapper.selectCount(new LambdaQueryWrapper<KnowledgePoint>()
+                    .likeRight(KnowledgePoint::getCode, prefixOf(s))));
+            bySubject.put(s, one);
+        }
+        m.put("bySubject", bySubject);
         return m;
+    }
+
+    /** 科目代码 -> 知识点 code 前缀（math -> MATH-） */
+    private String prefixOf(String subject) {
+        return switch (subject) {
+            case "math" -> "MATH-";
+            case "english" -> "ENGLISH-";
+            case "politics" -> "POLITICS-";
+            default -> "MATH-";
+        };
+    }
+
+    /** 科目代码 -> 中文名（用于提示词与展示） */
+    private String subjectName(String subject) {
+        return switch (subject) {
+            case "math" -> "数学";
+            case "english" -> "英语";
+            case "politics" -> "政治";
+            default -> "数学";
+        };
     }
 
     // ===================== 以下为内部工具方法 =====================
@@ -321,9 +375,10 @@ public class AssessmentService {
         }
     }
 
-    /** 构造某学生的全量知识点诊断（未作答的知识点用先验 0.3） */
-    private List<AssessmentResult.PointDiagnosis> buildDiagnosis(String studentId) {
-        List<KnowledgePoint> points = knowledgePointMapper.selectList(null);
+    /** 构造某学生某科目的全量知识点诊断（未作答的知识点用先验 0.3） */
+    private List<AssessmentResult.PointDiagnosis> buildDiagnosis(String studentId, String subject) {
+        List<KnowledgePoint> points = knowledgePointMapper.selectList(new LambdaQueryWrapper<KnowledgePoint>()
+                .likeRight(KnowledgePoint::getCode, prefixOf(subject)));
         List<AssessmentResult.PointDiagnosis> list = new ArrayList<>();
         for (KnowledgePoint kp : points) {
             Mastery m = (studentId != null) ? masteryMapper.selectOne(new LambdaQueryWrapper<Mastery>()

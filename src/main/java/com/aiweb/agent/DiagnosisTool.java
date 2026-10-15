@@ -36,7 +36,8 @@ public class DiagnosisTool implements AgentTool {
 
     @Override
     public ToolOutput execute(AgentContext ctx) {
-        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(ctx.getStudentId());
+        // Agent 学情诊断当前按数学科目（数学是考研诊断的主战场；英语/政治在测评页独立追踪）
+        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(ctx.getStudentId(), "math");
         ctx.setDiagnosis(view);
 
         if (!view.assessed()) {

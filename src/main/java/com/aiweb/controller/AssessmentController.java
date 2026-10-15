@@ -37,7 +37,8 @@ public class AssessmentController {
     @PostMapping("/start")
     public AssessmentStartResponse start(@RequestBody AssessmentStartRequest req) {
         int count = (req.count() == null || req.count() <= 0) ? 10 : req.count();
-        return assessmentService.start(req.studentId(), req.targetMath(), count);
+        String subject = (req.subject() == null || req.subject().isBlank()) ? "math" : req.subject();
+        return assessmentService.start(req.studentId(), subject, req.targetMath(), count);
     }
 
     @PostMapping("/submit")
@@ -45,9 +46,14 @@ public class AssessmentController {
         return assessmentService.submit(req.studentId(), req.answers());
     }
 
+    /**
+     * 知识点列表：GET /api/assess/points?subject=math
+     * subject 可选 math / english / politics（默认 math），前端按学科展示。
+     */
     @GetMapping("/points")
-    public List<KnowledgePoint> points() {
-        return assessmentService.allPoints();
+    public List<KnowledgePoint> points(@RequestParam(required = false) String subject) {
+        String s = (subject == null || subject.isBlank()) ? "math" : subject;
+        return assessmentService.allPoints(s);
     }
 
     @GetMapping("/stats")
@@ -55,9 +61,15 @@ public class AssessmentController {
         return assessmentService.stats();
     }
 
+    /**
+     * 查看诊断与计划：GET /api/assess/diagnosis?studentId=xxx&subject=math
+     * subject 可选 math / english / politics（默认 math），各学科的掌握度独立追踪、互不影响。
+     */
     @GetMapping("/diagnosis")
-    public AssessmentResult.DiagnosisView diagnosis(@RequestParam String studentId) {
-        return assessmentService.getDiagnosis(studentId);
+    public AssessmentResult.DiagnosisView diagnosis(@RequestParam String studentId,
+                                                    @RequestParam(required = false) String subject) {
+        String s = (subject == null || subject.isBlank()) ? "math" : subject;
+        return assessmentService.getDiagnosis(studentId, s);
     }
 
     /**
@@ -84,10 +96,12 @@ public class AssessmentController {
     /**
      * AI 润色计划（可选增强）：用大模型把规则计划 + 诊断改写成个性化解读。
      * 规则计划始终兜底：若大模型不可用（如免费档限流），返回 fallback=true，前端保留规则计划。
+     * body：{"studentId":"xxx", "subject":"math"}（subject 可选，默认 math）
      */
     @PostMapping("/plan/ai")
     public Map<String, Object> aiPlan(@RequestBody AssessmentAiPlanRequest req) {
-        String plan = assessmentService.generateAiPlan(req.studentId());
+        String subject = (req.subject() == null || req.subject().isBlank()) ? "math" : req.subject();
+        String plan = assessmentService.generateAiPlan(req.studentId(), subject);
         Map<String, Object> result = new HashMap<>();
         if (plan == null || plan.isBlank()) {
             result.put("fallback", true);
@@ -99,7 +113,7 @@ public class AssessmentController {
         return result;
     }
 
-    /** POST /api/assess/plan/ai 的请求体：{"studentId":"xxx"} */
-    public record AssessmentAiPlanRequest(String studentId) {
+    /** POST /api/assess/plan/ai 的请求体：{"studentId":"xxx", "subject":"math"} */
+    public record AssessmentAiPlanRequest(String studentId, String subject) {
     }
 }

@@ -1,0 +1,366 @@
+"""
+考研英语第一批原创种子题生成器。
+
+作用：生成 src/main/resources/data/english-seed-batch1.json
+      之后由 QuestionDataInitializer 读入数据库（按科目导入，不影响已有数学数据）。
+
+说明：
+  - 全部题目为本项目原创编写，不照搬任何真实真题原文；
+  - 英语的翻译、写作是主观题，本项目测评系统（自动判分）暂不覆盖，
+    因此本批只收适合客观化考查的部分：词汇语法、完形填空、阅读理解、写作翻译基础知识；
+  - 阅读与完形所用短文均为自编，长度与真题相近但不取材真题。
+"""
+
+import json
+import os
+
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(BASE, "src", "main", "resources", "data")
+OUT_FILE = os.path.join(OUT_DIR, "english-seed-batch1.json")
+
+CHAPTERS = [
+    {
+        "code": "ENGLISH-01", "name": "词汇与语法结构", "order": 1,
+        "applicableTo": ["english1", "english2"],
+        "points": [
+            {"code": "ENGLISH-01-01", "name": "词义辨析与搭配", "order": 1},
+            {"code": "ENGLISH-01-02", "name": "非谓语动词", "order": 2},
+            {"code": "ENGLISH-01-03", "name": "名词性从句与定语从句", "order": 3},
+            {"code": "ENGLISH-01-04", "name": "虚拟语气与情态动词", "order": 4},
+        ],
+    },
+    {
+        "code": "ENGLISH-02", "name": "完形填空", "order": 2,
+        "applicableTo": ["english1", "english2"],
+        "points": [
+            {"code": "ENGLISH-02-01", "name": "上下文逻辑关系", "order": 1},
+            {"code": "ENGLISH-02-02", "name": "词汇复现与搭配", "order": 2},
+        ],
+    },
+    {
+        "code": "ENGLISH-03", "name": "阅读理解", "order": 3,
+        "applicableTo": ["english1", "english2"],
+        "points": [
+            {"code": "ENGLISH-03-01", "name": "主旨大意题", "order": 1},
+            {"code": "ENGLISH-03-02", "name": "细节理解题", "order": 2},
+            {"code": "ENGLISH-03-03", "name": "推理判断题", "order": 3},
+            {"code": "ENGLISH-03-04", "name": "词义猜测题", "order": 4},
+        ],
+    },
+    {
+        "code": "ENGLISH-04", "name": "写作与翻译基础", "order": 4,
+        "applicableTo": ["english1", "english2"],
+        "points": [
+            {"code": "ENGLISH-04-01", "name": "应用文写作规范", "order": 1},
+            {"code": "ENGLISH-04-02", "name": "英汉表达差异与翻译技巧", "order": 2},
+        ],
+    },
+]
+
+# 元组顺序：题号, 章节, 知识点, 题型, 难度, 题干, 选项, 答案, 解析, 考点标签
+ROWS = [
+    # ============ 词汇与语法结构 ============
+    (
+        "ENGLISH-Q0001", "ENGLISH-01", ["ENGLISH-01-01"], "SINGLE_CHOICE", 2,
+        "The professor spoke so ______ that even the back row could hear every word clearly.",
+        [{"key": "A", "content": "vaguely"}, {"key": "B", "content": "audibly"},
+         {"key": "C", "content": "visibly"}, {"key": "D", "content": "incredibly"}],
+        "B",
+        "题干后半句说「最后一排也能听清每个词」，说明教授讲话『听得见、清晰』。audibly 意为「听得见地」，符合语境。vaguely（含糊地）与句意相反；visibly（看得见地）搭配的是视觉；incredibly（难以置信地）语义过强，且不指向听觉。做题先抓状语从句给出的结果，再反推单词方向。",
+        ["词义辨析", "语境推断"],
+    ),
+    (
+        "ENGLISH-Q0002", "ENGLISH-01", ["ENGLISH-01-01"], "SINGLE_CHOICE", 3,
+        "She has been ______ to the new environment and gets along well with her colleagues.",
+        [{"key": "A", "content": "adjusted"}, {"key": "B", "content": "adapting"},
+         {"key": "C", "content": "adopted"}, {"key": "D", "content": "accustomed"}],
+        "D",
+        "be accustomed to sth 是固定搭配，意为「习惯于某事」，与后半句「与同事相处融洽」衔接自然。adapt 要说 adapt oneself to；adjust 要说 adjust to，且本句已有 has been，过去分词 adjusted 语义上不通（不是『被调整』）；adopt（收养/采纳）与 environment 不搭配。介词 to 是重要线索——记住 to 前面动词的固定用法。",
+        ["固定搭配", "近形词辨析"],
+    ),
+    (
+        "ENGLISH-Q0003", "ENGLISH-01", ["ENGLISH-01-02"], "SINGLE_CHOICE", 2,
+        "______ with the size of the whole earth, the highest mountain does not seem high at all.",
+        [{"key": "A", "content": "Comparing"}, {"key": "B", "content": "Compared"},
+         {"key": "C", "content": "To compare"}, {"key": "D", "content": "Having compared"}],
+        "B",
+        "主语 the highest mountain 是『被比较』的对象，逻辑上是被动关系，要用过去分词 compared。compared with... 是固定悬垂结构，相当于 When it is compared with...。A、D 是主动形式，逻辑主语错误；C 不定式表目的或将来，不合句意。判断非谓语的第一步永远是看它与句子主语是主动还是被动。",
+        ["非谓语动词", "分词作状语"],
+    ),
+    (
+        "ENGLISH-Q0004", "ENGLISH-01", ["ENGLISH-01-02"], "FILL_BLANK", 3,
+        "The problem ________ (discuss) at the meeting yesterday has not been solved yet.（用 discuss 的适当形式填空）",
+        [],
+        "discussed",
+        "problem 与 discuss 是被动关系（问题被讨论），且动作发生在 yesterday，要用过去分词 discussed 作后置定语，相当于定语从句 that/which was discussed。易错点：受 at the meeting yesterday 影响误填 was discussed——那样句子出现两个谓语（has not been solved 已是谓语）。名词后已有谓语动词时，修饰它的一定是非谓语。",
+        ["非谓语动词", "后置定语"],
+    ),
+    (
+        "ENGLISH-Q0005", "ENGLISH-01", ["ENGLISH-01-03"], "SINGLE_CHOICE", 3,
+        "The way ______ he talked to his mother made us all surprised.",
+        [{"key": "A", "content": "that"}, {"key": "B", "content": "which"},
+         {"key": "C", "content": "in which"}, {"key": "D", "content": "what"}],
+        "A",
+        "先行词是 the way，且从句 he talked to his mother 主干完整（缺的是方式状语），可用 that 或 in which 引导，也可省略关系词。四个选项里 A、C 都对，但单选选最优：way 作先行词表方式时 that 最自然（省略关系词的默认形式）。what 不能引导定语从句；which 表方式时必须搭配介词 in which，单独 which 作方式状语不规范。",
+        ["定语从句", "关系词选择"],
+    ),
+    (
+        "ENGLISH-Q0006", "ENGLISH-01", ["ENGLISH-01-03"], "SINGLE_CHOICE", 2,
+        "______ breaks the law will be punished, ______ is known to all.",
+        [{"key": "A", "content": "No matter who; as"}, {"key": "B", "content": "Whoever; which"},
+         {"key": "C", "content": "Anyone; as"}, {"key": "D", "content": "Who; it"}],
+        "B",
+        "第一空缺主语且表示『无论谁违法』这一类人，Whoever = anyone who，本身含先行词，可引导名词性从句；no matter who 只能引导让步状语从句，不能作主语。第二空是非限制性定语从句，指代前面整句话的内容，关系词用 which 或 as；as 的位置灵活（可放句首），which 不能放句首，此处 as 放句中也可以，但 which 与 as 的区别在第二空不是考点——综合两空只有 B 完全正确。",
+        ["名词性从句", "非限制性定语从句"],
+    ),
+    (
+        "ENGLISH-Q0007", "ENGLISH-01", ["ENGLISH-01-04"], "SINGLE_CHOICE", 3,
+        "If I ______ you, I would take the offer without hesitation.",
+        [{"key": "A", "content": "am"}, {"key": "B", "content": "was"},
+         {"key": "C", "content": "were"}, {"key": "D", "content": "will be"}],
+        "C",
+        "对现在的虚拟：从句用一般过去时（be 动词统一用 were，不论人称），主句用 would + 动词原形。主句 would take 已给出，从句只能是 were。这是考研英语的稳定考点：虚拟语气中 be 的过去式一律写 were，正式文体不写 was。",
+        ["虚拟语气", "与现在事实相反"],
+    ),
+    (
+        "ENGLISH-Q0008", "ENGLISH-01", ["ENGLISH-01-04"], "SINGLE_CHOICE", 2,
+        "You ______ have watered the flowers; the heavy rain has done it for you.",
+        [{"key": "A", "content": "must"}, {"key": "B", "content": "needn't"},
+         {"key": "C", "content": "couldn't"}, {"key": "D", "content": "shouldn't"}],
+        "B",
+        "needn't have done 表示『本不必做（实际却做了）」，与后半句「大雨已经替你浇了」完美对应。must have done 表对过去的肯定推测（一定做过），不合句意；couldn't have done 表否定推测（不可能做过）；shouldn't have done 表『本不该做』，含责备意味，此处是『没必要』而非『不该』。区分四个情态动词+have done 的含义是高频考点。",
+        ["情态动词+完成时", "虚拟意味"],
+    ),
+    # ============ 完形填空 ============
+    (
+        "ENGLISH-Q0009", "ENGLISH-02", ["ENGLISH-02-01"], "SINGLE_CHOICE", 2,
+        "完形填空（短文为自编）：\nMany people believe that willpower is a fixed quality you are born with. ______, psychologists have found that it works more like a muscle: it grows stronger every time you use it.",
+        [{"key": "A", "content": "Therefore"}, {"key": "B", "content": "However"},
+         {"key": "C", "content": "Moreover"}, {"key": "D", "content": "Meanwhile"}],
+        "B",
+        "前句说『意志力是天生的固定品质』，后句说『心理学家发现它更像肌肉、越练越强』——前后是转折对立关系，用 However。Therefore 表因果；Moreover 表递进；Meanwhile 表时间并行。完形填空中逻辑关系题占一半以上，先判断前后句是同向（递进/并列/因果）还是反向（转折/对比），再选词。",
+        ["逻辑关系", "转折"],
+    ),
+    (
+        "ENGLISH-Q0010", "ENGLISH-02", ["ENGLISH-02-02"], "SINGLE_CHOICE", 3,
+        "完形填空（短文为自编）：\nThe company decided to ______ its old equipment rather than buy new machines, saving nearly half of the budget.",
+        [{"key": "A", "content": "upgrade"}, {"key": "B", "content": "discard"},
+         {"key": "C", "content": "overlook"}, {"key": "D", "content": "renew"}],
+        "A",
+        "rather than buy new machines（而不是买新机器）+ 省下一半预算，说明是『升级改造旧设备』，upgrade 有『使升级』之意，符合。discard（丢弃）与省钱逻辑相反；overlook（忽视/俯瞰）不接 equipment 作此义；renew 侧重『更新契约/续期』，不如 upgrade 准确指向设备性能提升。利用 rather than 的对比信息是解完形的常用抓手。",
+        ["动词辨析", "上下文复现"],
+    ),
+    (
+        "ENGLISH-Q0011", "ENGLISH-02", ["ENGLISH-02-01"], "SINGLE_CHOICE", 2,
+        "完形填空（短文为自编）：\nReading aloud for twenty minutes every morning, ______ simple it may seem, has greatly improved her pronunciation.",
+        [{"key": "A", "content": "since"}, {"key": "B", "content": "unless"},
+         {"key": "C", "content": "as"}, {"key": "D", "content": "once"}],
+        "C",
+        "as 引导让步状语从句时，要把表语/状语提前，构成『as + 形容词/副词 + as 主语+谓语』结构，意为『尽管看起来简单』，符合句意。since（既然/自从）、unless（除非）、once（一旦）都不用于这种倒装让步结构。看到『形容词 + as + 主谓』要立刻反应为 as 表尽管。",
+        ["逻辑关系", "as 让步状语从句"],
+    ),
+    (
+        "ENGLISH-Q0012", "ENGLISH-02", ["ENGLISH-02-02"], "SINGLE_CHOICE", 3,
+        "完形填空（短文为自编）：\nHe is a man of his word; you can ______ on him to keep the secret.",
+        [{"key": "A", "content": "rely"}, {"key": "B", "content": "trust"},
+         {"key": "C", "content": "believe"}, {"key": "D", "content": "depend"}],
+        "A",
+        "rely on sb 表示『信赖某人会履行责任』，与 a man of his word（守信的人）语义一致。trust 是及物动词，直接接人（trust him），不加 on；believe 接人时用 believe in；depend 虽能接 on，但 depend on 侧重『依赖、取决于』，信赖义不如 rely on 地道。介词搭配是完形常考点，平时要注意动词与介词的固定组合。",
+        ["动词搭配", "介词选择"],
+    ),
+    # ============ 阅读理解 ============
+    (
+        "ENGLISH-Q0013", "ENGLISH-03", ["ENGLISH-03-01"], "SINGLE_CHOICE", 2,
+        "阅读理解（短文为自编）：\nUrban gardening is often dismissed as a hobby for people with large yards. Yet across small apartments and crowded neighborhoods, balcony tomato plants and windowsill herbs are quietly reshaping how city residents think about food. What began as a weekend pastime has grown into a movement that questions long supply chains and reconnects people with the seasons.\n\nThe passage is mainly about ______.",
+        [{"key": "A", "content": "why urban gardening remains a niche hobby"},
+         {"key": "B", "content": "how city gardening is changing urban life"},
+         {"key": "C", "content": "the best vegetables to grow on balconies"},
+         {"key": "D", "content": "problems of modern food supply"}],
+        "B",
+        "主旨题抓『转折+总结』。Yet 之后是重点：阳台种植正在重塑城市居民对食物的看法，从周末消遣发展为一种运动。B 准确概括。A 与首句 dismissed as a hobby 之后的 Yet 转折矛盾；C 是细节里的例子，不是主旨；D 只是文中提到的一个方面（质疑长供应链），以偏概全。主旨题警惕把细节当主旨。",
+        ["主旨大意", "转折定位"],
+    ),
+    (
+        "ENGLISH-Q0014", "ENGLISH-03", ["ENGLISH-03-02"], "SINGLE_CHOICE", 2,
+        "阅读理解（短文为自编）：\nUrban gardening is often dismissed as a hobby for people with large yards. Yet across small apartments and crowded neighborhoods, balcony tomato plants and windowsill herbs are quietly reshaping how city residents think about food. What began as a weekend pastime has grown into a movement that questions long supply chains and reconnects people with the seasons.\n\nAccording to the passage, urban gardening used to be considered ______.",
+        [{"key": "A", "content": "a professional farming activity"},
+         {"key": "B", "content": "an expensive urban trend"},
+         {"key": "C", "content": "a pastime for those with yards"},
+         {"key": "D", "content": "a scientific research project"}],
+        "C",
+        "细节题用题干关键词 used to be considered 定位首句：a hobby for people with large yards，与 C 完全对应（pastime 与 hobby 同义替换，yards 原词复现）。A、B、D 在文中均无出处。干扰项常用原文词拼凑（如 yards 出现但主语被偷换），做题时要把选项放回原文核对整体语义。",
+        ["细节理解", "同义替换"],
+    ),
+    (
+        "ENGLISH-Q0015", "ENGLISH-03", ["ENGLISH-03-03"], "SINGLE_CHOICE", 3,
+        "阅读理解（短文为自编）：\nWhen electric cars first appeared on city streets, taxi drivers laughed at their limited range. Ten years later, the same drivers spend their breaks queuing at charging stations instead of gas pumps, and few of them would call the change an improvement in their working conditions.\n\nIt can be inferred from the passage that the taxi drivers ______.",
+        [{"key": "A", "content": "welcomed electric cars from the very beginning"},
+         {"key": "B", "content": "accepted the change despite mixed feelings"},
+         {"key": "C", "content": "refuse to use charging stations"},
+         {"key": "D", "content": "earn much more than before"}],
+        "B",
+        "推断题要紧扣原文做『一步推理』：十年前嘲笑→如今排队充电（事实已接受）+ few would call it an improvement（并不觉得更好），合起来就是『无奈接受、感受复杂』。A 与 laughed at 矛盾；C 与 queuing at charging stations 矛盾；D 无任何依据。推断题的铁律：答案必须能在原文找到依据，只推一步，不引申。",
+        ["推理判断", "态度推断"],
+    ),
+    (
+        "ENGLISH-Q0016", "ENGLISH-03", ["ENGLISH-03-04"], "SINGLE_CHOICE", 3,
+        "阅读理解（短文为自编）：\nIn many offices, \"quiet firing\" has become an open secret: employees are not formally dismissed, but they are gradually excluded from meetings, stripped of meaningful tasks, and passed over for promotion until they resign on their own.\n\nThe phrase \"quiet firing\" is closest in meaning to ______.",
+        [{"key": "A", "content": "dismissing employees politely in person"},
+         {"key": "B", "content": "forcing employees to quit by marginalizing them"},
+         {"key": "C", "content": "firing employees during the lunch break"},
+         {"key": "D", "content": "encouraging employees to work quietly"}],
+        "B",
+        "词义猜测题的解法是看冒号/同位语的解释：not formally dismissed, but gradually excluded... until they resign on their own——不正式解雇，但通过边缘化逼其主动辞职，与 B 完全对应。A 的 politely in person 与原文 quietly/排除会议相对；C 望文生义曲解 quiet；D 反了方向，是逼迫离职而非鼓励安静工作。猜词义先找定义句，别靠单词表面猜。",
+        ["词义猜测", "同位语解释"],
+    ),
+    (
+        "ENGLISH-Q0017", "ENGLISH-03", ["ENGLISH-03-02"], "SINGLE_CHOICE", 2,
+        "阅读理解（短文为自编）：\nA recent experiment divided volunteers into two groups. The first group memorized vocabulary by writing each word fifty times; the second group spent the same amount of time reading passages containing the words. Two weeks later, the second group recalled twice as many words.\n\nWhat did the experiment show?",
+        [{"key": "A", "content": "Writing a word repeatedly is the fastest way to memorize it"},
+         {"key": "B", "content": "Learning words in context improves long-term recall"},
+         {"key": "C", "content": "Volunteers forgot most words within two weeks"},
+         {"key": "D", "content": "Reading passages takes more time than writing"}],
+        "B",
+        "实验对比：机械抄写 50 遍 vs 在语境中阅读，结果后者两周后记住的量是前者两倍，结论是『语境中学习更有利于长期记忆』，选 B。A 与结论相反；C 与 twice as many words 不符（不是大多数都忘）；D 与 the same amount of time 矛盾。实验类阅读抓『分组—处理—结果—结论』四要素。",
+        ["细节理解", "实验对比"],
+    ),
+    # ============ 写作与翻译基础 ============
+    (
+        "ENGLISH-Q0018", "ENGLISH-04", ["ENGLISH-04-01"], "SINGLE_CHOICE", 2,
+        "给本校学生会写一封申请信，希望担任英语学习社志愿者。信的结尾最得体的是 ______。",
+        [{"key": "A", "content": "Give me the job, or you will regret it."},
+         {"key": "B", "content": "I would appreciate it if you could consider my application."},
+         {"key": "C", "content": "This letter is written to ask you to accept me."},
+         {"key": "D", "content": "I don't care what you decide."}],
+        "B",
+        "应用文结尾要礼貌、留有余地，I would appreciate it if you could consider... 是标准的请求句式，得体且符合书信语域。A 语气强硬；C 的 ask you to accept me 生硬无礼；D 明显失礼。应用文评分第一档要求『语言得体、语气恰当』，夸张和命令式表达都是扣分点。",
+        ["应用文", "语气得体"],
+    ),
+    (
+        "ENGLISH-Q0019", "ENGLISH-04", ["ENGLISH-04-01"], "SINGLE_CHOICE", 2,
+        "考研英语小作文（书信）中，用于称呼陌生收信人的规范表达是 ______。",
+        [{"key": "A", "content": "Dear Mr. Smith,"}, {"key": "B", "content": "Hello Smith,"},
+         {"key": "C", "content": "My dear friend Smith,"}, {"key": "D", "content": "Dear Smith:"}],
+        "A",
+        "不知道对方姓名时用 Dear Sir or Madam；知道姓氏时用 Dear Mr./Ms./Dr. + 姓，后接逗号。B 缺称谓词且过于随意；C 的 My dear friend 用于熟人，不符合『陌生收信人』场景；D 冒号是美式商务函件旧式用法，考研英语规范用逗号。格式细节（称呼、落款、三段式）是小作文的基础得分点。",
+        ["应用文格式", "称呼语"],
+    ),
+    (
+        "ENGLISH-Q0020", "ENGLISH-04", ["ENGLISH-04-01"], "SINGLE_CHOICE", 3,
+        "关于考研英语大作文（英语一的图画作文）首段写法，最规范的是 ______。",
+        [{"key": "A", "content": "直接抄写图画标题，不写任何描述"},
+         {"key": "B", "content": "先总体描述图画内容，再用一两句点明寓意"},
+         {"key": "C", "content": "第一段就展开论证并举例"},
+         {"key": "D", "content": "用大段文字描写图画中每个细节的顏色"}],
+        "B",
+        "图画作文三段式的标准分工：首段描述图画（总体+细节）并点题，第二段分析意义/原因，第三段总结建议。B 符合规范。A 不描述图画会被认为跑题；C 把论证放首段，结构失衡；D 陷入细节堆砌，英文写作重概括不重穷尽。记住：首段回答 What，二段回答 Why，三段回答 How/What to do。",
+        ["大作文结构", "图画描述"],
+    ),
+    (
+        "ENGLISH-Q0021", "ENGLISH-04", ["ENGLISH-04-02"], "SINGLE_CHOICE", 2,
+        "英译汉时，下列哪种处理最符合汉语表达习惯？\n原句：He is as stubborn as a mule.",
+        [{"key": "A", "content": "他像骡子一样固执。"},
+         {"key": "B", "content": "他倔得像头驴。"},
+         {"key": "C", "content": "他是一种像骡子一样固执的动物。"},
+         {"key": "D", "content": "他的固执相当于一头骡子。"}],
+        "B",
+        "英语 as stubborn as a mule 直译是『像骡子一样固执』，但汉语里对应的惯用说法是『倔得像头驴』——翻译要转换意象，找到译入语的对等表达，而不是逐词照搬。A 保留了英语意象，汉语读者会觉得别扭；C、D 冗长且改变句意。英汉翻译的两条基本原则：语义对等优先于形式对应；符合译入语表达习惯。",
+        ["英汉差异", "意象转换"],
+    ),
+    (
+        "ENGLISH-Q0022", "ENGLISH-04", ["ENGLISH-04-02"], "SINGLE_CHOICE", 3,
+        "翻译下面句子时，最需要调整的是语序：\n原句：I met an old friend in the street yesterday who had taught me English ten years before.",
+        [{"key": "A", "content": "按英语原序先译时间状语 yesterday"},
+         {"key": "B", "content": "把定语从句 who had taught me English ten years before 移到先行词 friend 之前"},
+         {"key": "C", "content": "把句子拆成两句，完全删除时间信息"},
+         {"key": "D", "content": "只翻译主句，省略从句"}],
+        "B",
+        "英语定语从句后置，汉语定语通常前置。『十年前教我英语的』要放在『老朋友』之前，译为『昨天我在街上遇到一位十年前教我英语的老朋友』。A 保留后置不符合汉语习惯（且汉语时间状语通常提前，原序 yesterday 放句中也不对）；C 删信息、D 省略从句都违背『信』的翻译标准。定语从句前置/分译是英译汉最高频的语序调整。",
+        ["定语从句", "语序调整"],
+    ),
+    (
+        "ENGLISH-Q0023", "ENGLISH-04", ["ENGLISH-04-02"], "FILL_BLANK", 3,
+        "英译汉断句技巧：英语长句汉译时，如果原文是「主语 + 及物动词 + that 宾语从句」结构，且从句较长，通常把从句译成一个独立的______（填两个字的术语）。（答案：分句）",
+        [],
+        "分句",
+        "长句处理的基本功是『拆』：英语重形合（连接词多、一句套一句），汉语重意合（短句多、按时间逻辑排列）。that 引导的长宾语从句，常拆成汉语的独立分句，用逗号或句号连接，必要时补出主语。如果硬译成一个长定语或一个单句，会出现『欧化汉语』，读起来佶屈聱牙。断句（拆句）是长句汉译的第一技巧。",
+        ["长句处理", "拆译"],
+    ),
+    # ============ 补充分布，保证各章题量均衡 ============
+    (
+        "ENGLISH-Q0024", "ENGLISH-01", ["ENGLISH-01-01"], "SINGLE_CHOICE", 1,
+        "The library opens ______ 8 a.m. and closes ______ 10 p.m. every day.",
+        [{"key": "A", "content": "in; in"}, {"key": "B", "content": "at; at"},
+         {"key": "C", "content": "at; in"}, {"key": "D", "content": "in; at"}],
+        "B",
+        "表示具体钟点用介词 at（at 8 a.m. / at 10 p.m.）；in 用于年、月、季节、泛指的上午下午（in the morning）。两空都是具体钟点，都用 at。时间介词是语法基础题：at+钟点/时刻，on+具体某天，in+较长时段，记牢这三层就不会错。",
+        ["介词", "时间表达"],
+    ),
+    (
+        "ENGLISH-Q0025", "ENGLISH-02", ["ENGLISH-02-01"], "SINGLE_CHOICE", 2,
+        "完形填空（短文为自编）：\nOnline courses offer flexibility, ______ they demand a great deal of self-discipline.",
+        [{"key": "A", "content": "for"}, {"key": "B", "content": "or"},
+         {"key": "C", "content": "but"}, {"key": "D", "content": "so"}],
+        "C",
+        "前句『灵活』是优点，后句『需要大量自律』是代价/限制，前后转折，用 but。for 表原因（补充说明）；or 表选择/否则；so 表结果。两个形容词性描述并列对比时，先判断情感色彩：一褒一限即转折。完形中 but/however/yet 是最高频的逻辑词。",
+        ["逻辑关系", "转折"],
+    ),
+    (
+        "ENGLISH-Q0026", "ENGLISH-03", ["ENGLISH-03-03"], "SINGLE_CHOICE", 3,
+        "阅读理解（短文为自编）：\nSleep researchers once believed that the brain simply shut down at night. Modern recordings tell a different story: while the body rests, the brain replays the day's experiences, strengthening some connections and pruning others, as if editing a film before its release.\n\nThe passage suggests that during sleep, the brain ______.",
+        [{"key": "A", "content": "stops all activity to save energy"},
+         {"key": "B", "content": "organizes and processes information"},
+         {"key": "C", "content": "creates entirely new experiences"},
+         {"key": "D", "content": "damages connections between neurons"}],
+        "B",
+        "replays the day's experiences, strengthening some connections and pruning others——重放当天经历、强化部分连接、修剪其他连接，本质是『整理加工信息』，选 B。A 与 once believed 的旧观点一致，正是被 Modern recordings 推翻的；C 的 entirely new 无依据；D 的 damages 歪曲 pruning（修剪是正常优化，不是损坏）。推断题注意区分『旧观点』与『新证据』。",
+        ["推理判断", "新旧观点对比"],
+    ),
+]
+
+
+def build():
+    items = []
+    for row in ROWS:
+        code, chapter, points, qtype, diff, stem, options, answer, explanation = row[:9]
+        keywords = row[9] if len(row) > 9 else []
+        items.append({
+            "code": code,
+            "subjectCode": "english",
+            "chapterCode": chapter,
+            "pointCodes": points,
+            "type": qtype,
+            "difficulty": diff,
+            "year": None,
+            "source": "ORIGINAL_SEED",
+            "stem": stem,
+            "options": options,
+            "answer": answer,
+            "explanation": explanation,
+            "keywords": keywords,
+        })
+    return items
+
+
+def main():
+    os.makedirs(OUT_DIR, exist_ok=True)
+    data = {
+        "schemaVersion": "1.0",
+        "batch": "english-batch-1",
+        "title": "考研英语第一批原创种子题",
+        "createdAt": "2026-10-15",
+        "scopeNote": "全部为原创编写，不照搬任何真实真题原文；阅读与完形短文均为自编。翻译、写作为主观题，本项目测评系统暂不覆盖，本批仅收适合客观化考查的部分。",
+        "subject": {"code": "english", "name": "英语"},
+        "chapters": CHAPTERS,
+        "questions": build(),
+    }
+    with open(OUT_FILE, "w", encoding="utf-8") as fp:
+        json.dump(data, fp, ensure_ascii=False, indent=2)
+        fp.write("\n")
+    print("已生成:", OUT_FILE)
+    print("章节数:", len(data["chapters"]))
+    print("题目数:", len(data["questions"]))
+
+
+if __name__ == "__main__":
+    main()

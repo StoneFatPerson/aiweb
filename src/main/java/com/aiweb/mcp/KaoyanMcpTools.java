@@ -200,7 +200,7 @@ public class KaoyanMcpTools {
         if (studentId == null || studentId.isBlank()) {
             return "请提供学生 ID（学号）。";
         }
-        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(studentId.trim());
+        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(studentId.trim(), "math");
         if (view == null || !view.assessed()) {
             return "学号 " + studentId.trim() + " 暂无测评记录。请先完成一次数学测评（答一组题）后，再来查看诊断与备考计划。";
         }

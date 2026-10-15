@@ -11,7 +11,7 @@ REQUIRED = ["code", "chapterCode", "pointCodes", "type", "difficulty",
 def main():
     base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(base, "src", "main", "resources", "data")
-    files = sorted(f for f in os.listdir(path) if f.startswith("math-seed"))
+    files = sorted(f for f in os.listdir(path) if f.endswith(".json") and "-seed-" in f)
 
     if not files:
         print("未找到题库文件")
