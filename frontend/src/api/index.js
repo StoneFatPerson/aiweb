@@ -81,3 +81,12 @@ export const getAnswerHistory = (studentId) => request.get('/assess/history', { 
 
 /** 清除某学生的历史学习数据（掌握度 + 做题历史），回到未测评状态 */
 export const clearAssessment = (studentId) => request.delete('/assess/clear', { params: { studentId } })
+
+/* ---------------- 认知科普（RAG 检索问答） ---------------- */
+
+/**
+ * 认知科普问答：把问题发给后端，后端先从考研知识库检索相关片段，
+ * 再让大模型只依据这些片段作答（不瞎编），并返回命中的"参考来源"标题。
+ * 返回 { answer, sources: string[] }
+ */
+export const askScience = (payload) => request.post('/science/ask', payload)

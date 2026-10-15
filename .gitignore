@@ -29,3 +29,6 @@ Thumbs.db
 .env
 *.local
 AIWeb比赛项目大模型API.txt
+
+### RAG 运行时生成的向量库（由语料自动构建，不进仓库）###
+kaoyan-vectorstore.json

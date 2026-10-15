@@ -40,6 +40,21 @@
       <artifactId>spring-ai-starter-model-openai</artifactId>
     </dependency>
 
+    <!-- 本地 ONNX 嵌入模型：把文字变成向量，完全本地运行、无需任何 API Key。
+         作用：RAG 认知科普问答的「理解语义」环节，让"相似的问题"能匹配到"相似的资料" -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-transformers</artifactId>
+    </dependency>
+
+    <!-- 向量库核心模块：内含 SimpleVectorStore（内存向量库，存向量 + 相似度检索，支持文件持久化）。
+         注意：SimpleVectorStore 不自动装配 Bean，需要我们手写 @Bean（见 RagConfig）。
+         它由 spring-ai-bom 托管版本，无需写 <version>。 -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-vector-store</artifactId>
+    </dependency>
+
     <!-- MyBatis-Plus：少写 SQL -->
     <dependency>
       <groupId>com.baomidou</groupId>

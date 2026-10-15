@@ -45,6 +45,19 @@ spring:
           model: glm-4.7-flash
           temperature: 0.7
 
+    # ===== 本地嵌入模型（RAG 认知科普问答用）=====
+    # 作用：把中文文本变成一串数字（向量），语义相近的文本向量也相近，
+    # 这样用户提问时能匹配到"意思最接近"的考研资料。完全本地运行，不要 Key。
+    # 选用 e5-small-v2：多语言模型，对中文支持良好；走 hf-mirror.com 国内镜像，下载更稳。
+    model:
+      embedding: transformers          # 启用本地 transformers 嵌入（默认就是 transformers，写清楚更直观）
+    embedding:
+      transformer:
+        onnx:
+          # 模型文件（.onnx）与分词器（tokenizer.json）首次使用时会自动下载并缓存
+          model-uri: https://hf-mirror.com/intfloat/e5-small-v2/resolve/main/model.onnx
+          tokenizer-uri: https://hf-mirror.com/intfloat/e5-small-v2/raw/main/tokenizer.json
+
 mybatis-plus:
   configuration:
     # 在控制台打印 SQL，方便调试

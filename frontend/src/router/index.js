@@ -23,6 +23,12 @@ const routes = [
     meta: { title: 'AI 问答' }
   },
   {
+    path: '/science',
+    name: 'science',
+    component: () => import('@/views/ScienceView.vue'),
+    meta: { title: '认知科普' }
+  },
+  {
     path: '/plan',
     name: 'plan',
     component: () => import('@/views/PlanView.vue'),
