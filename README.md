@@ -135,11 +135,17 @@ aiweb/
 # 1. 编译
 mvn clean compile
 
-# 2. 启动
-mvn spring-boot:run
+# 2. 启动（固定 8080 端口）
+#    命令行参数 --server.port=8080 优先级高于环境变量，
+#    可避免被 SERVER_PORT / SERVER__PORT 之类变量改成别的端口（改了前端 Vite 代理就连不上后端）。
+mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 ```
 
 或在 IDE 中直接运行 `AiwebApplication.java`。
+
+> **Windows 一键启动**：双击 `scripts/start-backend.bat`（后端，固定 8080）和 `scripts/start-frontend.bat`（前端，5173），不用手动敲命令。
+>
+> **端口被抢怎么办**：若页面提示"后端未连接"，先看后端启动日志里 `Tomcat started on port` 是不是 **8080**；不是的话，说明环境里有 `SERVER_PORT` / `SERVER__PORT` 变量抢了端口。因为环境变量优先级高于配置文件，解法是加命令行参数 `--server.port=8080`（命令行优先级最高，能压过环境变量）——上面的启动命令和 `start-backend.bat` 已经带上；在 IDE 里运行则在"运行配置 → 程序参数"中加上它。
 
 启动后访问：
 
@@ -159,6 +165,8 @@ mvn spring-boot:run
 cd frontend
 npm install --registry=https://registry.npmmirror.com
 npm run dev
+
+> 也可直接双击 `scripts/start-frontend.bat`（会自动判断是否已装依赖）。
 ```
 
 前端跑在 http://localhost:5173，它会把 `/api` 请求自动转发到后端 8080（Vite 代理，不需要后端配跨域）。
