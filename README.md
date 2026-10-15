@@ -36,6 +36,7 @@
 | 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
 | Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
 | AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹） | ✅ 已完成 |
+| MCP 工具服务（5 个工具按 MCP 协议暴露，SSE 传输，可被第三方 AI 客户端调用） | ✅ 已完成 |
 
 ---
 
@@ -81,6 +82,7 @@ aiweb/
 │   ├── controller/                         Chat / College / Major / Assessment / Science / Agent（共 6 个）
 │   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
+│   ├── mcp/                                 MCP 工具服务：KaoyanMcpTools（@McpTool 暴露 5 个标准工具）
 │   ├── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
 │   └── agent/                              Agent 编排：IntentTool / CollegeSearchTool / ScienceTool / DiagnosisTool / PlanTool + AgentOrchestrator（多步工具调用、轨迹透明）
 ├── src/main/resources/
@@ -207,7 +209,56 @@ npm run dev
 
 ---
 
-## 九、数据与合规
+## 九、MCP 工具服务
+
+本项目同时是一个 **MCP Server**（Model Context Protocol，模型上下文协议——让 AI 应用标准化调用外部工具的开放协议）。启动后端后，任何支持 MCP 的客户端都能直接调用本项目能力，无需改动业务代码。
+
+- **连接地址**：`http://localhost:8080/sse`（SSE 传输，与 REST 接口共存于同一应用）
+- **注册方式**：`KaoyanMcpTools` 方法上的 `@McpTool` 注解由 MCP starter 自动扫描暴露
+- **安全提示**：当前未做鉴权，仅限本地 / 内网演示；对外暴露前必须加访问控制
+
+### 工具清单
+
+| 工具名 | 功能 | 数据来源 |
+|---|---|---|
+| `search_colleges` | 查院校（城市/层次/985/211/关键词） | MySQL 院校库 |
+| `get_college_detail` | 院校详情（含招生专业列表） | MySQL 院校库 + 专业库 |
+| `search_majors` | 查专业（院校/门类/学位类型/关键词） | MySQL 专业库 |
+| `ask_kaoyan_knowledge` | 考研知识咨询（附参考来源） | 本地 RAG 知识库 |
+| `get_study_diagnosis` | 学情诊断 + 三阶段备考计划 | MySQL 作答记录 + BKT 算法 |
+
+### 客户端接入示例
+
+**Cherry Studio**（设置 → MCP 服务器 → 添加，类型选 SSE）：
+
+```json
+{
+  "mcpServers": {
+    "aiweb-kaoyan": {
+      "type": "sse",
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+**Claude Desktop**（`claude_desktop_config.json`）：
+
+```json
+{
+  "mcpServers": {
+    "aiweb-kaoyan": {
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+接入后即可在对话中直接提问，例如「山东有哪些 985 院校」「学硕和专硕有什么区别」，客户端会自动调用对应工具并基于返回数据作答。
+
+---
+
+## 十、数据与合规
 
 | 项 | 说明 |
 |---|---|
@@ -218,7 +269,7 @@ npm run dev
 
 ---
 
-## 十、团队信息
+## 十一、团队信息
 
 | 项 | 内容 |
 |---|---|
@@ -229,7 +280,7 @@ npm run dev
 
 ---
 
-## 十一、许可与声明
+## 十二、许可与声明
 
 - 本项目为参赛作品，题目与知识点数据为整理/原创内容，仅供参考。
 - 涉及考试政策、时间节点、招生信息的内容，**一律以中国研究生招生信息网等官方渠道公告为准**。
