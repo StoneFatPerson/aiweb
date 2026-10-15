@@ -29,6 +29,12 @@ const routes = [
     meta: { title: '认知科普' }
   },
   {
+    path: '/agent',
+    name: 'agent',
+    component: () => import('@/views/AgentView.vue'),
+    meta: { title: 'AI 规划助手' }
+  },
+  {
     path: '/plan',
     name: 'plan',
     component: () => import('@/views/PlanView.vue'),

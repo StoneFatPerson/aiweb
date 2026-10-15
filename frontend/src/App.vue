@@ -51,6 +51,7 @@ const navItems = [
   { to: '/assess', label: '学情诊断' },
   { to: '/plan', label: '备考计划' },
   { to: '/science', label: '认知科普' },
+  { to: '/agent', label: 'AI 规划' },
   { to: '/chat', label: 'AI 问答' }
 ]
 
