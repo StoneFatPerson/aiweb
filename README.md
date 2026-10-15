@@ -14,7 +14,7 @@
 
 | 环节 | 解决的问题 | 做法 |
 |---|---|---|
-| **认知科普** | 不懂流程和名词 | 基于自建知识库的 RAG 问答，答案可溯源，不靠模型自由发挥 |
+| **认知科普** | 不懂流程和名词 | 左侧固定科普文本（术语 / 学硕专硕 / 时间线等）；右侧基于自建知识库的 AI 答疑（RAG，答案可溯源，不靠模型自由发挥） |
 | **学情诊断** | 不知道自己哪不会 | 知识点体系 + 测评 + 掌握度建模，把"感觉不行"变成"具体哪章不行" |
 | **计划与复盘** | 计划做不出、执行不下去 | 掌握度驱动计划权重；按实际进度动态调整；错题间隔重复 |
 
@@ -31,10 +31,10 @@
 | 考研院校专业库（28 所院校 / 104 个专业，山东为主） | ✅ 已完成 |
 | 数学题库第一批（14 章节 / 25 知识点 / 34 道原创题） | ✅ 已完成 |
 | 知识点体系与统一数据格式 | ✅ 已完成 |
-| 测评 / 掌握度 / 诊断 | 🚧 开发中 |
-| 计划生成与动态调整 | 🚧 开发中 |
-| 科普知识库 + RAG 问答 | 🚧 开发中 |
-| Vue 3 前端 | 🚧 开发中 |
+| 测评 / 掌握度 / 诊断（BKT 掌握度建模） | ✅ 已完成 |
+| 计划生成与动态调整（掌握度驱动 + 错题间隔重复） | ✅ 已完成 |
+| 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
+| Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
 
 ---
 
@@ -76,17 +76,18 @@ aiweb/
 ├── pom.xml                                 依赖与构建配置
 ├── src/main/java/com/aiweb/
 │   ├── AiwebApplication.java               启动入口 + 环境变量检查
-│   ├── config/CollegeDataInitializer.java  启动时自动导入院校数据
-│   ├── controller/                         ChatController / CollegeController / MajorController
-│   ├── entity/                             ChatMessage / College / Major
+│   ├── config/                             RagConfig / CollegeDataInitializer / CorpusInitializer / QuestionDataInitializer
+│   ├── controller/                         Chat / College / Major / Assessment / Science（共 5 个）
+│   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
-│   └── service/                            ChatService / CollegeService
+│   └── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
 ├── src/main/resources/
 │   ├── application.yml                     配置（密钥走环境变量）
 │   ├── schema.sql                          建表脚本（启动自动执行）
+│   ├── kaoyan-corpus.json                  认知科普语料（RAG 检索源；不收录分数线，全是稳定的结构化事实）
 │   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
 │   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
-│   └── static/index.html                   临时页面（后续由 Vue 前端取代）
+│   └── static/index.html                   临时首页（已被 Vue 前端取代）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器
 └── docs/题库数据格式说明.md                  统一数据格式规范
@@ -177,6 +178,21 @@ npm run dev
 | GET | `/api/colleges` | 院校查询（支持城市/层次/985/211/自划线/关键词） |
 | GET | `/api/colleges/{id}` | 院校详情（含专业列表） |
 | GET | `/api/majors` | 专业查询（支持门类/学位类型/关键词） |
+| GET | `/api/majors/categories` | 学科门类（筛选用） |
+| GET | `/api/colleges/cities` | 院校所在城市（筛选用） |
+| GET | `/api/colleges/stats` | 院校 / 专业库统计 |
+| GET | `/api/colleges/{id}/majors` | 某院校的专业列表 |
+| POST | `/api/assess/start` | 开始测评（按学情抽题，不含答案） |
+| POST | `/api/assess/submit` | 提交答案（判分 + BKT 诊断 + 生成计划） |
+| GET | `/api/assess/points` | 知识点体系 |
+| GET | `/api/assess/diagnosis` | 查看诊断与计划 |
+| GET | `/api/assess/history` | 做题历史 |
+| DELETE | `/api/assess/clear` | 清除学习数据（回到未测评） |
+| POST | `/api/assess/plan/ai` | AI 润色计划（可选增强，失败有兜底） |
+| GET | `/api/science/topics` | 认知科普主题列表 |
+| POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
+| POST | `/api/science/ask` | RAG 问答（保留兼容） |
+| POST | `/api/science/chat` | 右侧 AI 答疑（会话式 RAG，带历史与上下文） |
 
 ---
 
