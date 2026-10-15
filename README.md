@@ -78,7 +78,7 @@ aiweb/
 ├── src/main/java/com/aiweb/
 │   ├── AiwebApplication.java               启动入口 + 环境变量检查
 │   ├── config/                             RagConfig / CollegeDataInitializer / CorpusInitializer / QuestionDataInitializer
-│   ├── controller/                         Chat / College / Major / Assessment / Science（共 5 个）
+│   ├── controller/                         Chat / College / Major / Assessment / Science / Agent（共 6 个）
 │   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
 │   ├── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
@@ -89,9 +89,9 @@ aiweb/
 │   ├── kaoyan-corpus.json                  认知科普语料（RAG 检索源；不收录分数线，全是稳定的结构化事实）
 │   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
 │   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
-│   └── static/index.html                   临时首页（已被 Vue 前端取代）
+│   └── static/index.html                  后端根路径引导页（展示服务入口，前端在 5173）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
-├── scripts/                                题库生成器与校验器
+├── scripts/                                题库生成器与校验器 + 一键启动脚本（start-backend.bat / start-frontend.bat）
 └── docs/题库数据格式说明.md                  统一数据格式规范
 ```
 

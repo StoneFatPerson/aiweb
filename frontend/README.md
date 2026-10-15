@@ -27,10 +27,15 @@ aiweb-frontend/
     ├── router/index.js        路由表
     ├── api/index.js           后端接口封装
     ├── styles/main.css        全局样式
+    ├── data/scienceContent.js 认知科普固定讲解文本（纯静态，不依赖 AI）
+    ├── components/ScienceChat.vue  科普页右侧 AI 答疑组件（会话式 RAG）
     └── views/
         ├── HomeView.vue       首页
         ├── CollegeView.vue    院校专业库
+        ├── AssessmentView.vue 学情测评（支持文字/图片 OCR 提交）
         ├── PlanView.vue       备考计划
+        ├── ScienceView.vue    认知科普（左固定讲解 + 右 AI 答疑）
+        ├── AgentView.vue      AI 规划助手（Agent 多步编排 + 执行轨迹）
         └── ChatView.vue       AI 问答
 ```
 
@@ -94,4 +99,5 @@ npm run build
 - 页面容器、导航、表格均做了窄屏适配（720px 以下自动调整布局）
 - 顶部导航使用语义化 `nav` 标签并带 `aria-label`
 - 对话区使用 `role="log"` 与 `aria-live="polite"`，屏幕阅读器能播报新消息
+- AI 规划助手的分步执行轨迹区域同样使用 `aria-live="polite"`，每步状态变化可被播报
 - 全局样式尊重系统的「减少动态效果」设置
