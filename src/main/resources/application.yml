@@ -53,10 +53,13 @@ spring:
       embedding: transformers          # 启用本地 transformers 嵌入（默认就是 transformers，写清楚更直观）
     embedding:
       transformer:
+        # 本地 ONNX 嵌入模型（e5-small-v2，多语言、对中文友好），首次使用会从下方地址自动下载并缓存，无需 API Key。
+        # 重要：分词器必须放在独立节点 transformer.tokenizer.uri（不在 onnx 下），
+        # 否则会回退到框架默认的 all-MiniLM 分词器，与 e5 模型不匹配，导致向量失真、检索失效。
         onnx:
-          # 模型文件（.onnx）与分词器（tokenizer.json）首次使用时会自动下载并缓存
           model-uri: https://hf-mirror.com/intfloat/e5-small-v2/resolve/main/model.onnx
-          tokenizer-uri: https://hf-mirror.com/intfloat/e5-small-v2/raw/main/tokenizer.json
+        tokenizer:
+          uri: https://hf-mirror.com/intfloat/e5-small-v2/raw/main/tokenizer.json
 
 mybatis-plus:
   configuration:
