@@ -55,6 +55,14 @@
       <artifactId>spring-ai-vector-store</artifactId>
     </dependency>
 
+    <!-- MCP Server：把本项目能力（院校查询/科普检索/学情诊断/备考计划）按 MCP 协议暴露成标准工具，
+         任何支持 MCP 的客户端（Cherry Studio / Claude Desktop / Cline 等）都能直接调用。
+         传输方式为 SSE（HTTP 长连接），端点默认 /sse，与现有 REST 接口共存于同一应用。 -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+    </dependency>
+
     <!-- MyBatis-Plus：少写 SQL -->
     <dependency>
       <groupId>com.baomidou</groupId>

@@ -61,6 +61,18 @@ spring:
         tokenizer:
           uri: https://hf-mirror.com/intfloat/e5-small-v2/raw/main/tokenizer.json
 
+    # ===== MCP Server（模型上下文协议）=====
+    # 作用：把本项目能力（院校查询 / 专业查询 / 考研知识咨询 / 学情诊断）按 MCP 协议暴露成标准工具。
+    # 任何支持 MCP 的客户端（Cherry Studio / Claude Desktop / Cline 等）连接后，
+    # 就能在对话里直接调用这些工具，无需改动本项目任何业务代码。
+    # 传输方式：SSE（HTTP 长连接），客户端连接地址 http://localhost:8080/sse。
+    # 注意：当前未做鉴权，仅限本地 / 内网演示；对外暴露前必须加访问控制。
+    mcp:
+      server:
+        name: aiweb-kaoyan-mcp        # 服务名，会展示在客户端的服务器列表里
+        version: 1.0.0                # 版本号
+        type: SYNC                    # 同步模式（配合 Spring MVC；ASYNC 需要 WebFlux）
+
 mybatis-plus:
   configuration:
     # 在控制台打印 SQL，方便调试
