@@ -230,7 +230,7 @@ npm run dev
 | `get_college_detail` | 院校详情（含招生专业列表） | MySQL 院校库 + 专业库 |
 | `search_majors` | 查专业（院校/门类/学位类型/关键词） | MySQL 专业库 |
 | `ask_kaoyan_knowledge` | 考研知识咨询（附参考来源） | 本地 RAG 知识库 |
-| `get_study_diagnosis` | 学情诊断 + 三阶段备考计划 | MySQL 作答记录 + BKT 算法 |
+| `get_study_diagnosis` | 学情诊断（可选数学/英语/政治学科）+ 三阶段备考计划 | MySQL 作答记录 + BKT 算法 |
 
 ### 客户端接入示例
 

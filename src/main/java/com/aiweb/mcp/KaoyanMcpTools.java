@@ -194,18 +194,27 @@ public class KaoyanMcpTools {
      * 数据源：MySQL 作答记录 + BKT 掌握度模型 + 规则化计划生成，全部本地计算。
      */
     @McpTool(name = "get_study_diagnosis",
-            description = "查看某位学生的学习情况诊断：各知识点的掌握度、薄弱点，以及据此生成的基础/强化/冲刺三阶段备考计划。需要学生先完成过至少一次数学测评；如果对方还没有测评记录，会提示先去做测评。")
+            description = "查看某位学生的学习情况诊断：各科目的知识点掌握度、薄弱点，以及据此生成的基础/强化/冲刺三阶段备考计划。需要学生先完成过至少一次测评（数学/英语/政治任一科目）；如果对方还没有测评记录，会提示先去做测评。")
     public String getStudyDiagnosis(
-            @McpToolParam(description = "学生 ID（学号），由用户提供，如「demo」") String studentId) {
+            @McpToolParam(description = "学生 ID（学号），由用户提供，如「demo」") String studentId,
+            @McpToolParam(description = "科目代码：math / english / politics，不填默认 math", required = false) String subject) {
         if (studentId == null || studentId.isBlank()) {
             return "请提供学生 ID（学号）。";
         }
-        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(studentId.trim(), "math");
+        String subj = (subject == null || subject.isBlank()) ? "math" : subject.trim().toLowerCase();
+        if (!com.aiweb.service.AssessmentService.SUBJECTS.contains(subj)) subj = "math";
+        String subjectName = switch (subj) {
+            case "math" -> "数学";
+            case "english" -> "英语";
+            case "politics" -> "政治";
+            default -> "数学";
+        };
+        AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(studentId.trim(), subj);
         if (view == null || !view.assessed()) {
-            return "学号 " + studentId.trim() + " 暂无测评记录。请先完成一次数学测评（答一组题）后，再来查看诊断与备考计划。";
+            return "学号 " + studentId.trim() + " 暂无" + subjectName + "测评记录。请先完成一次测评（答一组题）后，再来查看诊断与备考计划。";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("【学情诊断】学生 ").append(studentId.trim()).append("\n\n");
+        sb.append("【学情诊断】学生 ").append(studentId.trim()).append("（").append(subjectName).append("）\n\n");
         sb.append("各知识点掌握度：\n");
         if (view.diagnosis() != null) {
             for (AssessmentResult.PointDiagnosis d : view.diagnosis()) {

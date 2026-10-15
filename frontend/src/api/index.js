@@ -70,9 +70,6 @@ export const submitAssessment = (payload) => request.post('/assess/submit', payl
 /** 查看某学生的诊断与计划（不重新答题）。subject 可选 math/english/politics，默认 math */
 export const getDiagnosis = (studentId, subject) => request.get('/assess/diagnosis', { params: { studentId, subject: subject || 'math' } })
 
-/** 所有知识点（展示用） */
-export const getPoints = () => request.get('/assess/points')
-
 /** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底）。subject 可选 math/english/politics */
 export const getAiPlan = (studentId, subject) => request.post('/assess/plan/ai', { studentId, subject: subject || 'math' })
 

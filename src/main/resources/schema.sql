@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS major (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研专业表';
 
 -- ============================================================
--- 考研数学题库（第一批：34 道原创种子题，全部非真题）
--- 来源：data/math-seed-batch1.json
+-- 考研题库（数学第一批 34 题 / 英语第一批 26 题 / 政治第一批 24 题，全部原创非真题）
+-- 来源：data/{math,english,politics}-seed-batch1.json
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS question_bank (
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS question_bank (
     subject_code   VARCHAR(16)  COMMENT '学科代码，如 math',
     chapter_code   VARCHAR(16)  COMMENT '章节代码，如 MATH-01',
     point_codes    VARCHAR(255) COMMENT '知识点代码（逗号分隔，可多个）',
-    applicable_to  VARCHAR(64)  COMMENT '适用数学类型：math1/math2/math3（逗号分隔）',
+    applicable_to  VARCHAR(64)  COMMENT '适用卷种/科目（逗号分隔）：数学 math1/math2/math3，英语 english1/english2，政治 politics',
     type           VARCHAR(16)  NOT NULL COMMENT '题型：SINGLE_CHOICE / FILL_BLANK',
     difficulty     TINYINT      NOT NULL DEFAULT 1 COMMENT '难度 1-3',
     year           VARCHAR(8)   COMMENT '年份，种子题多为 null',
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS question_bank (
     KEY idx_point (point_codes(64)),
     KEY idx_chapter (chapter_code),
     KEY idx_type (type)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研数学题库';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研题库（数学/英语/政治，subject_code 区分学科）';
 
 -- 知识点表：用于诊断时按知识点追踪掌握度（取自同一 JSON 的 chapters/points）
 CREATE TABLE IF NOT EXISTS knowledge_point (
@@ -89,9 +89,9 @@ CREATE TABLE IF NOT EXISTS knowledge_point (
     name           VARCHAR(128) NOT NULL COMMENT '知识点名称',
     chapter_code   VARCHAR(16)  COMMENT '所属章节代码',
     chapter_name   VARCHAR(128) COMMENT '所属章节名称',
-    applicable_to  VARCHAR(64)  COMMENT '适用数学类型：math1/math2/math3',
+    applicable_to  VARCHAR(64)  COMMENT '适用卷种/科目（逗号分隔）：数学 math1/math2/math3，英语 english1/english2，政治 politics',
     UNIQUE KEY uk_pcode (code)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研数学知识点';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '考研知识点（数学/英语/政治，code 前缀区分学科）';
 
 -- 掌握度表：按「学生 + 知识点」记录 BKT 估计的掌握概率，支持持续追踪
 CREATE TABLE IF NOT EXISTS mastery (
