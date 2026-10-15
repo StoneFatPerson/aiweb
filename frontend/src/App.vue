@@ -20,7 +20,7 @@
         </nav>
 
         <!-- 后端连通状态：一眼看出后端有没有启动 -->
-        <div class="status" :title="health ? '后端服务正常' : '后端未连接，请先启动 Spring Boot 应用'">
+        <div class="status" :title="healthy ? '后端服务正常' : '后端未连接，请先启动 Spring Boot 应用'">
           <span class="dot" :class="healthy ? 'ok' : 'bad'" aria-hidden="true"></span>
           <span class="status-text">{{ healthy ? '服务正常' : '后端未连接' }}</span>
         </div>

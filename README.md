@@ -155,7 +155,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 
 | 地址 | 内容 |
 |---|---|
-| http://localhost:8080 | 应用首页 |
+| http://localhost:8080 | 后端服务引导页（应用首页提示，前端在 5173） |
 | http://localhost:8080/api/health | 健康检查 |
 | http://localhost:8080/swagger-ui.html | 接口文档 |
 
@@ -197,6 +197,7 @@ npm run dev
 | POST | `/api/assess/start` | 开始测评（按学情抽题，不含答案） |
 | POST | `/api/assess/submit` | 提交答案（判分 + BKT 诊断 + 生成计划） |
 | GET | `/api/assess/points` | 知识点体系 |
+| GET | `/api/assess/stats` | 题库统计（题目数 / 章节数） |
 | GET | `/api/assess/diagnosis` | 查看诊断与计划 |
 | GET | `/api/assess/history` | 做题历史 |
 | DELETE | `/api/assess/clear` | 清除学习数据（回到未测评） |
