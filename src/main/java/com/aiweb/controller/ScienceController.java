@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map;
  *  - POST /api/science/ask     旧版问答（保留兼容）
  */
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/science")
 public class ScienceController {
 
@@ -43,5 +45,25 @@ public class ScienceController {
     public RagService.RagAnswer ask(@RequestBody Map<String, String> body) {
         String question = (body == null) ? "" : body.getOrDefault("question", "");
         return ragService.ask(question);
+    }
+
+    /**
+     * 右侧 AI 答疑窗口：会话式问答。接收 { question, history, context }，
+     * 返回 { answer, sources }。history 为之前对话轮次，context 为当前阅读主题标题。
+     */
+    @PostMapping("/chat")
+    public RagService.RagAnswer chat(@RequestBody ScienceChatRequest body) {
+        List<RagService.ChatTurn> history =
+                (body == null || body.history() == null) ? List.of() : body.history();
+        String question = (body == null || body.question() == null) ? "" : body.question();
+        String context = (body == null || body.context() == null) ? "" : body.context();
+        return ragService.chat(history, question, context);
+    }
+
+    /** 右侧 AI 答疑窗口的请求体 */
+    public record ScienceChatRequest(
+            String question,
+            List<RagService.ChatTurn> history,
+            String context) {
     }
 }

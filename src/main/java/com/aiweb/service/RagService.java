@@ -218,4 +218,84 @@ public class RagService {
             this.sources = sources;
         }
     }
+
+    /* ===================== 会话式答疑（右侧 AI 窗口） ===================== */
+
+    /** 对话中的一轮：role 为 "user" 或 "assistant"，content 为该轮文本 */
+    public static class ChatTurn {
+        public final String role;
+        public final String content;
+
+        public ChatTurn(String role, String content) {
+            this.role = role;
+            this.content = content;
+        }
+    }
+
+    /**
+     * 会话式答疑：在 RAG 检索的基础上，结合对话历史理解用户的"追问"。
+     *
+     * @param history 之前若干轮对话（不含当前问题），用于追问上下文
+     * @param question 本次提问
+     * @param context 用户当前正在阅读的主题标题（可选，帮助 AI 理解背景）
+     */
+    public RagAnswer chat(List<ChatTurn> history, String question, String context) {
+        if (question == null || question.trim().isEmpty()) {
+            return new RagAnswer("请输入你的问题，例如：学硕和专硕有什么区别？", List.of());
+        }
+
+        List<Document> docs = vectorStore.similaritySearch(
+                SearchRequest.builder().query(question).topK(4).build());
+
+        if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
+            return new RagAnswer(
+                    "抱歉，我的考研知识库里暂时没有相关内容。考试政策、招生信息请以中国研究生招生信息网" +
+                            "（研招网）和目标院校研究生院官网的官方公告为准。",
+                    List.of());
+        }
+
+        String contextText = docs.stream()
+                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + d.getText())
+                .collect(Collectors.joining("\n\n"));
+        List<String> sources = docs.stream()
+                .map(d -> (String) d.getMetadata().getOrDefault("title", ""))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new))
+                .stream().collect(Collectors.toList());
+
+        // 把之前的对话整理成可读文本，帮助模型理解"追问"
+        String historyText = "";
+        if (history != null) {
+            historyText = history.stream()
+                    .map(h -> ("user".equals(h.role) ? "用户" : "助手") + "：" + h.content)
+                    .collect(Collectors.joining("\n"));
+        }
+        String contextHint = (context == null || context.isBlank()) ? "" : ("用户当前正在阅读的主题是「" + context + "」。\n");
+
+        String system = "你是考研科普答疑助手。请严格只依据下方【参考资料】回答用户问题，并可结合【对话历史】理解用户意图；" +
+                "不要使用资料以外的知识，也不要编造任何数据或政策。如果参考资料不足以回答，" +
+                "请明确说明「资料中没有相关信息」。回答要简洁、准确、有条理。";
+
+        String userMsg = contextHint +
+                "【对话历史】\n" + (historyText.isEmpty() ? "(无)" : historyText) +
+                "\n\n【参考资料】\n" + contextText +
+                "\n\n【用户问题】" + question;
+
+        String answer;
+        try {
+            answer = chatClient.prompt()
+                    .system(system)
+                    .user(userMsg)
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            answer = "（生成失败：大模型接口暂时不可用，可能是免费档限流，请稍后重试。下方「参考来源」是已检索到的相关资料。）";
+            return new RagAnswer(answer, sources);
+        }
+        if (answer == null || answer.isBlank()) {
+            answer = "（模型暂时没有返回内容，可能是免费接口限流，请稍后重试。）";
+        }
+
+        return new RagAnswer(answer, sources);
+    }
 }
