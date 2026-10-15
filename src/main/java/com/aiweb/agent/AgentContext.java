@@ -29,6 +29,11 @@ public class AgentContext {
     private final List<Major> majors = new ArrayList<>();
     private String collegeNote = "";
 
+    // 院校筛选条件（由 IntentTool 从目标中解析，如「山东有哪些 985」→ city=山东、is985=1）
+    private String filterCity = "";
+    private Integer filter985;
+    private Integer filter211;
+
     // 科普检索产出
     private String scienceAnswer = "";
     private final List<String> scienceSources = new ArrayList<>();
@@ -59,6 +64,17 @@ public class AgentContext {
     public List<Major> getMajors() { return majors; }
     public String getCollegeNote() { return collegeNote; }
     public void setCollegeNote(String s) { this.collegeNote = s; }
+
+    public String getFilterCity() { return filterCity; }
+    public void setFilterCity(String s) { this.filterCity = s == null ? "" : s; }
+    public Integer getFilter985() { return filter985; }
+    public void setFilter985(Integer v) { this.filter985 = v; }
+    public Integer getFilter211() { return filter211; }
+    public void setFilter211(Integer v) { this.filter211 = v; }
+    /** 是否解析出了院校筛选条件（用于「山东有哪些 985」这类没有具体院校名的列举式目标） */
+    public boolean hasCollegeFilter() {
+        return !filterCity.isBlank() || filter985 != null || filter211 != null;
+    }
 
     public String getScienceAnswer() { return scienceAnswer; }
     public void setScienceAnswer(String s) { this.scienceAnswer = s; }

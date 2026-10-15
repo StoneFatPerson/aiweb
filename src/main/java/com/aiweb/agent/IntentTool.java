@@ -37,6 +37,11 @@ public class IntentTool implements AgentTool {
             "纺织", "交通运输", "船舶", "航空", "航天", "兵器", "翻译", "设计", "艺术",
             "音乐", "体育", "马克思主义");
 
+    // 山东地市词表：用户说「青岛有哪些大学」时按城市筛选库内院校（库内城市即实际值）
+    private static final List<String> CITY_WORDS = List.of(
+            "济南", "青岛", "烟台", "威海", "潍坊", "淄博", "济宁", "泰安", "临沂",
+            "德州", "聊城", "滨州", "菏泽", "日照", "枣庄", "东营", "曲阜", "邹城");
+
     private final CollegeService collegeService;
 
     public IntentTool(CollegeService collegeService) {
@@ -73,13 +78,18 @@ public class IntentTool implements AgentTool {
         }
 
         boolean collegeByData = !ctx.getColleges().isEmpty() || !ctx.getMajors().isEmpty();
-        ctx.setRunCollege(collegeByData || anyHit(goal, COLLEGE_HINTS));
+        // 解析筛选条件（「山东有哪些 985」这类列举式目标没有具体院校名，靠筛选词触发检索）
+        boolean filterHit = parseFilters(goal, ctx);
+        ctx.setRunCollege(collegeByData || filterHit || anyHit(goal, COLLEGE_HINTS));
         ctx.setRunScience(anyHit(goal, SCIENCE_HINTS) || !ctx.isRunCollege());
         ctx.setRunDiagnosis(ctx.getStudentId() != null && !ctx.getStudentId().isBlank());
 
         StringBuilder sb = new StringBuilder("目标：").append(goal.isEmpty() ? "(未填写)" : goal);
         if (ctx.isRunDiagnosis()) {
             sb.append("；已提供学号 ").append(ctx.getStudentId()).append("，将结合个人学情");
+        }
+        if (filterHit) {
+            sb.append("；解析到筛选条件：").append(describeFilter(ctx));
         }
         sb.append("。计划执行：");
         if (ctx.isRunCollege()) sb.append("院校专业检索 ");
@@ -92,6 +102,35 @@ public class IntentTool implements AgentTool {
 
     private boolean contains(String goal, String name) {
         return name != null && !name.isBlank() && goal.contains(name.trim());
+    }
+
+    /**
+     * 从目标中解析院校筛选条件：
+     *  - 城市词（济南/青岛/…）→ filterCity
+     *  - 「985」「211」→ filter985 / filter211（1 = 是）
+     * 「山东/本省/省内」不设 city——库内院校本就以山东为主，不过滤即为山东全集。
+     * 返回 true 表示解析到了至少一个筛选条件。
+     */
+    private boolean parseFilters(String goal, AgentContext ctx) {
+        boolean hit = false;
+        for (String city : CITY_WORDS) {
+            if (goal.contains(city)) {
+                ctx.setFilterCity(city);
+                hit = true;
+                break;
+            }
+        }
+        if (goal.contains("985")) { ctx.setFilter985(1); hit = true; }
+        if (goal.contains("211")) { ctx.setFilter211(1); hit = true; }
+        return hit;
+    }
+
+    private String describeFilter(AgentContext ctx) {
+        StringBuilder sb = new StringBuilder();
+        if (!ctx.getFilterCity().isBlank()) sb.append(ctx.getFilterCity()).append(" ");
+        if (ctx.getFilter985() != null) sb.append("985 ");
+        if (ctx.getFilter211() != null) sb.append("211 ");
+        return sb.toString().trim();
     }
 
     /** 学科关键词互含：目标里出现「计算机」且专业全名里也有「计算机」即算匹配 */

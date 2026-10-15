@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:template": "node scripts/check-template-undef.cjs"
   },
   "dependencies": {
     "@esbuild/win32-x64": "^0.25.12",
