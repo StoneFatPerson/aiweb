@@ -3,7 +3,7 @@
     <section class="panel">
       <h1 class="section-title">学情诊断与测评</h1>
       <p class="section-desc">
-        做几道数学题，系统用 BKT 算法（贝叶斯知识追踪）算你每个知识点的掌握度，标出薄弱点并生成三阶段备考计划。
+        做几道{{ subjectName }}题，系统用 BKT 算法（贝叶斯知识追踪）算你每个知识点的掌握度，标出薄弱点并生成三阶段备考计划。
       </p>
 
       <!-- 步骤 1：设置 + 开始 -->
@@ -23,6 +23,14 @@
             <el-input :value="studentId" readonly />
           </div>
           <div class="field">
+            <label>测评科目</label>
+            <el-select v-model="subject" class="grow">
+              <el-option label="数学" value="math" />
+              <el-option label="英语" value="english" />
+              <el-option label="政治" value="politics" />
+            </el-select>
+          </div>
+          <div class="field" v-if="subject === 'math'">
             <label>目标数学类型</label>
             <el-select v-model="targetMath" class="grow">
               <el-option label="全部（math1/2/3 通用题）" value="all" />
@@ -139,7 +147,7 @@
 
         <!-- 知识点诊断 -->
         <div class="block">
-          <h3 class="block-title">知识点掌握度诊断</h3>
+          <h3 class="block-title">{{ subjectName }}知识点掌握度诊断</h3>
           <div v-if="result.weakPoints && result.weakPoints.length" class="weak-box">
             <span class="weak-label">薄弱点：</span>
             <el-tag v-for="w in result.weakPoints" :key="w" type="danger" size="small" class="weak-tag">
@@ -196,7 +204,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   startAssessment, submitAssessment, getDiagnosis,
@@ -206,8 +214,13 @@ import {
 const step = ref('setup')
 const loading = ref(false)
 const studentId = ref('')
+const subject = ref('math')
 const targetMath = ref('all')
 const count = ref(10)
+
+// 科目中文名（数学默认，英语/政治为后续扩展科目）
+const SUBJECT_NAMES = { math: '数学', english: '英语', politics: '政治' }
+const subjectName = computed(() => SUBJECT_NAMES[subject.value] || '数学')
 
 const questions = ref([])
 const answers = reactive({})
@@ -240,6 +253,7 @@ async function start() {
   try {
     const data = await startAssessment({
       studentId: studentId.value,
+      subject: subject.value,
       targetMath: targetMath.value,
       count: count.value
     })
@@ -335,7 +349,7 @@ function compressImage(file) {
 async function viewDiagnosis() {
   loading.value = true
   try {
-    const res = await getDiagnosis(studentId.value)
+    const res = await getDiagnosis(studentId.value, subject.value)
     // 用诊断视图拼一个「只读」结果对象，不显示本次得分/逐题解析
     result.value = {
       diagnosis: res.diagnosis,

@@ -67,14 +67,14 @@ export const startAssessment = (payload) => request.post('/assess/start', payloa
 /** 提交答案：判分 + BKT 诊断 + 生成计划 */
 export const submitAssessment = (payload) => request.post('/assess/submit', payload)
 
-/** 查看某学生的诊断与计划（不重新答题） */
-export const getDiagnosis = (studentId) => request.get('/assess/diagnosis', { params: { studentId } })
+/** 查看某学生的诊断与计划（不重新答题）。subject 可选 math/english/politics，默认 math */
+export const getDiagnosis = (studentId, subject) => request.get('/assess/diagnosis', { params: { studentId, subject: subject || 'math' } })
 
 /** 所有知识点（展示用） */
 export const getPoints = () => request.get('/assess/points')
 
-/** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底） */
-export const getAiPlan = (studentId) => request.post('/assess/plan/ai', { studentId })
+/** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底）。subject 可选 math/english/politics */
+export const getAiPlan = (studentId, subject) => request.post('/assess/plan/ai', { studentId, subject: subject || 'math' })
 
 /** 查看某学生的做题历史（每条记录含对应题目的标准答案） */
 export const getAnswerHistory = (studentId) => request.get('/assess/history', { params: { studentId } })

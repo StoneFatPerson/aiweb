@@ -6,6 +6,16 @@
         基于你的学情诊断结果（BKT 算法算出的各知识点掌握度）动态生成基础 / 强化 / 冲刺三阶段计划。薄弱科目会自动分到更多精力。
       </p>
 
+      <!-- 科目切换：数学 / 英语 / 政治 各自独立追踪，互不影响 -->
+      <div class="subject-switch">
+        <span class="subject-label">查看科目：</span>
+        <el-radio-group v-model="subject" size="default" @change="load">
+          <el-radio-button value="math">数学</el-radio-button>
+          <el-radio-button value="english">英语</el-radio-button>
+          <el-radio-button value="politics">政治</el-radio-button>
+        </el-radio-group>
+      </div>
+
       <!-- 加载中 -->
       <div v-if="loading" class="state-box">正在读取你的诊断结果…</div>
 
@@ -14,7 +24,7 @@
         v-else-if="!data"
         icon="info"
         title="你还没做学情诊断"
-        sub-title="先做几道数学题，这里就会生成专属于你的备考计划。"
+        :sub-title="`先做几道${subjectName}题，这里就会生成专属于你的备考计划。`"
       >
         <template #extra>
           <el-button type="primary" @click="goAssess">去学情诊断</el-button>
@@ -114,6 +124,11 @@ import { ElMessage } from 'element-plus'
 const router = useRouter()
 const loading = ref(true)
 const data = ref(null)
+const subject = ref('math')
+
+// 科目中文名（用于文案）
+const SUBJECT_NAMES = { math: '数学', english: '英语', politics: '政治' }
+const subjectName = computed(() => SUBJECT_NAMES[subject.value] || '数学')
 
 // AI 润色计划相关状态
 const aiLoading = ref(false)
@@ -141,7 +156,7 @@ function getStudentId() {
 async function load() {
   loading.value = true
   try {
-    const res = await getDiagnosis(getStudentId())
+    const res = await getDiagnosis(getStudentId(), subject.value)
     // 后端用 assessed 标记是否真的做过测评：没做过就不展示计划，引导去答题
     data.value = (res && res.assessed) ? res : null
   } catch (e) {
@@ -153,7 +168,7 @@ async function load() {
 }
 
 function goAssess() {
-  router.push('/assessment')
+  router.push('/assess')
 }
 
 // AI 润色：调大模型把规则计划改写成个性化解读；失败则保留规则计划（兜底）
@@ -162,7 +177,7 @@ async function aiPolish() {
   aiPlan.value = ''
   aiFallback.value = false
   try {
-    const res = await getAiPlan(getStudentId())
+    const res = await getAiPlan(getStudentId(), subject.value)
     if (res.fallback) {
       aiFallback.value = true
       ElMessage.warning(res.message || 'AI 润色暂不可用，已保留规则计划')
@@ -186,6 +201,18 @@ onMounted(load)
   text-align: center;
   color: var(--text-muted);
   font-size: 14px;
+}
+
+.subject-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.subject-label {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .block {

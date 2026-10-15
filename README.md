@@ -30,6 +30,8 @@
 | AI 对话（接入智谱 GLM，多轮上下文，历史落库） | ✅ 已完成 |
 | 考研院校专业库（28 所院校 / 104 个专业，山东为主） | ✅ 已完成 |
 | 数学题库第一批（14 章节 / 25 知识点 / 34 道原创题） | ✅ 已完成 |
+| 英语题库第一批（4 章 / 12 知识点 / 26 道原创题：词汇语法 / 完形 / 阅读 / 写作翻译基础） | ✅ 已完成 |
+| 政治题库第一批（5 章 / 10 知识点 / 24 道原创题：马原 / 毛中特 / 史纲 / 思修 / 形策） | ✅ 已完成 |
 | 知识点体系与统一数据格式 | ✅ 已完成 |
 | 测评 / 掌握度 / 诊断（BKT 掌握度建模） | ✅ 已完成 |
 | 计划生成与动态调整（掌握度驱动 + 错题间隔重复） | ✅ 已完成 |
@@ -91,6 +93,8 @@ aiweb/
 │   ├── kaoyan-corpus.json                  认知科普语料（RAG 检索源；不收录分数线，全是稳定的结构化事实）
 │   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
 │   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
+│   ├── data/english-seed-batch1.json       英语第一批种子题（26 题）
+│   ├── data/politics-seed-batch1.json      政治第一批种子题（24 题）
 │   └── static/index.html                  后端根路径引导页（展示服务入口，前端在 5173）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器 + 一键启动脚本（start-backend.bat / start-frontend.bat）
@@ -194,14 +198,14 @@ npm run dev
 | GET | `/api/colleges/cities` | 院校所在城市（筛选用） |
 | GET | `/api/colleges/stats` | 院校 / 专业库统计 |
 | GET | `/api/colleges/{id}/majors` | 某院校的专业列表 |
-| POST | `/api/assess/start` | 开始测评（按学情抽题，不含答案） |
+| POST | `/api/assess/start` | 开始测评（按学科抽题，不含答案；body 传 `subject`，不传默认 math） |
 | POST | `/api/assess/submit` | 提交答案（判分 + BKT 诊断 + 生成计划） |
-| GET | `/api/assess/points` | 知识点体系 |
-| GET | `/api/assess/stats` | 题库统计（题目数 / 章节数） |
-| GET | `/api/assess/diagnosis` | 查看诊断与计划 |
+| GET | `/api/assess/points` | 知识点体系（`?subject=math/english/politics`，默认 math） |
+| GET | `/api/assess/stats` | 题库统计（总量 + 各科目分别统计） |
+| GET | `/api/assess/diagnosis` | 查看诊断与计划（`?subject=` 分学科，各科掌握度独立追踪） |
 | GET | `/api/assess/history` | 做题历史 |
 | DELETE | `/api/assess/clear` | 清除学习数据（回到未测评） |
-| POST | `/api/assess/plan/ai` | AI 润色计划（可选增强，失败有兜底） |
+| POST | `/api/assess/plan/ai` | AI 润色计划（可选增强，失败有兜底；body 传 `subject`） |
 | GET | `/api/science/topics` | 认知科普主题列表 |
 | POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
 | POST | `/api/science/ask` | RAG 问答（保留兼容） |
@@ -264,7 +268,7 @@ npm run dev
 | 项 | 说明 |
 |---|---|
 | 院校专业数据 | 自行整理的结构化信息，**不收录分数线**（每年变动且易产生幻觉）。当前标记 `verified=0`，正式提交前需与研招网逐条核对 |
-| 题库 | **全部原创编写**，不照搬任何真实真题原文；题目来源用 `source` 字段严格区分（原创种子题 / AI 生成题 / 用户导入 / 官方公开） |
+| 题库 | **全部原创编写**，不照搬任何真实真题原文；题目来源用 `source` 字段严格区分（原创种子题 / AI 生成题 / 用户导入 / 官方公开）。当前覆盖数学（34 题）/ 英语（26 题）/ 政治（24 题）三科，英语政治仅收适合客观化考查的部分（翻译写作为主观题，暂不收录）；各科掌握度独立追踪、互不影响 |
 | 第三方内容 | **不抓取**任何需要登录或有反爬的站点，避免著作权与个人信息风险 |
 | 密钥 | 全部走环境变量，不进入版本库 |
 
