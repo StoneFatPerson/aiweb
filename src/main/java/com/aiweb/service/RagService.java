@@ -126,8 +126,9 @@ public class RagService {
         }
 
         // 1) 检索：从向量库找语义最相近的若干段资料（讲解需要更丰富的上下文，取 10 条）
+        // e5 模型官方用法：查询侧加 "query: " 前缀（语料侧见 CorpusInitializer 的 "passage: "）
         List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder().query(query).topK(10).build());
+                SearchRequest.builder().query("query: " + query).topK(10).build());
 
         // 2) 防幻觉：没命中或最相关那段都不够"像"，如实说不知道
         if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
@@ -139,7 +140,7 @@ public class RagService {
 
         // 3) 组装参考资料文本 + 参考来源标题（去重）
         String context = docs.stream()
-                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + d.getText())
+                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + textOf(d))
                 .collect(Collectors.joining("\n\n"));
         List<String> sources = docs.stream()
                 .map(d -> (String) d.getMetadata().getOrDefault("title", ""))
@@ -163,7 +164,7 @@ public class RagService {
         } catch (Exception e) {
             // 大模型（免费档）限流时降级：直接拼接知识库原文，保证页面有可读内容
             content = "（大模型接口暂时不可用，以下为知识库相关资料原文，稍后可重试获取智能讲解。）\n\n"
-                    + docs.stream().map(Document::getText).collect(Collectors.joining("\n\n"));
+                    + docs.stream().map(RagService::textOf).collect(Collectors.joining("\n\n"));
             return new TopicExplain(title, content, sources);
         }
         if (content == null || content.isBlank()) {
@@ -181,8 +182,10 @@ public class RagService {
         }
         String q = truncate(question.trim(), MAX_INPUT_LEN);
 
+        // e5 模型官方用法：查询侧加 "query: " 前缀（语料侧见 CorpusInitializer 的 "passage: "）；
+        // 归一化由 NormalizingEmbeddingModel 包装层完成（RagConfig 装配）
         List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder().query(q).topK(4).build());
+                SearchRequest.builder().query("query: " + q).topK(4).build());
 
         if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
             return new RagAnswer(
@@ -192,7 +195,7 @@ public class RagService {
         }
 
         String context = docs.stream()
-                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + d.getText())
+                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + textOf(d))
                 .collect(Collectors.joining("\n\n"));
 
         String system = "你是考研科普助手。请严格只依据下方【参考资料】回答用户问题，" +
@@ -259,8 +262,10 @@ public class RagService {
         }
         String q = truncate(question.trim(), MAX_INPUT_LEN);
 
+        // e5 模型官方用法：查询侧加 "query: " 前缀（语料侧见 CorpusInitializer 的 "passage: "）；
+        // 归一化由 NormalizingEmbeddingModel 包装层完成（RagConfig 装配）
         List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder().query(q).topK(4).build());
+                SearchRequest.builder().query("query: " + q).topK(4).build());
 
         if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
             return new RagAnswer(
@@ -270,7 +275,7 @@ public class RagService {
         }
 
         String contextText = docs.stream()
-                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + d.getText())
+                .map(d -> "【" + d.getMetadata().getOrDefault("title", "资料") + "】\n" + textOf(d))
                 .collect(Collectors.joining("\n\n"));
         List<String> sources = docs.stream()
                 .map(d -> (String) d.getMetadata().getOrDefault("title", ""))
@@ -317,5 +322,15 @@ public class RagService {
         }
 
         return new RagAnswer(answer, sources);
+    }
+
+    /**
+     * 展示用的文档文本：剥掉嵌入时加的 "passage: " 前缀（CorpusInitializer 会拼上），
+     * 避免降级拼接原文时把前缀露给用户。标题本身保留（拼接在正文前，展示时相当于小节标题）。
+     */
+    static String textOf(Document d) {
+        String t = d.getText();
+        if (t == null) return "";
+        return t.startsWith("passage: ") ? t.substring("passage: ".length()) : t;
     }
 }

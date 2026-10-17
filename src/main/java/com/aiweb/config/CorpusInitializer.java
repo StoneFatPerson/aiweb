@@ -59,8 +59,13 @@ public class CorpusInitializer {
                 meta.put("category", it.category);
                 meta.put("title", it.title);
                 meta.put("sourceId", it.id);
-                // id 作为文档主键，content 是真正被嵌入和检索的文本
-                docs.add(new Document(it.id, it.content, meta));
+                // id 作为文档主键。嵌入文本 = 标题 + 正文：
+                //   - 标题信息密度高且含关键词（如「学术学位与专业学位（学硕与专硕）」），
+                //     只嵌正文会让关键词被长文本稀释，用户短问「学硕专硕区别」排不进 top4；
+                //   - e5 官方用法：passage 侧加 "passage: " 前缀（query 侧见 RagService）；
+                //   - 归一化由 NormalizingEmbeddingModel 包装层统一处理。
+                String embedText = "passage: " + (it.title == null ? "" : it.title) + "。" + it.content;
+                docs.add(new Document(it.id, embedText, meta));
             }
 
             vectorStore.add(docs);
