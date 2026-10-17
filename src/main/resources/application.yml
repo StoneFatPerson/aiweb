@@ -56,6 +56,14 @@ spring:
         # 本地 ONNX 嵌入模型（e5-small-v2，多语言、对中文友好），首次使用会从下方地址自动下载并缓存，无需 API Key。
         # 重要：分词器必须放在独立节点 transformer.tokenizer.uri（不在 onnx 下），
         # 否则会回退到框架默认的 all-MiniLM 分词器，与 e5 模型不匹配，导致向量失真、检索失效。
+        #
+        # 缓存目录必须固定：Spring AI 1.1.8 的默认缓存是每次启动新建的随机临时目录
+        # （Files.createTempDirectory("spring-ai-model-cache")），会导致
+        # 「每次重启都重新下载 100MB 模型」且临时目录永不清理、越积越多。
+        # 这里钉到用户主目录下的固定位置：第一次启动下载一次，之后重启直接复用、秒起。
+        cache:
+          enabled: true
+          directory: ${user.home}/.aiweb/models
         onnx:
           model-uri: https://hf-mirror.com/intfloat/e5-small-v2/resolve/main/model.onnx
         tokenizer:
