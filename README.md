@@ -98,7 +98,8 @@ aiweb/
 │   └── static/index.html                  后端根路径引导页（展示服务入口，前端在 5173）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器 + 一键启动脚本（start-backend.bat / start-frontend.bat）
-└── docs/题库数据格式说明.md                  统一数据格式规范
+├── docs/题库数据格式说明.md                  统一数据格式规范
+├── docs/技术文档.md                          参赛技术文档（概述/架构/AI 方案/实现/测试部署）
 ```
 
 > 前端与后端放在同一个仓库里，方便一次提交、一次评审。
