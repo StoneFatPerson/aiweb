@@ -30,3 +30,6 @@ AIWeb比赛项目大模型API.txt
 
 ### RAG 运行时生成的向量库（由语料自动构建，不进仓库）###
 kaoyan-vectorstore.json
+
+### 防止 npm 在 scripts/ 目录误跑时生成空 lock 文件 ###
+scripts/package-lock.json
