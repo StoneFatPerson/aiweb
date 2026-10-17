@@ -1,15 +1,35 @@
 @echo off
-chcp 65001 >nul
 REM ============================================================
-REM  一键启动后端（Spring Boot），固定使用 8080 端口
+REM  One-click backend launcher (Spring Boot, fixed port 8080)
 REM
-REM  为什么固定端口：
-REM    有些环境会注入 SERVER_PORT / SERVER__PORT 之类的变量，
-REM    Spring 会拿它覆盖 application.yml 里的 8080，前端就连不上后端。
-REM    命令行参数 --server.port=8080 优先级最高，能压过这些环境变量。
+REM  Why fixed port: some environments inject SERVER_PORT /
+REM  SERVER__PORT variables, which Spring uses to override
+REM  application.yml (env vars beat config files). The command
+REM  line arg --server.port=8080 has the HIGHEST priority and
+REM  always wins, so the backend really binds 8080 and the
+REM  Vite proxy can reach it.
+REM
+REM  Chinese guide: see the docs folder in this project
+REM  (local startup and testing guide).
 REM ============================================================
 cd /d %~dp0..
-echo [后端] 启动中，端口固定 8080 ...
-echo [提示] 日志出现 "Started AiwebApplication" 和 "Tomcat started on port 8080" 即启动成功。
+
+where mvn >nul 2>nul
+if errorlevel 1 (
+    echo [ERROR] mvn was not found in your PATH.
+    echo Please install Maven 3.9+ and add it to PATH,
+    echo or simply start the backend from IntelliJ IDEA:
+    echo open AiwebApplication.java, right click, Run.
+    echo Full guide: see the docs folder in this project.
+    pause
+    exit /b 1
+)
+
+echo [Backend] Starting, port fixed to 8080 ...
+echo [Hint] Success = the log shows:
+echo   "Started AiwebApplication" and "Tomcat started on port 8080"
+echo [Hint] First run downloads the e5 embedding model ^(~100MB^),
+echo   please wait 1-3 minutes and keep internet connected.
+echo.
 mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 pause

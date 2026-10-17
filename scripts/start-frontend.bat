@@ -1,15 +1,33 @@
 @echo off
-chcp 65001 >nul
 REM ============================================================
-REM  一键启动前端（Vue 3 + Vite），默认 5173 端口
-REM  前端会把 /api 请求代理到后端 8080（见 vite.config.js）
-REM  需先运行 start-backend.bat 启动后端，否则页面会提示"后端未连接"
+REM  One-click frontend launcher (Vue 3 + Vite, port 5173)
+REM
+REM  Vite proxies /api requests to the backend on 8080
+REM  (see vite.config.js). You MUST start the backend first
+REM  (scripts\start-backend.bat), otherwise the page shows
+REM  "backend not connected".
+REM
+REM  Chinese guide: see the docs folder in this project
+REM  (local startup and testing guide).
 REM ============================================================
 cd /d %~dp0..\frontend
-echo [前端] 启动中，端口 5173 ...
-if not exist node_modules (
-  echo [前端] 首次运行，正在用国内镜像安装依赖...
-  npm install --registry=https://registry.npmmirror.com
+
+where node >nul 2>nul
+if errorlevel 1 (
+    echo [ERROR] node / npm was not found in your PATH.
+    echo Please install Node.js 18+ LTS from https://nodejs.org
+    echo and re-open this window after installation.
+    pause
+    exit /b 1
 )
+
+echo [Frontend] Starting on port 5173 ...
+if not exist node_modules (
+    echo [Frontend] First run: installing dependencies via npmmirror...
+    echo [Hint] This takes 1-2 minutes.
+    npm install --registry=https://registry.npmmirror.com
+)
+echo [Hint] Open http://localhost:5173 in your browser.
+echo.
 npm run dev
 pause
