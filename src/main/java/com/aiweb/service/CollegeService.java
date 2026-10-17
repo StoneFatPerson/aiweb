@@ -31,6 +31,11 @@ public class CollegeService {
         this.majorMapper = majorMapper;
     }
 
+    /** 院校总数：最轻量的数据库探测查询（健康检查用，不通就说明数据库连不上） */
+    public long countColleges() {
+        return collegeMapper.selectCount(null);
+    }
+
     /** 按条件查院校 */
     public List<College> listColleges(String city, String level, Integer is985, Integer is211,
                                       Integer isSelfLine, String keyword) {

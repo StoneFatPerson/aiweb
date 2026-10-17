@@ -46,10 +46,20 @@ public class ChatService {
     public String chat(String sessionId, String userMessage) {
         saveMessage(sessionId, "user", userMessage);
 
-        String answer = chatClient.prompt()
-                .messages(buildHistory(sessionId, userMessage))
-                .call()
-                .content();
+        // 大模型兜底：免费档限流 / 网络波动时不能让接口 500，
+        // 返回友好提示（与 RagService / AgentOrchestrator 的降级策略一致）
+        String answer;
+        try {
+            answer = chatClient.prompt()
+                    .messages(buildHistory(sessionId, userMessage))
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            answer = "（AI 暂时不可用：可能是免费接口限流或网络波动，请稍后重试。你的问题已记录，刷新页面不会丢失。）";
+        }
+        if (answer == null || answer.isBlank()) {
+            answer = "（AI 没有返回内容，可能是免费接口限流，请稍后重试。）";
+        }
 
         saveMessage(sessionId, "assistant", answer);
         return answer;
@@ -66,7 +76,9 @@ public class ChatService {
                 .stream()
                 .content()
                 .doOnNext(buffer.get()::append)
-                .doOnComplete(() -> saveMessage(sessionId, "assistant", buffer.get().toString()));
+                .doOnComplete(() -> saveMessage(sessionId, "assistant", buffer.get().toString()))
+                // 流中途出错（限流/断网）：用兜底文案接上，前端照样有内容显示，不再 500
+                .onErrorReturn("（AI 暂时不可用：可能是免费接口限流或网络波动，请稍后重试。）");
     }
 
     /** 查询某个会话的历史记录 */

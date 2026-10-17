@@ -50,6 +50,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import { checkHealth } from '@/api'
 
 const navItems = [
@@ -71,6 +72,11 @@ onMounted(async () => {
     healthy.value = true
   } catch (e) {
     healthy.value = false
+    // 区分两种情况给提示：完全连不上 vs 连上了但数据库有问题（health 返回 503 带说明）
+    const reason = e && e.message ? e.message : ''
+    if (reason.includes('数据库') || reason.includes('503')) {
+      ElMessage({ type: 'warning', message: reason, duration: 8000, showClose: true })
+    }
   }
 })
 </script>

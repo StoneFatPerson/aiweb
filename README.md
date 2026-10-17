@@ -189,7 +189,7 @@ npm run dev
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/api/health` | 健康检查 |
+| GET | `/api/health` | 健康检查（含数据库连通性探测：连不上会返回 503 和中文排查提示） |
 | POST | `/api/chat` | AI 对话 |
 | GET | `/api/chat/stream` | 流式对话（打字机效果） |
 | GET | `/api/history` | 对话历史 |

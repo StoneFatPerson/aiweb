@@ -17,11 +17,20 @@ const request = axios.create({
 request.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message =
-      (error.response && error.response.data && error.response.data.error) ||
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      '请求失败，请检查后端服务是否已启动'
+    // 后端返回的结构化错误（如 503 带数据库排查提示）优先展示
+    let message =
+      (error.response && error.response.data && (error.response.data.message || error.response.data.error)) || ''
+    if (!message) {
+      const status = error.response && error.response.status
+      if (status === 503) {
+        message = '服务暂时不可用：数据库可能没连上，请检查 MySQL 与 DB_PASSWORD'
+      } else if (status === 500) {
+        message = '服务器内部错误，请打开后端黑窗口查看日志最后几行'
+      } else if (error.code === 'ECONNABORTED') {
+        message = '请求超时：AI 生成较慢或后端未响应，请稍后重试'
+      }
+    }
+    if (!message) message = error.message || '请求失败，请检查后端服务是否已启动'
     return Promise.reject(new Error(message))
   }
 )

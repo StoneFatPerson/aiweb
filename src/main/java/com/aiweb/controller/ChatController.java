@@ -2,6 +2,7 @@ package com.aiweb.controller;
 
 import com.aiweb.entity.ChatMessage;
 import com.aiweb.service.ChatService;
+import com.aiweb.service.CollegeService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,7 +17,7 @@ import java.util.UUID;
  * 位置：src/main/java/com/aiweb/controller/ChatController.java
  *
  * 接口一览：
- *   GET  /api/health          健康检查，验证服务是否活着
+ *   GET  /api/health          健康检查（含数据库连通性探测）
  *   POST /api/chat            普通对话（等 AI 说完一起返回）
  *   GET  /api/chat/stream     流式对话（打字机效果）
  *   GET  /api/history         查询历史消息
@@ -27,17 +28,39 @@ import java.util.UUID;
 public class ChatController {
 
     private final ChatService chatService;
+    private final CollegeService collegeService;
 
-    public ChatController(ChatService chatService) {
+    public ChatController(ChatService chatService, CollegeService collegeService) {
         this.chatService = chatService;
+        this.collegeService = collegeService;
     }
 
-    /** 健康检查：浏览器打开 http://localhost:8080/api/health 看到 ok 就说明服务正常 */
+    /**
+     * 健康检查：浏览器打开 http://localhost:8080/api/health 看到 ok 就说明服务正常。
+     *
+     * 除了「服务活着」，还探测数据库是否真的可用（执行一条最轻的 count 查询）——
+     * 因为「Tomcat 起来了但数据库连不上」时页面所有接口都会 500，
+     * 而日志里的原因（Access denied / connection refused）用户不一定看。
+     * 这里把数据库状态也报出来，前端就能显示明确提示，而不是泛泛的 500。
+     */
     @GetMapping("/health")
     public Map<String, Object> health() {
         Map<String, Object> result = new HashMap<>();
-        result.put("status", "ok");
         result.put("model", "glm-4.7-flash");
+        try {
+            long collegeCount = collegeService.countColleges();
+            result.put("status", "ok");
+            result.put("database", "ok");
+            result.put("collegeCount", collegeCount);
+        } catch (Exception e) {
+            // 数据库不可用：HTTP 503 + 明确原因，前端健康检查失败会提示，业务接口也不会再各自 500 让人看不懂
+            result.put("status", "error");
+            result.put("database", "unavailable");
+            result.put("message", "数据库连接失败：请确认 MySQL 正在运行，且环境变量 DB_PASSWORD 与你的 MySQL 密码一致"
+                    + "（改完要重启 IDEA / CMD）。原始错误：" + e.getMessage());
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE, (String) result.get("message"));
+        }
         return result;
     }
 
