@@ -32,7 +32,26 @@ function collectBindings(code) {
         for (const s of stmt.specifiers) add(s.local)
         break
       case 'VariableDeclaration':
-        for (const d of stmt.declarations) collectPattern(d.id, add)
+        for (const d of stmt.declarations) {
+          // defineProps / defineEmits 的两种形态都要支持：
+          //  1) const { a, b } = defineProps({...})        —— 解构绑定
+          //  2) defineProps({ a: {...}, b: {...} })        —— 不接返回值，键名即 props
+          const init = d.init
+          if (init && init.type === 'CallExpression' && isCompilerMacro(init.callee)) {
+            if (d.id.type === 'ObjectPattern') {
+              collectPattern(d.id, add)
+            } else if (d.id.type === 'Identifier') {
+              // const props = defineProps(...)：模板里 props.xxx 是成员访问，不会误报，跳过
+            }
+            if (init.arguments.length && init.arguments[0].type === 'ObjectExpression') {
+              for (const prop of init.arguments[0].properties) {
+                if (prop.key) add(prop.key)
+              }
+            }
+            continue
+          }
+          collectPattern(d.id, add)
+        }
         break
       case 'FunctionDeclaration':
       case 'ClassDeclaration':
@@ -45,9 +64,26 @@ function collectBindings(code) {
           } else add(stmt.declaration.id)
         }
         break
+      case 'ExpressionStatement':
+        // 裸调用形态：defineProps({...}) / defineEmits({...})
+        if (stmt.expression.type === 'CallExpression' && isCompilerMacro(stmt.expression.callee)) {
+          const arg = stmt.expression.arguments[0]
+          if (arg && arg.type === 'ObjectExpression') {
+            for (const prop of arg.properties) {
+              if (prop.key) add(prop.key)
+            }
+          }
+        }
+        break
     }
   }
   return names
+}
+
+/** 是否是 Vue 编译器宏（defineProps / defineEmits / defineExpose / withDefaults） */
+function isCompilerMacro(callee) {
+  return callee && callee.type === 'Identifier' &&
+      ['defineProps', 'defineEmits', 'defineExpose', 'withDefaults'].includes(callee.name)
 }
 
 function collectPattern(id, add) {

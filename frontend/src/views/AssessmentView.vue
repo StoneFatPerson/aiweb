@@ -179,7 +179,13 @@
         <!-- 做题历史（含标准答案） -->
         <div class="block">
           <h3 class="block-title">做题历史（含标准答案）</h3>
-          <el-table :data="history" border size="small" empty-text="还没有做题记录" class="history-table">
+          <el-table :data="history" border size="small" class="history-table">
+            <!-- 空态：还没有记录时引导去做一次测评 -->
+            <template #empty>
+              <EmptyState icon="📝" title="还没有做题记录" desc="完成一次测评后，这里会显示每题的作答与标准答案">
+                <el-button size="small" type="primary" @click="step = 'setup'">去做测评</el-button>
+              </EmptyState>
+            </template>
             <el-table-column prop="createdAt" label="提交时间" width="150" />
             <el-table-column prop="stem" label="题目" min-width="220" show-overflow-tooltip />
             <el-table-column prop="yourAnswer" label="你的答案" width="110" show-overflow-tooltip />
@@ -206,6 +212,7 @@
 <script setup>
 import { onMounted, reactive, ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import EmptyState from '@/components/EmptyState.vue'
 import {
   startAssessment, submitAssessment, getDiagnosis,
   getAnswerHistory, clearAssessment

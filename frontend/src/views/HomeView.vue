@@ -16,8 +16,16 @@
       </div>
     </section>
 
-    <!-- 数据概览 -->
+    <!-- 数据概览：加载中显示骨架屏，失败显示占位符（不报错、不白屏） -->
     <section class="stats">
+      <template v-if="statsLoading">
+        <el-skeleton v-for="i in 4" :key="i" animated class="stat-card panel">
+          <template #template>
+            <el-skeleton-item variant="h1" style="width: 60px; height: 32px; margin: 0 auto 8px" />
+            <el-skeleton-item variant="text" style="width: 70%; margin: 0 auto" />
+          </template>
+        </el-skeleton>
+      </template>
       <div v-for="item in statCards" :key="item.label" class="stat-card panel">
         <div class="stat-value">{{ item.value ?? '—' }}</div>
         <div class="stat-label">{{ item.label }}</div>
@@ -69,6 +77,7 @@ import { computed, onMounted, ref } from 'vue'
 import { getStats } from '@/api'
 
 const stats = ref(null)
+const statsLoading = ref(true)
 
 onMounted(async () => {
   try {
@@ -76,6 +85,8 @@ onMounted(async () => {
   } catch (e) {
     // 后端没启动时保持 null，页面显示占位符，不报错
     stats.value = null
+  } finally {
+    statsLoading.value = false
   }
 })
 

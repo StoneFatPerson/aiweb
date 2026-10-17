@@ -46,6 +46,24 @@
       </div>
     </section>
 
+    <!-- 能力预览：首次进入（还没有结果）时展示 Agent 的工作流程，让用户知道会发生什么 -->
+    <section v-if="!loading && !hasResult && !error" class="panel preview-panel">
+      <h2 class="preview-title">它会这样帮你（全程可见）</h2>
+      <ol class="preview-steps">
+        <li v-for="(p, i) in previewSteps" :key="i" class="preview-step">
+          <span class="preview-no" aria-hidden="true">{{ i + 1 }}</span>
+          <div>
+            <div class="preview-name">{{ p.name }}</div>
+            <div class="preview-desc">{{ p.desc }}</div>
+          </div>
+        </li>
+      </ol>
+      <p class="preview-note">
+        所有事实（院校层次、专业科目、知识点掌握度）都来自数据库与本地知识库，AI 只负责组织语言——
+        答案有据可查，不确定的内容会明说。
+      </p>
+    </section>
+
     <!-- 结果区 -->
     <section v-if="loading || hasResult || error" class="panel result-panel" aria-live="polite">
       <el-alert
@@ -115,6 +133,15 @@ const examples = [
   '学硕和专硕有什么区别？我该怎么选？',
   '考研完整时间线是怎样的？现在大二该怎么规划？',
   '帮我看看数学学情并给复习计划（填上学号更准）'
+]
+
+// 能力预览：首次进入时展示的 5 步流程说明（与实际工具一一对应）
+const previewSteps = [
+  { name: '理解需求', desc: '从你的目标里识别院校、专业与筛选条件，决定该调用哪些能力' },
+  { name: '检索院校专业', desc: '从院校库（28 所 / 104 专业）查层次、科目、学制等事实' },
+  { name: '检索科普知识', desc: '从考研知识库找流程、名词、时间线等依据，附参考来源' },
+  { name: '学情诊断', desc: '填了学号才执行：拉取你的知识点掌握度与薄弱点' },
+  { name: '生成备考计划', desc: '基于诊断生成基础 / 强化 / 冲刺三阶段计划' }
 ]
 
 // 去掉模型输出里的 ** 加粗标记，配合 pre-wrap 保留换行，纯文本渲染更安全
@@ -401,6 +428,56 @@ async function run() {
   .run-row .el-button {
     width: 100%;
   }
+}
+
+/* 能力预览卡片：首次进入时展示 5 步流程 */
+.preview-panel {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+.preview-title {
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+.preview-steps {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.preview-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.preview-no {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.preview-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.preview-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.preview-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+  margin: 0;
 }
 
 /* 尊重「减少动态效果」的系统偏好 */

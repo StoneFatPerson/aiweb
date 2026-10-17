@@ -8,7 +8,7 @@
           <span class="brand-text">智研 · AI 考研备考助手</span>
         </router-link>
 
-        <nav class="nav" aria-label="主导航">
+        <nav class="nav nav-scroll" aria-label="主导航">
           <router-link
             v-for="item in navItems"
             :key="item.to"
@@ -27,10 +27,17 @@
       </div>
     </header>
 
-    <!-- 主体：路由页面渲染在这里 -->
+    <!-- 主体：路由页面渲染在这里（带轻微淡入过渡，减少切换生硬感） -->
     <main id="main-content" tabindex="-1">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
+
+    <!-- 回到顶部：长页面（院校库 / 测评 / 规划）滚动后出现（默认监听 window 滚动） -->
+    <el-backtop :right="24" :bottom="24" />
 
     <footer class="app-footer">
       <p>智研 · AI 考研备考助手 · 全国高校 AI Web 开发挑战赛参赛作品</p>
@@ -182,7 +189,7 @@ main {
   font-size: 12px;
 }
 
-/* 窄屏时把状态文字藏起来，省空间 */
+/* 窄屏时把状态文字藏起来，省空间；导航改为不换行（配合 .nav-scroll 横向滚动） */
 @media (max-width: 720px) {
   .brand-text {
     display: none;
@@ -194,11 +201,14 @@ main {
 
   .nav {
     gap: 0;
+    flex-wrap: nowrap;
   }
 
   .nav-link {
     padding: 6px 8px;
     font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 </style>

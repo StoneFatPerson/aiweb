@@ -16,8 +16,11 @@
         </el-radio-group>
       </div>
 
-      <!-- 加载中 -->
-      <div v-if="loading" class="state-box">正在读取你的诊断结果…</div>
+      <!-- 加载中：骨架屏（比纯文字更直观，也避免loading闪烁） -->
+      <div v-if="loading" class="plan-skeleton">
+        <el-skeleton animated :rows="4" />
+        <el-skeleton animated :rows="3" style="margin-top: 20px" />
+      </div>
 
       <!-- 未测评：引导去做题 -->
       <el-result
@@ -196,13 +199,6 @@ onMounted(load)
 </script>
 
 <style scoped>
-.state-box {
-  padding: 40px 0;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
 .subject-switch {
   display: flex;
   align-items: center;
@@ -213,6 +209,11 @@ onMounted(load)
 .subject-label {
   font-size: 13px;
   color: var(--text-muted);
+}
+
+/* 计划页加载骨架 */
+.plan-skeleton {
+  padding: 8px 0;
 }
 
 .block {

@@ -80,3 +80,47 @@ a {
     animation: none !important;
   }
 }
+
+/* 页面切换过渡：轻微的淡入 + 上移，让路由切换不生硬 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* 移动端导航：窄屏时改为横向滚动，避免 7 个入口挤成一团 */
+.nav-scroll {
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox 隐藏滚动条 */
+  -ms-overflow-style: none; /* 旧版 Edge */
+}
+.nav-scroll::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+/* 统一空态：图标 + 标题 + 描述 + 行动区 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.empty-state .empty-icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+.empty-state .empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.empty-state .empty-desc {
+  font-size: 13px;
+  margin-bottom: 16px;
+}

@@ -60,8 +60,24 @@
         border
         stripe
         style="width: 100%"
-        empty-text="没有符合条件的院校"
       >
+        <!-- 空态：区分「还没有筛选过」和「筛选了但没有结果」两种情况，给出下一步操作 -->
+        <template #empty>
+          <EmptyState
+            v-if="hasFilter"
+            icon="🔍"
+            title="没有符合条件的院校"
+            desc="换个关键词，或减少筛选条件试试"
+          >
+            <el-button size="small" @click="resetFilters">重置筛选条件</el-button>
+          </EmptyState>
+          <EmptyState
+            v-else
+            icon="🏫"
+            title="库内共 28 所山东院校"
+            desc="用上方筛选器按城市 / 层次 / 985 / 211 查找，或直接输入院校名"
+          />
+        </template>
         <el-table-column prop="name" label="院校" min-width="180">
           <template #default="{ row }">
             <el-link type="primary" @click="openDetail(row)">{{ row.name }}</el-link>
@@ -141,9 +157,10 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getCities, getCollege, listColleges } from '@/api'
+import EmptyState from '@/components/EmptyState.vue'
 
 const colleges = ref([])
 const cities = ref([])
@@ -160,6 +177,10 @@ const filters = reactive({
   level: '',
   isSelfLine: null
 })
+
+// 是否设置了任一筛选条件：用于空态文案区分「未筛选」与「筛选无结果」
+const hasFilter = computed(() =>
+  !!(filters.keyword || filters.city || filters.level || filters.isSelfLine))
 
 const buildParams = () => {
   const params = {}
