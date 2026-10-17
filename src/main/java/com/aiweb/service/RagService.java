@@ -28,6 +28,19 @@ public class RagService {
     /** 相似度低于这个值就视为"资料里没有相关内容"，直接兜底，避免模型编造 */
     private static final double SCORE_THRESHOLD = 0.3;
 
+    /** 输入防护：单次提问最长字符数（防止超长输入稀释检索质量、撑爆提示词 token） */
+    private static final int MAX_INPUT_LEN = 500;
+
+    /** 对话历史限量：最多携带最近 8 轮、每轮最多 200 字（长对话不无限增长） */
+    private static final int MAX_HISTORY_TURNS = 8;
+    private static final int MAX_TURN_LEN = 200;
+
+    /** 超长输入截断（保护检索质量与 token 预算）。包级静态以便单元测试 */
+    static String truncate(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max) + "…";
+    }
+
     private final VectorStore vectorStore;
     private final ChatClient chatClient;
 
@@ -166,9 +179,10 @@ public class RagService {
         if (question == null || question.trim().isEmpty()) {
             return new RagAnswer("请输入你的问题，例如：学硕和专硕有什么区别？", List.of());
         }
+        String q = truncate(question.trim(), MAX_INPUT_LEN);
 
         List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder().query(question).topK(4).build());
+                SearchRequest.builder().query(q).topK(4).build());
 
         if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
             return new RagAnswer(
@@ -243,9 +257,10 @@ public class RagService {
         if (question == null || question.trim().isEmpty()) {
             return new RagAnswer("请输入你的问题，例如：学硕和专硕有什么区别？", List.of());
         }
+        String q = truncate(question.trim(), MAX_INPUT_LEN);
 
         List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder().query(question).topK(4).build());
+                SearchRequest.builder().query(q).topK(4).build());
 
         if (docs.isEmpty() || docs.get(0).getScore() < SCORE_THRESHOLD) {
             return new RagAnswer(
@@ -263,11 +278,16 @@ public class RagService {
                 .collect(Collectors.toCollection(LinkedHashSet::new))
                 .stream().collect(Collectors.toList());
 
-        // 把之前的对话整理成可读文本，帮助模型理解"追问"
+        // 把之前的对话整理成可读文本，帮助模型理解"追问"。
+        // 限量：只保留最近 MAX_HISTORY_TURNS 轮、每轮内容截断——防止超长对话把提示词撑爆（token 失控）
         String historyText = "";
-        if (history != null) {
-            historyText = history.stream()
-                    .map(h -> ("user".equals(h.role) ? "用户" : "助手") + "：" + h.content)
+        if (history != null && !history.isEmpty()) {
+            List<ChatTurn> recent = history.size() > MAX_HISTORY_TURNS
+                    ? history.subList(history.size() - MAX_HISTORY_TURNS, history.size())
+                    : history;
+            historyText = recent.stream()
+                    .map(h -> ("user".equals(h.role) ? "用户" : "助手") + "："
+                            + truncate(h.content == null ? "" : h.content.trim(), MAX_TURN_LEN))
                     .collect(Collectors.joining("\n"));
         }
         String contextHint = (context == null || context.isBlank()) ? "" : ("用户当前正在阅读的主题是「" + context + "」。\n");
@@ -279,7 +299,7 @@ public class RagService {
         String userMsg = contextHint +
                 "【对话历史】\n" + (historyText.isEmpty() ? "(无)" : historyText) +
                 "\n\n【参考资料】\n" + contextText +
-                "\n\n【用户问题】" + question;
+                "\n\n【用户问题】" + q;
 
         String answer;
         try {

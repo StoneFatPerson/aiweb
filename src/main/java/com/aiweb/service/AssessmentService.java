@@ -330,8 +330,8 @@ public class AssessmentService {
                 q.getCode(), q.getType(), q.getDifficulty(), q.getStem(), opts, pointCodes);
     }
 
-    /** 判分：选择题大小写不敏感，填空题做归一化（去空格、转小写） */
-    private boolean grade(Question q, String userAnswer) {
+    /** 判分：选择题大小写不敏感，填空题做归一化（去空格、转小写）。包级可见以便单元测试 */
+    boolean grade(Question q, String userAnswer) {
         if (userAnswer == null) return false;
         String u = norm(userAnswer);
         String a = norm(q.getAnswer());
@@ -341,8 +341,8 @@ public class AssessmentService {
         return u.equalsIgnoreCase(a);
     }
 
-    /** 答案归一化：去空白、转小写，避免「 c 」与「C」被判错 */
-    private String norm(String s) {
+    /** 答案归一化：去空白、转小写，避免「 c 」与「C」被判错。包级可见以便单元测试 */
+    String norm(String s) {
         if (s == null) return "";
         return s.trim().replaceAll("[\\s　]", "").toLowerCase();
     }

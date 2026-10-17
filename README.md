@@ -96,6 +96,7 @@ aiweb/
 │   ├── data/english-seed-batch1.json       英语第一批种子题（26 题）
 │   ├── data/politics-seed-batch1.json      政治第一批种子题（24 题）
 │   └── static/index.html                  后端根路径引导页（展示服务入口，前端在 5173）
+├── src/test/java/com/aiweb/               单元测试（35 个用例：BKT/判分/计划/意图/编排兜底/输入防护）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器 + 一键启动脚本（start-backend.bat / start-frontend.bat）
 ├── docs/题库数据格式说明.md                  统一数据格式规范

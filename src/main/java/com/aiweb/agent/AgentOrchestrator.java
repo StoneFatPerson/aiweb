@@ -34,7 +34,9 @@ public class AgentOrchestrator {
 
     /** 运行一次 Agent 编排，返回汇总答案 + 每步轨迹 + 参考来源 */
     public AgentResult run(String goal, String studentId) {
+        // 输入防护：trim + 长度截断（防止超长目标稀释意图判断、撑爆提示词）
         String g = (goal == null) ? "" : goal.trim();
+        if (g.length() > 500) g = g.substring(0, 500) + "…";
         if (g.isEmpty()) {
             return new AgentResult("",
                     "请先描述你的目标，例如：「我想考山东大学的计算机专业，该怎么准备？」",
