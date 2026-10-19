@@ -513,8 +513,21 @@ function formatTime(t) {
   gap: 8px;
   align-items: stretch;
 }
+/* 与学情诊断一致的选项对齐修复：EP border 单选默认 inline-flex+32px 右 margin+固定高度，
+   竖排会参差；这里撑满整行等宽对齐、允许换行、圆圈与首行顶部对齐 */
 .q-options :deep(.el-radio) {
   margin-right: 0;
+  width: 100%;
+  height: auto;
+  padding: 8px 12px;
+  align-items: flex-start;
+}
+.q-options :deep(.el-radio__label) {
+  white-space: normal;
+  line-height: 1.6;
+}
+.q-options :deep(.el-radio__input) {
+  margin-top: 3px;
 }
 .q-fill {
   max-width: 320px;

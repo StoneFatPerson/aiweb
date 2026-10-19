@@ -428,6 +428,23 @@ async function clearData() {
 .q-type.fill { background: #f59e0b; }
 .q-stem { flex: 1; min-width: 200px; }
 .q-options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+/* 选项对齐修复：Element Plus 的 border 单选默认 inline-flex + 右侧 32px margin + 高度固定，
+   竖排时会「边框长短不一、右侧差一截、长选项文字不换行」。
+   这里让每个选项撑满整行（等宽、边框对齐）、允许文字换行、圆圈与首行顶部对齐。 */
+.q-options :deep(.el-radio) {
+  margin-right: 0;
+  width: 100%;
+  height: auto;
+  padding: 8px 12px;
+  align-items: flex-start;
+}
+.q-options :deep(.el-radio__label) {
+  white-space: normal;
+  line-height: 1.6;
+}
+.q-options :deep(.el-radio__input) {
+  margin-top: 3px;
+}
 .q-fill { margin-top: 10px; max-width: 320px; }
 
 .block { margin-top: 28px; }
