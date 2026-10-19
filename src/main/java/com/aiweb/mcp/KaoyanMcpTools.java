@@ -211,7 +211,7 @@ public class KaoyanMcpTools {
         };
         AssessmentResult.DiagnosisView view = assessmentService.getDiagnosis(studentId.trim(), subj);
         if (view == null || !view.assessed()) {
-            return "学号 " + studentId.trim() + " 暂无" + subjectName + "测评记录。请先完成一次测评（答一组题）后，再来查看诊断与备考计划。";
+            return "学号 " + studentId.trim() + " 暂无" + subjectName + "测评记录。请先完成一次测评（答一组题）后，再来查看诊断结果。";
         }
         StringBuilder sb = new StringBuilder();
         sb.append("【学情诊断】学生 ").append(studentId.trim()).append("（").append(subjectName).append("）\n\n");
@@ -226,20 +226,7 @@ public class KaoyanMcpTools {
         if (view.weakPoints() != null && !view.weakPoints().isEmpty()) {
             sb.append("\n薄弱知识点：").append(String.join("、", view.weakPoints())).append("\n");
         }
-        AssessmentResult.StudyPlan plan = view.plan();
-        if (plan != null && plan.phases() != null && !plan.phases().isEmpty()) {
-            sb.append("\n三阶段备考计划：\n");
-            for (AssessmentResult.PhasePlan p : plan.phases()) {
-                sb.append("■ ").append(p.name()).append("（约 ").append(nullToDash(p.weeks())).append("）\n")
-                        .append("  重点：").append(nullToDash(p.focus())).append("\n");
-                if (p.points() != null && !p.points().isEmpty()) {
-                    sb.append("  涉及知识点：").append(String.join("、", p.points())).append("\n");
-                }
-            }
-            if (plan.summary() != null && !plan.summary().isBlank()) {
-                sb.append("\n小结：").append(plan.summary()).append("\n");
-            }
-        }
+        sb.append("\n提示：答错的题会自动进入错题本，可在「错题本」页随机重做巩固。");
         return sb.toString();
     }
 

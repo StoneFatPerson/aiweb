@@ -50,6 +50,7 @@ public class DiagnosisTool implements AgentTool {
                 ? "暂无显著薄弱点"
                 : view.weakPoints().stream().limit(6).collect(Collectors.joining("、"));
         String summary = "已完成测评，覆盖 " + view.diagnosis().size() + " 个知识点；薄弱项：" + weak + "。";
+        ctx.setDiagnosisSummary(summary);
         return ToolOutput.of(summary);
     }
 }

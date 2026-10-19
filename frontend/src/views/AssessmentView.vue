@@ -163,17 +163,13 @@
           </div>
         </div>
 
-        <!-- 备考计划：文字摘要 + 三阶段列表（已移除二维图表） -->
+        <!-- 错题入口：本次判错的题已自动进入错题本 -->
         <div class="block">
-          <h3 class="block-title">备考计划（基础 / 强化 / 冲刺）</h3>
-          <p v-if="result.plan && result.plan.summary" class="plan-summary">{{ result.plan.summary }}</p>
-          <ol v-if="result.plan && result.plan.phases" class="phase-list">
-            <li v-for="(p, i) in result.plan.phases" :key="i" class="phase-item">
-              <div class="phase-name">{{ i + 1 }}. {{ p.name }}</div>
-              <div class="phase-meta">周次：{{ p.weeks }}</div>
-              <div class="phase-focus">重点：{{ p.focus }}</div>
-            </li>
-          </ol>
+          <h3 class="block-title">错题收录</h3>
+          <p class="plan-summary">
+            本次判错的题已自动收录进错题本，可在错题本页随机重做巩固；也可以导入自己的错题。
+          </p>
+          <el-button type="primary" size="small" @click="$router.push('/wrongbook')">去错题本</el-button>
         </div>
 
         <!-- 做题历史（含标准答案） -->
@@ -361,7 +357,6 @@ async function viewDiagnosis() {
     result.value = {
       diagnosis: res.diagnosis,
       weakPoints: res.weakPoints,
-      plan: res.plan,
       assessed: res.assessed,
       isView: true
     }
@@ -464,12 +459,6 @@ async function clearData() {
 .q-img-preview img { width: 120px; height: 90px; object-fit: cover; border: 1px solid var(--line); border-radius: 8px; }
 
 /* 备考计划：纯文字 + 列表（无图表） */
-.phase-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; }
-.phase-item { padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft, #f8fafc); }
-.phase-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.phase-meta { font-size: 13px; color: var(--text-secondary, #475569); margin-bottom: 2px; }
-.phase-focus { font-size: 13px; color: var(--text-muted); }
-
 .plan-summary { font-size: 14px; margin: 0 0 16px; }
 
 .history-table { font-size: 13px; }

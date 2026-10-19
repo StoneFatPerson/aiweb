@@ -80,10 +80,33 @@ export const submitAssessment = (payload) => request.post('/assess/submit', payl
 export const getDiagnosis = (studentId, subject) => request.get('/assess/diagnosis', { params: { studentId, subject: subject || 'math' } })
 
 /** AI 润色计划：用大模型把规则计划+诊断改写成个性化解读（可选增强，失败有兜底）。subject 可选 math/english/politics */
-export const getAiPlan = (studentId, subject) => request.post('/assess/plan/ai', { studentId, subject: subject || 'math' })
-
 /** 查看某学生的做题历史（每条记录含对应题目的标准答案） */
 export const getAnswerHistory = (studentId) => request.get('/assess/history', { params: { studentId } })
+
+/* ===================== 错题本 ===================== */
+
+/** 错题列表（studentId 必填，subject 可选：math/english/politics） */
+export const getWrongBook = (studentId, subject) =>
+  request.get('/wrongbook', { params: subject ? { studentId, subject } : { studentId } })
+
+/** 错题本统计（总数 / 按科目 / 按来源 / 已重做） */
+export const getWrongBookStats = (studentId) =>
+  request.get('/wrongbook/stats', { params: { studentId } })
+
+/** 随机抽题进入重做（返回不带答案的题目） */
+export const redoWrongBook = (studentId, subject, count) =>
+  request.post('/wrongbook/redo', { studentId, subject: subject || null, count: count || 5 })
+
+/** 重做判分（答对自动移出错题本） */
+export const gradeRedo = (wrongId, answer, studentId) =>
+  request.post('/wrongbook/grade', { wrongId, answer, studentId })
+
+/** 导入用户自己的错题 */
+export const importWrongQuestion = (payload) => request.post('/wrongbook/import', payload)
+
+/** 移除一条错题 */
+export const removeWrongQuestion = (id, studentId) =>
+  request.delete(`/wrongbook/${id}`, { params: { studentId } })
 
 /** 清除某学生的历史学习数据（掌握度 + 做题历史），回到未测评状态 */
 export const clearAssessment = (studentId) => request.delete('/assess/clear', { params: { studentId } })

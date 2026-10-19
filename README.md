@@ -16,7 +16,7 @@
 |---|---|---|
 | **认知科普** | 不懂流程和名词 | 左侧固定科普文本（术语 / 学硕专硕 / 时间线等）；右侧基于自建知识库的 AI 答疑（RAG，答案可溯源，不靠模型自由发挥） |
 | **学情诊断** | 不知道自己哪不会 | 知识点体系 + 测评 + 掌握度建模，把"感觉不行"变成"具体哪章不行" |
-| **计划与复盘** | 计划做不出、执行不下去 | 掌握度驱动计划权重；按实际进度动态调整；错题间隔重复 |
+| **错题复盘** | 错了还错，找不到薄弱 | 判错自动收录错题本；随机重做、答对即攻克 |
 
 **核心设计原则**：事实与算法放在代码里（可复现、可测试、可验证），大模型只负责组织语言与个性化推理。这条原则贯穿整个项目，也是避免 AI 幻觉的根本手段。
 
@@ -34,7 +34,7 @@
 | 政治题库第一批（5 章 / 10 知识点 / 24 道原创题：马原 / 毛中特 / 史纲 / 思修 / 形策） | ✅ 已完成 |
 | 知识点体系与统一数据格式 | ✅ 已完成 |
 | 测评 / 掌握度 / 诊断（BKT 掌握度建模） | ✅ 已完成 |
-| 计划生成与动态调整（掌握度驱动 + 错题间隔重复） | ✅ 已完成 |
+| 错题本（诊断答错自动收录 + 用户导入 + 随机重做，答对即攻克） | ✅ 已完成 |
 | 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
 | Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
 | AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹） | ✅ 已完成 |
@@ -85,8 +85,8 @@ aiweb/
 │   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
 │   ├── mcp/                                 MCP 工具服务：KaoyanMcpTools（@McpTool 暴露 5 个标准工具）
-│   ├── service/                            Chat / College / Assessment / Diagnosis / Ocr / Plan / Rag（共 7 个）
-│   └── agent/                              Agent 编排：IntentTool / CollegeSearchTool / ScienceTool / DiagnosisTool / PlanTool + AgentOrchestrator（多步工具调用、轨迹透明）
+│   ├── service/                            Chat / College / Assessment / Diagnosis / Ocr / WrongQuestion / Rag（共 7 个）
+│   └── agent/                              Agent 编排：IntentTool / CollegeSearchTool / ScienceTool / DiagnosisTool + AgentOrchestrator（多步工具调用、轨迹透明）
 ├── src/main/resources/
 │   ├── application.yml                     配置（密钥走环境变量）
 │   ├── schema.sql                          建表脚本（启动自动执行）
@@ -201,18 +201,23 @@ npm run dev
 | GET | `/api/colleges/stats` | 院校 / 专业库统计 |
 | GET | `/api/colleges/{id}/majors` | 某院校的专业列表 |
 | POST | `/api/assess/start` | 开始测评（按学科抽题，不含答案；body 传 `subject`，不传默认 math） |
-| POST | `/api/assess/submit` | 提交答案（判分 + BKT 诊断 + 生成计划） |
+| POST | `/api/assess/submit` | 提交答案（判分 + BKT 诊断 + 错题自动收录） |
 | GET | `/api/assess/points` | 知识点体系（`?subject=math/english/politics`，默认 math） |
 | GET | `/api/assess/stats` | 题库统计（总量 + 各科目分别统计） |
-| GET | `/api/assess/diagnosis` | 查看诊断与计划（`?subject=` 分学科，各科掌握度独立追踪） |
+| GET | `/api/assess/diagnosis` | 查看学情诊断（`?subject=` 分学科，各科掌握度独立追踪） |
 | GET | `/api/assess/history` | 做题历史 |
 | DELETE | `/api/assess/clear` | 清除学习数据（回到未测评） |
-| POST | `/api/assess/plan/ai` | AI 润色计划（可选增强，失败有兜底；body 传 `subject`） |
 | GET | `/api/science/topics` | 认知科普主题列表 |
 | POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
 | POST | `/api/science/ask` | RAG 问答（保留兼容） |
 | POST | `/api/science/chat` | 右侧 AI 答疑（会话式 RAG，带历史与上下文） |
-| POST | `/api/agent/run` | AI 规划助手：输入目标，多步编排（查院校 / 检索科普 / 学情诊断 / 出计划），返回每步执行轨迹 + 汇总建议 |
+| POST | `/api/agent/run` | AI 规划助手：输入目标，多步编排（查院校 / 检索科普 / 学情诊断），返回每步执行轨迹 + 汇总建议 |
+| GET | `/api/wrongbook` | 错题列表（`?studentId=&subject=`） |
+| GET | `/api/wrongbook/stats` | 错题统计 |
+| POST | `/api/wrongbook/redo` | 随机抽题重做（返回不带答案的题） |
+| POST | `/api/wrongbook/grade` | 重做判分（答对自动移出错题本） |
+| POST | `/api/wrongbook/import` | 导入用户自己的错题 |
+| DELETE | `/api/wrongbook/{id}` | 移除一条错题 |
 
 ---
 
@@ -232,7 +237,7 @@ npm run dev
 | `get_college_detail` | 院校详情（含招生专业列表） | MySQL 院校库 + 专业库 |
 | `search_majors` | 查专业（院校/门类/学位类型/关键词） | MySQL 专业库 |
 | `ask_kaoyan_knowledge` | 考研知识咨询（附参考来源） | 本地 RAG 知识库 |
-| `get_study_diagnosis` | 学情诊断（可选数学/英语/政治学科）+ 三阶段备考计划 | MySQL 作答记录 + BKT 算法 |
+| `get_study_diagnosis` | 学情诊断（可选数学/英语/政治学科，掌握度 + 薄弱点） | MySQL 作答记录 + BKT 算法 |
 
 ### 客户端接入示例
 

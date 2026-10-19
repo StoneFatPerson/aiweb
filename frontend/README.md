@@ -33,7 +33,7 @@ aiweb-frontend/
         ├── HomeView.vue       首页
         ├── CollegeView.vue    院校专业库
         ├── AssessmentView.vue 学情测评（支持文字/图片 OCR 提交）
-        ├── PlanView.vue       备考计划
+        ├── WrongBookView.vue  错题本
         ├── ScienceView.vue    认知科普（左固定讲解 + 右 AI 答疑）
         ├── AgentView.vue      AI 规划助手（Agent 多步编排 + 执行轨迹）
         └── ChatView.vue       AI 问答

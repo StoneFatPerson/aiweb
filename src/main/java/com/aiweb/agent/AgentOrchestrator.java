@@ -79,7 +79,7 @@ public class AgentOrchestrator {
             material.append("【科普知识】\n").append(ctx.getScienceAnswer()).append("\n\n");
         }
         if (ctx.hasAssessedDiagnosis()) {
-            material.append("【学情诊断与计划】\n").append(ctx.getPlanSummary()).append("\n\n");
+            material.append("【学情诊断】\n").append(ctx.getDiagnosisSummary()).append("\n\n");
         } else if (ctx.getDiagnosis() != null) {
             material.append("【学情诊断】\n该学生尚未测评，掌握度为初始估计。\n\n");
         }
@@ -116,7 +116,7 @@ public class AgentOrchestrator {
             sb.append("■ 科普知识\n").append(ctx.getScienceAnswer()).append("\n\n");
         }
         if (ctx.hasAssessedDiagnosis()) {
-            sb.append("■ 学情诊断与计划\n").append(ctx.getPlanSummary()).append("\n\n");
+            sb.append("■ 学情诊断\n").append(ctx.getDiagnosisSummary()).append("\n\n");
         }
         sb.append("提示：考试政策、时间节点、招生信息请以中国研究生招生信息网和目标院校研究生院官网公告为准。");
         return sb.toString();

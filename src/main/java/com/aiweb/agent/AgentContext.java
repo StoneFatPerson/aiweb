@@ -38,9 +38,9 @@ public class AgentContext {
     private String scienceAnswer = "";
     private final List<String> scienceSources = new ArrayList<>();
 
-    // 学情诊断与计划产出
+    // 学情诊断产出
     private AssessmentResult.DiagnosisView diagnosis; // 可能为 null
-    private String planSummary = "";
+    private String diagnosisSummary = "";
 
     public AgentContext(String goal, String studentId) {
         this.goal = goal == null ? "" : goal;
@@ -82,8 +82,8 @@ public class AgentContext {
 
     public AssessmentResult.DiagnosisView getDiagnosis() { return diagnosis; }
     public void setDiagnosis(AssessmentResult.DiagnosisView d) { this.diagnosis = d; }
-    public String getPlanSummary() { return planSummary; }
-    public void setPlanSummary(String s) { this.planSummary = s; }
+    public String getDiagnosisSummary() { return diagnosisSummary; }
+    public void setDiagnosisSummary(String s) { this.diagnosisSummary = s; }
 
     /** 是否已做过测评（有诊断数据且 assessed=true） */
     public boolean hasAssessedDiagnosis() {

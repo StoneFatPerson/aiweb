@@ -92,28 +92,4 @@ public class AssessmentController {
         result.put("cleared", true);
         return result;
     }
-
-    /**
-     * AI 润色计划（可选增强）：用大模型把规则计划 + 诊断改写成个性化解读。
-     * 规则计划始终兜底：若大模型不可用（如免费档限流），返回 fallback=true，前端保留规则计划。
-     * body：{"studentId":"xxx", "subject":"math"}（subject 可选，默认 math）
-     */
-    @PostMapping("/plan/ai")
-    public Map<String, Object> aiPlan(@RequestBody AssessmentAiPlanRequest req) {
-        String subject = (req.subject() == null || req.subject().isBlank()) ? "math" : req.subject();
-        String plan = assessmentService.generateAiPlan(req.studentId(), subject);
-        Map<String, Object> result = new HashMap<>();
-        if (plan == null || plan.isBlank()) {
-            result.put("fallback", true);
-            result.put("message", "AI 润色暂时不可用（可能命中免费档限流），已为你保留规则计划");
-        } else {
-            result.put("fallback", false);
-            result.put("aiPlan", plan);
-        }
-        return result;
-    }
-
-    /** POST /api/assess/plan/ai 的请求体：{"studentId":"xxx", "subject":"math"} */
-    public record AssessmentAiPlanRequest(String studentId, String subject) {
-    }
 }

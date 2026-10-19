@@ -35,10 +35,10 @@ const routes = [
     meta: { title: 'AI 规划助手' }
   },
   {
-    path: '/plan',
-    name: 'plan',
-    component: () => import('@/views/PlanView.vue'),
-    meta: { title: '备考计划' }
+    path: '/wrongbook',
+    name: 'wrongbook',
+    component: () => import('@/views/WrongBookView.vue'),
+    meta: { title: '错题本' }
   },
   {
     path: '/assess',

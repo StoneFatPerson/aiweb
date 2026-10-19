@@ -25,12 +25,13 @@ import java.util.Base64;
 import java.util.stream.Collectors;
 
 /**
- * 测评业务编排：把「抽题 → 判分 → BKT 诊断 → 生成计划」串成一条闭环。
+ * 测评业务编排：把「抽题 → 判分 → BKT 诊断」串成一条闭环。
  * 位置：src/main/java/com/aiweb/service/AssessmentService.java
  *
  * 这是「学情诊断 + 题库接入」的大脑：
  *   start   —— 按学情抽题（不含答案）
- *   submit  —— 收答案、判分、更新各知识点掌握度、出诊断与计划
+ *   submit  —— 收答案、判分、更新各知识点掌握度、出诊断；
+ *              判错的题自动收录进错题本（WrongQuestionService）
  */
 @Service
 public class AssessmentService {
@@ -43,7 +44,7 @@ public class AssessmentService {
     private final MasteryMapper masteryMapper;
     private final AnswerHistoryMapper answerHistoryMapper;
     private final DiagnosisService diagnosisService;
-    private final PlanService planService;
+    private final WrongQuestionService wrongQuestionService;
     private final ObjectMapper objectMapper;
     private final ChatClient chatClient;
     private final OcrService ocrService;
@@ -53,7 +54,7 @@ public class AssessmentService {
                              MasteryMapper masteryMapper,
                              AnswerHistoryMapper answerHistoryMapper,
                              DiagnosisService diagnosisService,
-                             PlanService planService,
+                             WrongQuestionService wrongQuestionService,
                              ObjectMapper objectMapper,
                              ChatClient.Builder chatClientBuilder,
                              OcrService ocrService) {
@@ -62,7 +63,7 @@ public class AssessmentService {
         this.masteryMapper = masteryMapper;
         this.answerHistoryMapper = answerHistoryMapper;
         this.diagnosisService = diagnosisService;
-        this.planService = planService;
+        this.wrongQuestionService = wrongQuestionService;
         this.objectMapper = objectMapper;
         this.chatClient = chatClientBuilder.build();
         this.ocrService = ocrService;
@@ -132,7 +133,17 @@ public class AssessmentService {
                 ok = grade(q, a.answer());
                 finalUserAnswer = norm(a.answer());
             }
-            if (ok) correct++;
+            if (ok) {
+                correct++;
+            } else {
+                // 判错：自动收录进错题本（幂等，重复答错同一题只更新不堆记录）
+                try {
+                    wrongQuestionService.recordSystemWrong(studentId, q, finalUserAnswer);
+                } catch (Exception e) {
+                    // 错题本失败不拖垮诊断主流程
+                    System.err.println("[错题本] 自动记录失败：" + e.getMessage());
+                }
+            }
 
             // 该题涉及的知识点都要更新掌握度
             for (String pc : splitCodes(q.getPointCodes())) {
@@ -169,12 +180,11 @@ public class AssessmentService {
                 .filter(d -> d.mastery() < 0.4)
                 .map(AssessmentResult.PointDiagnosis::pointName)
                 .collect(Collectors.toList());
-        AssessmentResult.StudyPlan plan = planService.buildPlan(diagnosis);
 
-        return new AssessmentResult(total, correct, score, feedback, diagnosis, weak, plan);
+        return new AssessmentResult(total, correct, score, feedback, diagnosis, weak);
     }
 
-    /** 仅查看某学生的诊断与计划（不重新答题），按科目查看 */
+    /** 仅查看某学生的诊断（不重新答题），按科目查看 */
     public AssessmentResult.DiagnosisView getDiagnosis(String studentId, String subject) {
         List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId, subject);
         List<String> weak = diagnosis.stream()
@@ -186,45 +196,7 @@ public class AssessmentService {
                 .eq(Mastery::getStudentId, studentId)
                 .likeRight(Mastery::getPointCode, prefixOf(subject)));
         boolean assessed = assessedCount > 0;
-        return new AssessmentResult.DiagnosisView(diagnosis, weak, planService.buildPlan(diagnosis), assessed);
-    }
-
-    /**
-     * 调用大模型，把规则计划 + 诊断润色成更贴近个人的专属解读。
-     * 这是「大模型集成」与「AI 安全可控」的体现：规则计划永远兜底，AI 仅做语言润色，
-     * 失败时返回 null，由前端继续展示规则计划（不拖垮核心功能）。
-     *
-     * @param subject 科目代码（math / english / politics），决定诊断维度与提示词措辞
-     */
-    public String generateAiPlan(String studentId, String subject) {
-        List<AssessmentResult.PointDiagnosis> diagnosis = buildDiagnosis(studentId, subject);
-        AssessmentResult.StudyPlan rulePlan = planService.buildPlan(diagnosis);
-        String subjectName = subjectName(subject);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("你是考研备考规划助手。下面是某位同学的").append(subjectName).append("学情诊断（BKT 算法得出）和三阶段规则计划。\n");
-        sb.append("请基于这些信息，用中文写一段 220 字以内的个性化备考建议：语气鼓励、具体、可执行；");
-        sb.append("重点针对薄弱知识点给出起步动作；不要编造数据，不要超出已知信息。\n\n");
-        sb.append("【知识点掌握度（0~1，0.4 以下为薄弱）】\n");
-        for (AssessmentResult.PointDiagnosis d : diagnosis) {
-            sb.append("- ").append(d.pointName()).append("：掌握度 ").append(d.mastery()).append("（").append(d.level()).append("）\n");
-        }
-        sb.append("\n【规则计划摘要】").append(rulePlan.summary()).append("\n");
-        for (AssessmentResult.PhasePlan ph : rulePlan.phases()) {
-            sb.append(ph.name()).append("（").append(ph.weeks()).append("）：").append(ph.focus()).append("\n");
-        }
-
-        String system = "你是专业、友好、严谨的考研备考规划助手，只基于给定信息回答，不编造任何数据。";
-        try {
-            return chatClient.prompt()
-                    .system(system)
-                    .user(sb.toString())
-                    .call()
-                    .content();
-        } catch (Exception e) {
-            // 大模型限流或故障时返回 null，前端展示规则计划兜底
-            return null;
-        }
+        return new AssessmentResult.DiagnosisView(diagnosis, weak, assessed);
     }
 
     /**

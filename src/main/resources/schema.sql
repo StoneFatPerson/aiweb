@@ -117,3 +117,27 @@ CREATE TABLE IF NOT EXISTS answer_history (
     KEY idx_qcode (question_code),
     KEY idx_created (created_at)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '做题历史（含标准答案）';
+
+-- ============================================================
+-- 错题本：学情诊断答错的题自动记录 + 用户手动导入的题
+--   source = SYSTEM：诊断提交判错时自动记录（question_code 关联题库）
+--   source = MANUAL：用户自己导入（题干/答案自带，question_code 可空）
+-- 支持「随机重做」：redo_count 记录重做次数，last_redo_correct 记最近一次结果
+-- ============================================================
+CREATE TABLE IF NOT EXISTS wrong_question (
+    id                BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    student_id        VARCHAR(64)  NOT NULL COMMENT '学生标识（前端 localStorage 生成）',
+    subject           VARCHAR(16)  NOT NULL COMMENT '学科：math / english / politics',
+    source            VARCHAR(16)  NOT NULL DEFAULT 'SYSTEM' COMMENT '来源：SYSTEM=诊断自动记录 / MANUAL=用户导入',
+    question_code     VARCHAR(32)  COMMENT '题库题号（SYSTEM 必有；MANUAL 可空）',
+    stem              TEXT         COMMENT '题干（MANUAL 导入时必填）',
+    user_answer       VARCHAR(255) COMMENT '当时的错误答案',
+    correct_answer    VARCHAR(255) COMMENT '正确答案',
+    note              VARCHAR(500) COMMENT '用户备注（错因/心得）',
+    redo_count        INT          NOT NULL DEFAULT 0 COMMENT '重做次数',
+    last_redo_correct TINYINT      COMMENT '最近一次重做是否答对：null 未重做 / 0 错 / 1 对',
+    created_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '收录时间',
+    KEY idx_student (student_id),
+    KEY idx_subject (subject),
+    KEY idx_created (created_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '错题本（自动记录 + 用户导入）';
