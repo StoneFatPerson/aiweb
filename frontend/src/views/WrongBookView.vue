@@ -1,138 +1,148 @@
 <template>
   <div class="page-container">
-    <header class="page-head">
-      <h1 class="section-title">错题本</h1>
-      <p class="section-desc">
-        学情诊断中判错的题会自动收录到这里，也可以导入自己的错题。
-        随机重做、答对即「攻克」——错题的价值就在于被一道道消灭。
-      </p>
-    </header>
+    <!-- ============ 状态一：错题列表（默认） ============ -->
+    <template v-if="mode === 'list'">
+      <header class="page-head">
+        <h1 class="section-title">错题本</h1>
+        <p class="section-desc">
+          学情诊断中判错的题会自动收录到这里，也可以导入自己的错题。
+          随机重做、答对即「攻克」——错题的价值就在于被一道道消灭。
+        </p>
+      </header>
 
-    <!-- 统计 chips -->
-    <section class="stat-bar" aria-label="错题本统计">
-      <span class="stat-chip stat-total">共 <b>{{ stats.total || 0 }}</b> 题</span>
-      <span v-if="stats.bySubject?.math" class="stat-chip">数学 <b>{{ stats.bySubject.math }}</b></span>
-      <span v-if="stats.bySubject?.english" class="stat-chip">英语 <b>{{ stats.bySubject.english }}</b></span>
-      <span v-if="stats.bySubject?.politics" class="stat-chip">政治 <b>{{ stats.bySubject.politics }}</b></span>
-      <span v-if="stats.bySource?.MANUAL" class="stat-chip stat-manual">导入 <b>{{ stats.bySource.MANUAL }}</b></span>
-    </section>
+      <!-- 统计 chips -->
+      <section class="stat-bar" aria-label="错题本统计">
+        <span class="stat-chip stat-total">共 <b>{{ stats.total || 0 }}</b> 题</span>
+        <span v-if="stats.bySubject?.math" class="stat-chip">数学 <b>{{ stats.bySubject.math }}</b></span>
+        <span v-if="stats.bySubject?.english" class="stat-chip">英语 <b>{{ stats.bySubject.english }}</b></span>
+        <span v-if="stats.bySubject?.politics" class="stat-chip">政治 <b>{{ stats.bySubject.politics }}</b></span>
+        <span v-if="stats.bySource?.MANUAL" class="stat-chip stat-manual">导入 <b>{{ stats.bySource.MANUAL }}</b></span>
+      </section>
 
-    <!-- 操作行：科目筛选 + 入口 -->
-    <section class="tool-bar">
-      <el-radio-group v-model="subjectFilter" size="default" @change="loadList">
-        <el-radio-button value="">全部</el-radio-button>
-        <el-radio-button value="math">数学</el-radio-button>
-        <el-radio-button value="english">英语</el-radio-button>
-        <el-radio-button value="politics">政治</el-radio-button>
-      </el-radio-group>
-      <div class="tool-actions">
-        <el-button type="primary" :disabled="!stats.total" @click="startRedo">🎲 随机重做</el-button>
-        <el-button @click="importVisible = true">➕ 导入错题</el-button>
-      </div>
-    </section>
-
-    <!-- 错题列表 -->
-    <section class="list" aria-label="错题列表">
-      <div v-if="loading" class="state-box">正在加载错题…</div>
-      <div v-else-if="!list.length">
-        <EmptyState
-          icon="📕"
-          title="错题本还是空的"
-          desc="去学情诊断答一组题，判错的题会自动收录到这里；也可以手动导入自己的错题。"
-        >
-          <el-button type="primary" size="small" @click="$router.push('/assess')">去学情诊断</el-button>
-          <el-button size="small" @click="importVisible = true">导入错题</el-button>
-        </EmptyState>
-      </div>
-      <article v-for="w in list" :key="w.id" class="wrong-card">
-        <div class="wrong-head">
-          <div class="wrong-tags">
-            <el-tag :type="w.source === 'MANUAL' ? 'warning' : 'info'" size="small" disable-transitions>
-              {{ w.source === 'MANUAL' ? '手动导入' : '诊断收录' }}
-            </el-tag>
-            <el-tag size="small" disable-transitions>{{ subjectName(w.subject) }}</el-tag>
-            <span v-if="w.redoCount > 0" class="redo-badge">
-              已重做 {{ w.redoCount }} 次{{ w.lastRedoCorrect === 1 ? ' · 上次答对' : w.lastRedoCorrect === 0 ? ' · 上次答错' : '' }}
-            </span>
-          </div>
-          <el-button text type="danger" size="small" @click="remove(w)">移除</el-button>
+      <!-- 操作行：科目筛选 + 入口 -->
+      <section class="tool-bar">
+        <el-radio-group v-model="subjectFilter" size="default" @change="loadList">
+          <el-radio-button value="">全部</el-radio-button>
+          <el-radio-button value="math">数学</el-radio-button>
+          <el-radio-button value="english">英语</el-radio-button>
+          <el-radio-button value="politics">政治</el-radio-button>
+        </el-radio-group>
+        <div class="tool-actions">
+          <el-button type="primary" :disabled="!stats.total" @click="startRedo">🎲 随机重做</el-button>
+          <el-button @click="importVisible = true">➕ 导入错题</el-button>
         </div>
-        <p class="wrong-stem">{{ w.stem }}</p>
-        <div class="wrong-answers">
-          <span class="ans ans-wrong">我的答案：{{ w.userAnswer || '（空）' }}</span>
-          <span class="ans ans-right">正确答案：{{ w.correctAnswer || '（未记录）' }}</span>
-        </div>
-        <p v-if="w.note" class="wrong-note">备注：{{ w.note }}</p>
-        <p class="wrong-time">收录于 {{ formatTime(w.createdAt) }}</p>
-      </article>
-    </section>
+      </section>
 
-    <!-- 随机重做：闯关式 dialog（一题一答，答对即攻克） -->
-    <el-dialog v-model="redoVisible" title="随机重做" width="560px" :close-on-click-modal="false">
-      <!-- 进度 -->
-      <div v-if="redoItems.length" class="redo-progress">
-        第 {{ currentIndex + 1 }} / {{ redoItems.length }} 题
-        <span class="redo-done">已攻克 {{ redoSolved }} 题</span>
-      </div>
-
-      <!-- 答题中 -->
-      <div v-if="redoItems.length && currentIndex < redoItems.length">
-        <p class="redo-stem">{{ currentItem.stem }}</p>
-        <div v-if="currentItem.type === 'SINGLE_CHOICE'" class="redo-options">
-          <button
-            v-for="opt in parseOptions(currentItem.options)"
-            :key="opt.key"
-            type="button"
-            class="redo-option"
-            :class="{ picked: redoAnswer === opt.key, correct: showResult && opt.key === lastResult?.correctAnswer?.trim(), wrong: showResult && redoAnswer === opt.key && !lastResult?.correct }"
-            :disabled="showResult"
-            @click="redoAnswer = opt.key"
+      <!-- 错题列表 -->
+      <section class="list" aria-label="错题列表">
+        <div v-if="loading" class="state-box">正在加载错题…</div>
+        <div v-else-if="!list.length">
+          <EmptyState
+            icon="📕"
+            title="错题本还是空的"
+            desc="去学情诊断答一组题，判错的题会自动收录到这里；也可以手动导入自己的错题。"
           >
-            <b>{{ opt.key }}.</b> {{ opt.content }}
-          </button>
+            <el-button type="primary" size="small" @click="$router.push('/assess')">去学情诊断</el-button>
+            <el-button size="small" @click="importVisible = true">导入错题</el-button>
+          </EmptyState>
         </div>
+        <article v-for="w in list" :key="w.id" class="wrong-card">
+          <div class="wrong-head">
+            <div class="wrong-tags">
+              <el-tag :type="w.source === 'MANUAL' ? 'warning' : 'info'" size="small" disable-transitions>
+                {{ w.source === 'MANUAL' ? '手动导入' : '诊断收录' }}
+              </el-tag>
+              <el-tag size="small" disable-transitions>{{ subjectName(w.subject) }}</el-tag>
+              <span v-if="w.redoCount > 0" class="redo-badge">
+                已重做 {{ w.redoCount }} 次{{ w.lastRedoCorrect === 1 ? ' · 上次答对' : w.lastRedoCorrect === 0 ? ' · 上次答错' : '' }}
+              </span>
+            </div>
+            <el-button text type="danger" size="small" @click="remove(w)">移除</el-button>
+          </div>
+          <p class="wrong-stem">{{ w.stem }}</p>
+          <div class="wrong-answers">
+            <span class="ans ans-wrong">我的答案：{{ w.userAnswer || '（空）' }}</span>
+            <span class="ans ans-right">正确答案：{{ w.correctAnswer || '（未记录）' }}</span>
+          </div>
+          <p v-if="w.note" class="wrong-note">备注：{{ w.note }}</p>
+          <p class="wrong-time">收录于 {{ formatTime(w.createdAt) }}</p>
+        </article>
+      </section>
+    </template>
+
+    <!-- ============ 状态二：重做作答（布局与学情诊断做题页一致） ============ -->
+    <div v-else-if="mode === 'redo'">
+      <div class="answering-head">
+        <span>随机重做：共 {{ redoItems.length }} 题，请作答：</span>
+        <el-button text @click="mode = 'list'">返回错题本</el-button>
+      </div>
+
+      <div v-for="(q, i) in redoItems" :key="q.id" class="q-card">
+        <div class="q-title">
+          <span class="q-no">{{ i + 1 }}.</span>
+          <span class="q-type" :class="q.type === 'FILL_BLANK' ? 'fill' : 'choice'">
+            {{ q.type === 'FILL_BLANK' ? '填空' : '选择' }}
+          </span>
+          <span class="q-stem">{{ q.stem }}</span>
+        </div>
+
+        <el-radio-group v-if="q.type === 'SINGLE_CHOICE'" v-model="redoAnswers[q.id]" class="q-options">
+          <el-radio v-for="opt in parseOptions(q.options)" :key="opt.key" :value="opt.key" border>
+            {{ opt.key }}. {{ opt.content }}
+          </el-radio>
+        </el-radio-group>
+
         <el-input
           v-else
-          v-model="redoAnswer"
-          placeholder="输入你的答案"
-          :disabled="showResult"
-          @keyup.enter="submitRedo"
+          v-model="redoAnswers[q.id]"
+          placeholder="请输入答案，如 1/2"
+          class="q-fill"
         />
-        <div class="redo-actions">
-          <el-button v-if="!showResult" type="primary" :disabled="!redoAnswer.trim()" @click="submitRedo">
-            提交答案
-          </el-button>
-          <template v-else>
-            <el-alert
-              :type="lastResult.correct ? 'success' : 'error'"
-              :closable="false"
-              show-icon
-              class="redo-result"
-              :title="lastResult.correct
-                ? '答对了，这道题已从错题本攻克移除！'
-                : '答错了，正确答案：' + (lastResult.correctAnswer || '（未记录）')"
-            />
-            <el-button type="primary" @click="nextRedo">
-              {{ currentIndex + 1 >= redoItems.length ? '查看总结' : '下一题' }}
-            </el-button>
-          </template>
-        </div>
+        <p v-if="q.note" class="q-note">收录备注：{{ q.note }}</p>
       </div>
 
-      <!-- 全部完成 -->
-      <div v-else-if="redoItems.length" class="redo-summary">
-        <EmptyState
-          :icon="redoSolved === redoItems.length ? '🎉' : '💪'"
-          :title="`本轮完成：攻克 ${redoSolved} / ${redoItems.length} 题`"
-          :desc="redoSolved === redoItems.length ? '全部消灭，错题本又薄了一层！' : '没答对的题仍留在错题本，下次随机还会遇到它。'"
-        >
-          <el-button type="primary" size="small" @click="startRedo">再来一轮</el-button>
-          <el-button size="small" @click="redoVisible = false">回到列表</el-button>
-        </EmptyState>
+      <div class="actions">
+        <el-button type="primary" :loading="grading" @click="submitRedo">提交答案</el-button>
+        <el-button :disabled="grading" @click="mode = 'list'">取消</el-button>
       </div>
-    </el-dialog>
+    </div>
 
-    <!-- 导入错题 -->
+    <!-- ============ 状态三：重做结果（逐题反馈 + 总结） ============ -->
+    <div v-else-if="mode === 'result'">
+      <el-result
+        :icon="redoSolved === redoItems.length ? 'success' : 'warning'"
+        :title="`攻克 ${redoSolved} / ${redoItems.length} 题`"
+        :sub-title="redoSolved === redoItems.length
+          ? '全部消灭，错题本又薄了一层！'
+          : '没答对的题仍留在错题本，下次随机还会遇到它'"
+      />
+
+      <!-- 逐题反馈（与学情诊断「逐题解析」一致的折叠面板） -->
+      <div class="block">
+        <h3 class="block-title">逐题解析</h3>
+        <el-collapse>
+          <el-collapse-item v-for="(r, i) in redoResults" :key="r.id" :name="i">
+            <template #title>
+              <span class="fb-code">{{ i + 1 }}</span>
+              <el-tag :type="r.correct ? 'success' : 'danger'" size="small" class="fb-tag">
+                {{ r.correct ? '攻克' : '未攻克' }}
+              </el-tag>
+              <span class="fb-your">你的答案：{{ redoAnswers[r.id] || '（空）' }}</span>
+            </template>
+            <p class="fb-line"><b>正确答案：</b>{{ r.correctAnswer || '（未记录）' }}</p>
+            <p v-if="r.correct" class="fb-line fb-ok">这道题已从错题本移除。</p>
+            <p v-else class="fb-line fb-no">这道题仍留在错题本，下次随机重做还会遇到。</p>
+          </el-collapse-item>
+        </el-collapse>
+      </div>
+
+      <div class="actions">
+        <el-button type="primary" :disabled="!stats.total" @click="startRedo">再来一轮</el-button>
+        <el-button @click="backToList">返回错题本</el-button>
+      </div>
+    </div>
+
+    <!-- ============ 导入错题弹窗 ============ -->
     <el-dialog v-model="importVisible" title="导入错题" width="520px">
       <el-form label-width="72px">
         <el-form-item label="科目">
@@ -166,20 +176,23 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '@/components/EmptyState.vue'
 import {
   getWrongBook,
   getWrongBookStats,
   redoWrongBook,
-  gradeRedo,
+  gradeRedoBatch,
   importWrongQuestion,
   removeWrongQuestion
 } from '@/api'
 
 const SUBJECT_NAMES = { math: '数学', english: '英语', politics: '政治' }
 const subjectName = (s) => SUBJECT_NAMES[s] || s || '未知'
+
+// 页面模式：list 列表 / redo 重做作答 / result 重做结果（与学情诊断的步骤切换同思路）
+const mode = ref('list')
 
 // 学号：与学情诊断共用同一个 localStorage key（同一学生在两个页面看到同一份错题）
 const studentId = ref('')
@@ -189,12 +202,10 @@ const loading = ref(false)
 const subjectFilter = ref('')
 
 // ---------- 随机重做状态 ----------
-const redoVisible = ref(false)
 const redoItems = ref([])
-const currentIndex = ref(0)
-const redoAnswer = ref('')
-const showResult = ref(false)
-const lastResult = ref(null)
+const redoAnswers = ref({})
+const grading = ref(false)
+const redoResults = ref([])
 const redoSolved = ref(0)
 
 // ---------- 导入 ----------
@@ -232,9 +243,7 @@ async function loadStats() {
   }
 }
 
-// ---------- 随机重做 ----------
-
-const currentItem = computed(() => redoItems.value[currentIndex.value] || null)
+// ---------- 随机重做（列表 → 做题 → 结果） ----------
 
 async function startRedo() {
   try {
@@ -244,41 +253,38 @@ async function startRedo() {
       return
     }
     redoItems.value = items
-    currentIndex.value = 0
+    redoAnswers.value = {}
+    redoResults.value = []
     redoSolved.value = 0
-    redoVisible.value = true
-    resetCurrent()
+    mode.value = 'redo'
   } catch (e) {
     ElMessage.error(e.message || '抽题失败')
   }
 }
 
-function resetCurrent() {
-  redoAnswer.value = ''
-  showResult.value = false
-  lastResult.value = null
-}
-
 async function submitRedo() {
-  if (!redoAnswer.value.trim() || !currentItem.value) return
-  try {
-    lastResult.value = await gradeRedo(currentItem.value.id, redoAnswer.value.trim(), studentId.value)
-    showResult.value = true
-    if (lastResult.value.correct) redoSolved.value++
-  } catch (e) {
-    ElMessage.error(e.message || '判分失败')
-  }
-}
-
-function nextRedo() {
-  if (currentIndex.value + 1 >= redoItems.value.length) {
-    currentIndex.value = redoItems.value.length // 进入总结视图
-    loadList()
-    loadStats()
+  const unanswered = redoItems.value.filter((q) => !(redoAnswers.value[q.id] || '').trim())
+  if (unanswered.length) {
+    ElMessage.warning(`还有 ${unanswered.length} 题未作答`)
     return
   }
-  currentIndex.value++
-  resetCurrent()
+  grading.value = true
+  try {
+    // 一次提交整轮（交互与学情诊断「提交并诊断」一致）
+    const submissions = redoItems.value.map((q) => ({ wrongId: q.id, answer: redoAnswers.value[q.id] }))
+    redoResults.value = await gradeRedoBatch(studentId.value, submissions)
+    redoSolved.value = redoResults.value.filter((r) => r.correct).length
+    mode.value = 'result'
+    await Promise.all([loadList(), loadStats()])
+  } catch (e) {
+    ElMessage.error(e.message || '判分失败')
+  } finally {
+    grading.value = false
+  }
+}
+
+function backToList() {
+  mode.value = 'list'
 }
 
 // ---------- 导入 ----------
@@ -339,6 +345,7 @@ function formatTime(t) {
 </script>
 
 <style scoped>
+/* ============ 列表态 ============ */
 .stat-bar {
   display: flex;
   flex-wrap: wrap;
@@ -454,68 +461,106 @@ function formatTime(t) {
   color: var(--text-muted);
 }
 
-/* 随机重做 dialog */
-.redo-progress {
+/* ============ 做题态：与学情诊断做题页保持一致的类名与样式 ============ */
+.answering-head {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-.redo-done {
-  color: #059669;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 15px;
   font-weight: 600;
 }
-.redo-stem {
-  font-size: 15px;
-  line-height: 1.8;
-  margin: 0 0 16px;
+
+.q-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 14px;
 }
-.redo-options {
+.q-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+.q-no {
+  font-weight: 700;
+  color: var(--brand);
+}
+.q-type {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+.q-type.choice {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+.q-type.fill {
+  color: #b45309;
+  background: #fef3c7;
+}
+.q-stem {
+  font-size: 15px;
+}
+
+.q-options {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 16px;
+  align-items: stretch;
 }
-.redo-option {
-  text-align: left;
-  font-family: inherit;
-  font-size: 14px;
-  padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+.q-options :deep(.el-radio) {
+  margin-right: 0;
 }
-.redo-option:hover:not(:disabled) {
-  border-color: var(--brand);
+.q-fill {
+  max-width: 320px;
 }
-.redo-option.picked {
-  border-color: var(--brand);
-  background: #eff6ff;
+.q-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #b45309;
 }
-.redo-option.correct {
-  border-color: #059669;
-  background: #ecfdf5;
-}
-.redo-option.wrong {
-  border-color: #dc2626;
-  background: #fef2f2;
-}
-.redo-option:disabled {
-  cursor: default;
-}
-.redo-actions {
+
+.actions {
   display: flex;
-  flex-direction: column;
   gap: 12px;
+  margin-top: 8px;
 }
-.redo-result {
-  margin: 0;
+
+/* ============ 结果态 ============ */
+.block {
+  margin-top: 8px;
 }
-.redo-summary {
-  padding: 8px 0;
+.block-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.fb-code {
+  font-weight: 700;
+  color: var(--brand);
+}
+.fb-tag {
+  margin: 0 8px;
+}
+.fb-your {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.fb-line {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.fb-ok {
+  color: #059669;
+}
+.fb-no {
+  color: #dc2626;
 }
 
 @media (max-width: 720px) {

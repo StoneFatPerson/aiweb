@@ -101,6 +101,10 @@ export const redoWrongBook = (studentId, subject, count) =>
 export const gradeRedo = (wrongId, answer, studentId) =>
   request.post('/wrongbook/grade', { wrongId, answer, studentId })
 
+/** 批量重做判分：一次提交一整轮（submissions: [{wrongId, answer}]） */
+export const gradeRedoBatch = (studentId, submissions) =>
+  request.post('/wrongbook/grade-batch', { studentId, submissions })
+
 /** 导入用户自己的错题 */
 export const importWrongQuestion = (payload) => request.post('/wrongbook/import', payload)
 

@@ -3,6 +3,7 @@ package com.aiweb.controller;
 import com.aiweb.service.WrongQuestionService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +60,25 @@ public class WrongQuestionController {
         String studentId = str(body.get("studentId"));
         String answer = str(body.get("answer"));
         return service.gradeRedo(wrongId, studentId, answer);
+    }
+
+    /**
+     * 批量重做判分：一次提交一整轮（交互与学情诊断「提交并诊断」一致）。
+     * body：{"studentId":"xxx", "submissions":[{"wrongId":1,"answer":"B"}, ...]}
+     */
+    @PostMapping("/grade-batch")
+    public List<WrongQuestionService.RedoResult> gradeBatch(@RequestBody Map<String, Object> body) {
+        String studentId = str(body.get("studentId"));
+        List<WrongQuestionService.RedoSubmission> submissions = new ArrayList<>();
+        if (body.get("submissions") instanceof List<?> list) {
+            for (Object o : list) {
+                if (o instanceof Map<?, ?> m) {
+                    Long wrongId = m.get("wrongId") instanceof Number n ? n.longValue() : null;
+                    submissions.add(new WrongQuestionService.RedoSubmission(wrongId, str(m.get("answer"))));
+                }
+            }
+        }
+        return service.gradeBatch(studentId, submissions);
     }
 
     /** 用户导入错题 */

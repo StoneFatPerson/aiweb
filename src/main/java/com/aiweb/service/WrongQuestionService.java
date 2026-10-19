@@ -157,6 +157,24 @@ public class WrongQuestionService {
     // ===================== 5. 重做判分 =====================
 
     /**
+     * 批量重做判分（一次提交一整轮，交互与学情诊断的「提交并诊断」一致）。
+     * 逐题独立判分：某题异常不影响其他题（与单题 gradeRedo 同一套规则）。
+     */
+    public List<RedoResult> gradeBatch(String studentId, List<RedoSubmission> submissions) {
+        List<RedoResult> results = new ArrayList<>();
+        if (submissions == null) return results;
+        for (RedoSubmission s : submissions) {
+            try {
+                results.add(gradeRedo(s.wrongId(), studentId, s.answer()));
+            } catch (Exception e) {
+                // 单题异常（如错题已被移除）：记一条未判分结果，不中断整轮
+                results.add(new RedoResult(s.wrongId(), false, null, null));
+            }
+        }
+        return results;
+    }
+
+    /**
      * 重做判分：规则与学情诊断一致（选择题大小写不敏感；填空去空白转小写归一化）。
      * 判完更新重做次数与最近结果；**答对即从错题本移除**（错题的价值就是攻克它）。
      */
@@ -248,6 +266,10 @@ public class WrongQuestionService {
     }
 
     // ===================== 传输记录 =====================
+
+    /** 批量重做的一条提交 */
+    public record RedoSubmission(Long wrongId, String answer) {
+    }
 
     /** 重做题目（刻意不带正确答案） */
     public record RedoItem(Long id, String subject, String source,

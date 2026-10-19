@@ -215,7 +215,8 @@ npm run dev
 | GET | `/api/wrongbook` | 错题列表（`?studentId=&subject=`） |
 | GET | `/api/wrongbook/stats` | 错题统计 |
 | POST | `/api/wrongbook/redo` | 随机抽题重做（返回不带答案的题） |
-| POST | `/api/wrongbook/grade` | 重做判分（答对自动移出错题本） |
+| POST | `/api/wrongbook/grade` | 重做判分（单题；答对自动移出错题本） |
+| POST | `/api/wrongbook/grade-batch` | 批量重做判分（一次提交整轮，交互与「提交并诊断」一致） |
 | POST | `/api/wrongbook/import` | 导入用户自己的错题 |
 | DELETE | `/api/wrongbook/{id}` | 移除一条错题 |
 
