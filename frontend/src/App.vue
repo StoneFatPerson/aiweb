@@ -58,18 +58,17 @@ const navItems = [
   { to: '/college', label: '院校专业库' },
   { to: '/assess', label: '学情诊断' },
   { to: '/wrongbook', label: '错题本' },
-  { to: '/science', label: '认知科普' },
-  { to: '/agent', label: 'AI 规划' },
-  { to: '/chat', label: 'AI 问答' }
+  { to: '/science', label: '认知科普' }
 ]
 
 const healthy = ref(false)
 
-// 页面加载时探一次后端，失败就显示「后端未连接」
-onMounted(async () => {
+// 探一次后端；成功转绿，失败保持灰并说明原因
+async function probe() {
   try {
     await checkHealth()
     healthy.value = true
+    return true
   } catch (e) {
     healthy.value = false
     // 区分两种情况给提示：完全连不上 vs 连上了但数据库有问题（health 返回 503 带说明）
@@ -77,7 +76,28 @@ onMounted(async () => {
     if (reason.includes('数据库') || reason.includes('503')) {
       ElMessage({ type: 'warning', message: reason, duration: 8000, showClose: true })
     }
+    return false
   }
+}
+
+onMounted(async () => {
+  await probe()
+
+  // 修复「最小化窗口后状态不恢复」：
+  //   场景——用户最小化窗口去启动后端，还原后页面还显示「后端未连接」（后端其实已就绪），
+  //   因为健康检查原来只在页面加载时跑一次，之后再也不更新。
+  // 修复 1：窗口从最小化/切标签页还原时（visibilitychange → 可见）主动重查；
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !healthy.value) probe()
+  })
+  // 修复 2：检查失败时每 5 秒自动重试，后端在用户等待期间就绪也能自己转绿（成功后停止）
+  const timer = setInterval(async () => {
+    if (healthy.value) {
+      clearInterval(timer)
+      return
+    }
+    if (await probe()) clearInterval(timer)
+  }, 5000)
 })
 </script>
 

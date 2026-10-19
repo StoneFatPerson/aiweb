@@ -17,22 +17,10 @@ const routes = [
     meta: { title: '院校专业库' }
   },
   {
-    path: '/chat',
-    name: 'chat',
-    component: () => import('@/views/ChatView.vue'),
-    meta: { title: 'AI 问答' }
-  },
-  {
     path: '/science',
     name: 'science',
     component: () => import('@/views/ScienceView.vue'),
     meta: { title: '认知科普' }
-  },
-  {
-    path: '/agent',
-    name: 'agent',
-    component: () => import('@/views/AgentView.vue'),
-    meta: { title: 'AI 规划助手' }
   },
   {
     path: '/wrongbook',

@@ -40,14 +40,6 @@ request.interceptors.response.use(
 /** 健康检查 */
 export const checkHealth = () => request.get('/health')
 
-/* ---------------- AI 对话 ---------------- */
-
-/** 发送一条消息，返回 { sessionId, answer } */
-export const sendChat = (payload) => request.post('/chat', payload)
-
-/** 查询某个会话的历史消息 */
-export const getHistory = (sessionId) => request.get('/history', { params: { sessionId } })
-
 /* ---------------- 院校专业库 ---------------- */
 
 /** 院校列表，params 支持 city / level / is985 / is211 / isSelfLine / keyword */
@@ -126,12 +118,3 @@ export const clearAssessment = (studentId) => request.delete('/assess/clear', { 
  *  - context：用户当前正在阅读的主题标题，帮助 AI 理解背景
  */
 export const askScienceChat = (payload) => request.post('/science/chat', payload)
-
-/* ---------------- AI 规划助手（Agent 编排） ---------------- */
-
-/**
- * 运行一次 Agent 编排：传入 { goal, studentId? }，
- * 返回 { goal, answer, degraded, steps: [{index,name,status,durationMs,output}], sources }。
- * steps 用于前端「透明展示」AI 的每一步执行过程；degraded 表示大模型不可用、已用规则兜底。
- */
-export const runAgent = (payload) => request.post('/agent/run', payload)

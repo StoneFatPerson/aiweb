@@ -20,8 +20,8 @@
           <el-button class="hero-btn-primary" size="large" @click="$router.push('/college')">
             浏览院校专业库
           </el-button>
-          <el-button class="hero-btn-ghost" size="large" @click="$router.push('/agent')">
-            让 AI 帮我规划
+          <el-button class="hero-btn-ghost" size="large" @click="$router.push('/assess')">
+            测测我的基础
           </el-button>
         </div>
       </div>
@@ -97,7 +97,7 @@ const statCards = computed(() => [
   { label: '自主划线高校', value: stats.value?.selfLineCount }
 ])
 
-// 三大入口：覆盖项目的三条主线（查信息 → 诊断 → 规划）
+// 三大入口：覆盖项目的三条主线（查信息 → 诊断 → 巩固）
 const entries = [
   {
     icon: '🏫',
@@ -112,10 +112,10 @@ const entries = [
     to: '/assess'
   },
   {
-    icon: '🧭',
-    title: 'AI 备考规划',
-    desc: '一句话说清目标，AI 自动拆步骤：查院校、检索知识、结合诊断生成三阶段计划。',
-    to: '/agent'
+    icon: '📕',
+    title: '错题本',
+    desc: '判错的题自动收录，随机重做、答对即攻克；也可以导入自己的错题一起消灭。',
+    to: '/wrongbook'
   }
 ]
 </script>

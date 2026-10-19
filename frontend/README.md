@@ -35,8 +35,6 @@ aiweb-frontend/
         ├── AssessmentView.vue 学情测评（支持文字/图片 OCR 提交）
         ├── WrongBookView.vue  错题本
         ├── ScienceView.vue    认知科普（左固定讲解 + 右 AI 答疑）
-        ├── AgentView.vue      AI 规划助手（Agent 多步编排 + 执行轨迹）
-        └── ChatView.vue       AI 问答
 ```
 
 ## 三、安装与运行
@@ -98,6 +96,5 @@ npm run build
 
 - 页面容器、导航、表格均做了窄屏适配（720px 以下自动调整布局）
 - 顶部导航使用语义化 `nav` 标签并带 `aria-label`
-- 对话区使用 `role="log"` 与 `aria-live="polite"`，屏幕阅读器能播报新消息
-- AI 规划助手的分步执行轨迹区域同样使用 `aria-live="polite"`，每步状态变化可被播报
+- 认知科普页的 AI 答疑区使用 `role="log"` 与 `aria-live="polite"`，屏幕阅读器能播报新消息
 - 全局样式尊重系统的「减少动态效果」设置

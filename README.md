@@ -27,7 +27,6 @@
 | 模块 | 状态 |
 |---|---|
 | 后端骨架（Spring Boot + Spring AI + MyBatis-Plus + MySQL） | ✅ 已完成 |
-| AI 对话（接入智谱 GLM，多轮上下文，历史落库） | ✅ 已完成 |
 | 考研院校专业库（28 所院校 / 104 个专业，山东为主） | ✅ 已完成 |
 | 数学题库第一批（14 章节 / 25 知识点 / 34 道原创题） | ✅ 已完成 |
 | 英语题库第一批（4 章 / 12 知识点 / 26 道原创题：词汇语法 / 完形 / 阅读 / 写作翻译基础） | ✅ 已完成 |
@@ -37,7 +36,7 @@
 | 错题本（诊断答错自动收录 + 用户导入 + 随机重做，答对即攻克） | ✅ 已完成 |
 | 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
 | Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
-| AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹） | ✅ 已完成 |
+| AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹，后端能力 + MCP 工具暴露） | ✅ 已完成 |
 | MCP 工具服务（5 个工具按 MCP 协议暴露，SSE 传输，可被第三方 AI 客户端调用） | ✅ 已完成 |
 
 ---
@@ -190,9 +189,9 @@ npm run dev
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/health` | 健康检查（含数据库连通性探测：连不上会返回 503 和中文排查提示） |
-| POST | `/api/chat` | AI 对话 |
-| GET | `/api/chat/stream` | 流式对话（打字机效果） |
-| GET | `/api/history` | 对话历史 |
+| POST | `/api/chat` | 普通对话（后端保留，前端页面已精简） |
+| GET | `/api/chat/stream` | 流式对话（后端保留，前端页面已精简） |
+| GET | `/api/history` | 查询历史消息（后端保留，前端页面已精简） |
 | GET | `/api/colleges` | 院校查询（支持城市/层次/985/211/自划线/关键词） |
 | GET | `/api/colleges/{id}` | 院校详情（含专业列表） |
 | GET | `/api/majors` | 专业查询（支持门类/学位类型/关键词） |
@@ -211,7 +210,7 @@ npm run dev
 | POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
 | POST | `/api/science/ask` | RAG 问答（保留兼容） |
 | POST | `/api/science/chat` | 右侧 AI 答疑（会话式 RAG，带历史与上下文） |
-| POST | `/api/agent/run` | AI 规划助手：输入目标，多步编排（查院校 / 检索科普 / 学情诊断），返回每步执行轨迹 + 汇总建议 |
+| POST | `/api/agent/run` | AI 规划助手（后端能力，经 MCP 工具 `run_kaoyan_agent` 暴露；前端页面已精简） |
 | GET | `/api/wrongbook` | 错题列表（`?studentId=&subject=`） |
 | GET | `/api/wrongbook/stats` | 错题统计 |
 | POST | `/api/wrongbook/redo` | 随机抽题重做（返回不带答案的题） |
