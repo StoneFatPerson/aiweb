@@ -4,6 +4,8 @@ import com.aiweb.entity.Question;
 import com.aiweb.entity.WrongQuestion;
 import com.aiweb.mapper.QuestionMapper;
 import com.aiweb.mapper.WrongQuestionMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -70,10 +72,11 @@ class WrongQuestionServiceTest {
         return w;
     }
 
-    /** 捕获单个实体参数（BaseMapper 重载消歧） */
-    private static WrongQuestion captureUpdate(WrongQuestionMapper mapper) {
-        ArgumentCaptor<WrongQuestion> captor = ArgumentCaptor.forClass(WrongQuestion.class);
-        verify(mapper).updateById(captor.capture());
+    /** 捕获 update(null, wrapper) 的 wrapper（BaseMapper 重载消歧） */
+    private static com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<WrongQuestion> captureUpdateWrapper(WrongQuestionMapper mapper) {
+        ArgumentCaptor<com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<WrongQuestion>> captor =
+                ArgumentCaptor.forClass(com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper.class);
+        verify(mapper).update(isNull(), captor.capture());
         return captor.getValue();
     }
 
@@ -105,16 +108,21 @@ class WrongQuestionServiceTest {
     // ===================== 幂等自动记录 =====================
 
     @Test
-    @DisplayName("自动记录：重复答错同一题只更新，不堆重复记录")
+    @DisplayName("自动记录：重复答错同一题只更新，不堆重复记录（且必须显式 set null 清空重做结果）")
     void recordSystemWrongIsIdempotent() {
         // 已有一条 SYSTEM 记录 → 走更新
         when(wrongMapper.selectOne(any())).thenReturn(existing(7L, "s1", "MATH-Q0001", "A"));
         service.recordSystemWrong("s1", bankQuestion("MATH-Q0001", "SINGLE_CHOICE", "A"), "C");
 
-        WrongQuestion saved = captureUpdate(wrongMapper);
-        assertEquals(7L, saved.getId());
-        assertEquals("C", saved.getUserAnswer());
-        assertNull(saved.getLastRedoCorrect(), "重新答错应清空上次重做结果");
+        // 验证走的是 UpdateWrapper（不是 updateById）——因为 MyBatis-Plus 的 updateById 会跳过
+        // null 字段，setLastRedoCorrect(null) 不会生成 SET 子句，「清空上次重做结果」会失效。
+        // 必须显式 .set(column, null) 让 SQL 里出现 last_redo_correct=NULL。
+        var wrapper = captureUpdateWrapper(wrongMapper);
+        String sqlSet = wrapper.getSqlSet().toLowerCase();
+        assertTrue(sqlSet.contains("user_answer"), "应更新错误答案，实际 SQL SET：" + sqlSet);
+        assertTrue(sqlSet.contains("last_redo_correct"), "应显式 set last_redo_correct 列，实际 SQL SET：" + sqlSet);
+        assertTrue(wrapper.getParamNameValuePairs().containsValue(null),
+                "last_redo_correct 的参数值应为 null（MP 的 set(column,null) 走参数占位符，值仍是 null）");
         verify(wrongMapper, never()).insert(any(WrongQuestion.class));
     }
 
@@ -144,8 +152,7 @@ class WrongQuestionServiceTest {
         WrongQuestionService.RedoResult r = service.gradeRedo(99L, "s1", "b");
 
         assertTrue(r.correct());
-        verify(wrongMapper).deleteById(99L);
-        verify(wrongMapper, never()).updateById(any(WrongQuestion.class));
+        verify(wrongMapper).delete(any(LambdaQueryWrapper.class)); // 条件删除（id + student_id）
     }
 
     @Test
@@ -156,11 +163,11 @@ class WrongQuestionServiceTest {
         WrongQuestionService.RedoResult r = service.gradeRedo(99L, "s1", "D");
 
         assertFalse(r.correct());
-        WrongQuestion saved = captureUpdate(wrongMapper);
-        assertEquals(1, saved.getRedoCount());
-        assertEquals(0, saved.getLastRedoCorrect());
-        assertEquals("D", saved.getUserAnswer());
-        verify(wrongMapper, never()).deleteById(anyLong());
+        var wrapper = captureUpdateWrapper(wrongMapper);
+        String sqlSet = wrapper.getSqlSet().toLowerCase();
+        assertTrue(sqlSet.contains("redo_count = redo_count + 1"),
+                "redo_count 必须 SQL 原子自增，实际 SQL SET：" + sqlSet);
+        verify(wrongMapper, never()).delete(any(LambdaQueryWrapper.class));
     }
 
     @Test
@@ -169,10 +176,23 @@ class WrongQuestionServiceTest {
         when(wrongMapper.selectById(99L)).thenReturn(existing(99L, "someone-else", "MATH-Q0001", "B"));
         assertThrows(IllegalArgumentException.class, () -> service.gradeRedo(99L, "s1", "B"));
 
-        // 移除同理：返回 false 而不是真的删掉
-        when(wrongMapper.selectById(99L)).thenReturn(existing(99L, "someone-else", "MATH-Q0001", "B"));
-        assertFalse(service.remove(99L, "s1"));
-        verify(wrongMapper, never()).deleteById(anyLong());
+        // 移除同理：条件删除带 student_id 归属，动不了别人的
+        service.remove(99L, "s1");
+        ArgumentCaptor<LambdaQueryWrapper<WrongQuestion>> cap = ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        verify(wrongMapper).delete(cap.capture());
+        assertTrue(cap.getValue().getTargetSql().toLowerCase().contains("student_id"),
+                "删除必须带 student_id 条件");
+    }
+
+    @Test
+    @DisplayName("安全：不传 studentId 一律拒绝（fail-closed，不允许空号操作任意错题）")
+    void missingStudentIdIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> service.gradeRedo(99L, null, "B"));
+        assertThrows(IllegalArgumentException.class, () -> service.gradeRedo(99L, "  ", "B"));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(99L, null));
+        assertThrows(IllegalArgumentException.class, () -> service.list(null, null));
+        assertThrows(IllegalArgumentException.class, () -> service.stats(null));
+        verify(wrongMapper, never()).delete(any(LambdaQueryWrapper.class));
     }
 
     // ===================== 随机抽题 =====================

@@ -1,134 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智研 · AI 考研备考助手 — 后端服务</title>
-    <style>
-        :root {
-            --bg: #f5f6f8;
-            --card: #ffffff;
-            --line: #e3e6ea;
-            --text: #1f2328;
-            --muted: #6b7280;
-            --brand: #2563eb;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
-        .card {
-            width: 100%;
-            max-width: 560px;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 32px 36px;
-        }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--muted);
-            background: var(--bg);
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 4px 12px;
-            margin-bottom: 16px;
-        }
-        .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #16a34a;
-        }
-        h1 { font-size: 22px; margin: 0 0 6px; }
-        .sub { font-size: 14px; color: var(--muted); margin: 0 0 24px; line-height: 1.6; }
-        .links { display: flex; flex-direction: column; gap: 10px; }
-        a.link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-decoration: none;
-            color: var(--text);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 14px;
-            transition: border-color .15s, background .15s;
-        }
-        a.link:hover { border-color: var(--brand); background: #f8faff; }
-        a.link .desc { color: var(--muted); font-size: 12.5px; }
-        a.link .arrow { color: var(--muted); }
-        a.primary {
-            background: var(--brand);
-            border-color: var(--brand);
-            color: #fff;
-        }
-        a.primary .desc, a.primary .arrow { color: rgba(255,255,255,.75); }
-        a.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-        .status {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--line);
-            font-size: 13px;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .status .dot { background: #d1d5db; }
-        .status.ok .dot { background: #16a34a; }
-        @media (prefers-reduced-motion: reduce) { a.link { transition: none; } }
-    </style>
-</head>
-<body>
-    <main class="card">
-        <span class="badge"><span class="dot"></span>Spring Boot 后端服务运行中</span>
-        <h1>智研 · AI 考研备考助手</h1>
-        <p class="sub">
-            这是项目的<strong>后端服务</strong>（端口 8080），负责提供 API 接口。<br>
-            完整的 Web 界面是独立的 Vue 前端工程，请访问下面的入口：
-        </p>
-        <nav class="links" aria-label="服务入口">
-            <a class="link primary" href="http://localhost:5173">
-                <span>打开前端应用<br><span class="desc">Vue 3 界面 · localhost:5173（需先 npm run dev 启动）</span></span>
-                <span class="arrow">→</span>
-            </a>
-            <a class="link" href="/api/health">
-                <span>健康检查<br><span class="desc">GET /api/health · 返回服务状态</span></span>
-                <span class="arrow">→</span>
-            </a>
-            <a class="link" href="/swagger-ui.html">
-                <span>接口文档<br><span class="desc">Swagger UI · 全部 API 在线调试</span></span>
-                <span class="arrow">→</span>
-            </a>
-        </nav>
-        <p class="status" id="status"><span class="dot"></span><span id="statusText">正在检测服务状态…</span></p>
-    </main>
-    <script>
-        fetch('/api/health')
-            .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) {
-                var el = document.getElementById('status');
-                var t = document.getElementById('statusText');
-                if (d && (d.status === 'ok' || d.status === 'UP')) {
-                    el.classList.add('ok');
-                    t.textContent = '服务状态正常（/api/health 返回 ok）';
-                } else {
-                    t.textContent = '服务状态异常，请查看后端启动日志';
-                }
-            })
-            .catch(function () {
-                document.getElementById('statusText').textContent = '无法连接健康检查接口';
-            });
-    </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="面向在校大学生的 AI 考研备考助手：认知科普、学情诊断、备考计划" />
+    <title>智研 · AI 考研备考助手</title>
+    <script type="module" crossorigin src="/assets/index-BKFtMLmK.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DhFdQG90.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
 </html>

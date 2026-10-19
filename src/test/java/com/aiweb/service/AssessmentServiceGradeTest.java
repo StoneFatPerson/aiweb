@@ -31,6 +31,7 @@ class AssessmentServiceGradeTest {
                 mock(com.aiweb.mapper.KnowledgePointMapper.class),
                 mock(com.aiweb.mapper.MasteryMapper.class),
                 mock(com.aiweb.mapper.AnswerHistoryMapper.class),
+                mock(com.aiweb.mapper.WrongQuestionMapper.class),
                 mock(DiagnosisService.class),
                 mock(WrongQuestionService.class),
                 mock(com.fasterxml.jackson.databind.ObjectMapper.class),

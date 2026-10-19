@@ -139,5 +139,9 @@ CREATE TABLE IF NOT EXISTS wrong_question (
     created_at        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '收录时间',
     KEY idx_student (student_id),
     KEY idx_subject (subject),
-    KEY idx_created (created_at)
+    KEY idx_created (created_at),
+    -- 幂等兜底：同一学生对同一道题库题只允许一条 SYSTEM 记录。
+    -- 并发双提交时两个线程可能同时通过应用层查重，靠这个唯一键保证不重复入库
+    -- （MANUAL 导入的题 question_code 可空，MySQL 唯一索引允许多个 NULL，互不影响）。
+    UNIQUE KEY uk_student_qcode_src (student_id, question_code, source)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '错题本（自动记录 + 用户导入）';

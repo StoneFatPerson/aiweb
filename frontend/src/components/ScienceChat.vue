@@ -124,11 +124,15 @@ const send = async () => {
   inputText.value = ''
   // 把之前已经成型的对话作为历史传给后端，实现「追问」而不是每轮孤立问答
   const history = messages.value
-    .filter((m) => !m.loading)
+    .filter((m) => !m.loading && !(m.content || '').startsWith('请求失败'))
     .map((m) => ({ role: m.role, content: m.content }))
 
   messages.value.push({ role: 'user', content: text })
-  messages.value.push({ role: 'ai', content: '', loading: true })
+  // 持有本条 AI 气泡的引用（而不是返回后按索引取「最后一条」）：
+  // 请求最长可达几十秒，期间用户点「清空」会清空数组，按索引取会拿到 undefined 抛 TypeError，
+  // 被全局错误处理变成「弹窗自动打开」。stale 标记让过期响应直接丢弃。
+  const pending = { role: 'ai', content: '', loading: true }
+  messages.value.push(pending)
   scrollToBottom()
 
   sending.value = true
@@ -138,18 +142,18 @@ const send = async () => {
       history,
       context: props.context || ''
     })
-    const last = messages.value[messages.value.length - 1]
-    last.loading = false
+    if (pending.stale) return // 已被清空，静默丢弃
+    pending.loading = false
     if (data && data.answer) {
-      last.content = data.answer
-      last.sources = data.sources || []
+      pending.content = data.answer
+      pending.sources = data.sources || []
     } else {
-      last.content = '（没有返回内容，可能是接口限流，请稍后重试）'
+      pending.content = '（没有返回内容，可能是接口限流，请稍后重试）'
     }
   } catch (e) {
-    const last = messages.value[messages.value.length - 1]
-    last.loading = false
-    last.content = '请求失败：' + e.message
+    if (pending.stale) return
+    pending.loading = false
+    pending.content = '请求失败：' + e.message
   } finally {
     sending.value = false
     scrollToBottom()
@@ -157,6 +161,10 @@ const send = async () => {
 }
 
 const clearChat = () => {
+  // 把在途请求全部标记为过期：它们返回时不会写进任何气泡（也不会抛错）
+  messages.value.forEach((m) => {
+    if (m.loading) m.stale = true
+  })
   messages.value = []
   ElMessage.success('已清空对话')
 }

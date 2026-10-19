@@ -30,17 +30,17 @@ public class WrongQuestionController {
         this.service = service;
     }
 
-    /** 错题列表 */
+    /** 错题列表（studentId 必填：错题本的唯一访问凭据，不允许空号查全站） */
     @GetMapping
     public List<com.aiweb.entity.WrongQuestion> list(
-            @RequestParam(required = false) String studentId,
+            @RequestParam String studentId,
             @RequestParam(required = false) String subject) {
         return service.list(studentId, subject);
     }
 
     /** 统计 */
     @GetMapping("/stats")
-    public Map<String, Object> stats(@RequestParam(required = false) String studentId) {
+    public Map<String, Object> stats(@RequestParam String studentId) {
         return service.stats(studentId);
     }
 
@@ -93,10 +93,10 @@ public class WrongQuestionController {
                 str(body.get("note")));
     }
 
-    /** 移除一条错题 */
+    /** 移除一条错题（studentId 必填，防止删别人的） */
     @DeleteMapping("/{id}")
     public Map<String, Object> remove(@PathVariable Long id,
-                                      @RequestParam(required = false) String studentId) {
+                                      @RequestParam String studentId) {
         boolean ok = service.remove(id, studentId);
         return Map.of("success", ok);
     }

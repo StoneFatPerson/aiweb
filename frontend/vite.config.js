@@ -15,6 +15,13 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    // 文件监视范围收敛：项目在 Desktop（OneDrive 同步目录）下，
+    // 最小化窗口期间 OneDrive 同步/杀毒扫描会改文件 mtime → chokidar 报 change →
+    // Vite 对没有 HMR acceptor 的模块（main.js/router/api 等）直接下发 full-reload，
+    // 表现为「最小化后页面被自动刷新」。显式忽略无关目录可大幅降低误触发。
+    watch: {
+      ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/target/**']
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

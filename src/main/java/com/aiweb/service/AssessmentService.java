@@ -8,16 +8,19 @@ import com.aiweb.entity.AnswerHistory;
 import com.aiweb.entity.KnowledgePoint;
 import com.aiweb.entity.Mastery;
 import com.aiweb.entity.Question;
+import com.aiweb.entity.WrongQuestion;
 import com.aiweb.mapper.AnswerHistoryMapper;
-import com.aiweb.service.OcrService.OcrResult;
 import com.aiweb.mapper.KnowledgePointMapper;
 import com.aiweb.mapper.MasteryMapper;
 import com.aiweb.mapper.QuestionMapper;
+import com.aiweb.mapper.WrongQuestionMapper;
+import com.aiweb.service.OcrService.OcrResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -39,10 +42,14 @@ public class AssessmentService {
     /** 支持的科目代码 */
     public static final List<String> SUBJECTS = List.of("math", "english", "politics");
 
+    /** 单张答案图片的 base64 上限（约 6MB 原图）：防内存放大与 DoS */
+    public static final int MAX_IMAGE_BASE64_LEN = 8 * 1024 * 1024;
+
     private final QuestionMapper questionMapper;
     private final KnowledgePointMapper knowledgePointMapper;
     private final MasteryMapper masteryMapper;
     private final AnswerHistoryMapper answerHistoryMapper;
+    private final WrongQuestionMapper wrongQuestionMapper;
     private final DiagnosisService diagnosisService;
     private final WrongQuestionService wrongQuestionService;
     private final ObjectMapper objectMapper;
@@ -53,6 +60,7 @@ public class AssessmentService {
                              KnowledgePointMapper knowledgePointMapper,
                              MasteryMapper masteryMapper,
                              AnswerHistoryMapper answerHistoryMapper,
+                             WrongQuestionMapper wrongQuestionMapper,
                              DiagnosisService diagnosisService,
                              WrongQuestionService wrongQuestionService,
                              ObjectMapper objectMapper,
@@ -62,6 +70,7 @@ public class AssessmentService {
         this.knowledgePointMapper = knowledgePointMapper;
         this.masteryMapper = masteryMapper;
         this.answerHistoryMapper = answerHistoryMapper;
+        this.wrongQuestionMapper = wrongQuestionMapper;
         this.diagnosisService = diagnosisService;
         this.wrongQuestionService = wrongQuestionService;
         this.objectMapper = objectMapper;
@@ -100,10 +109,28 @@ public class AssessmentService {
         return new AssessmentStartResponse(UUID.randomUUID().toString(), picked.size(), totalPoints, views);
     }
 
-    /** 提交答案：判分 + 更新掌握度 + 出诊断与计划 */
+    /**
+     * 提交答案：判分 + 更新掌握度 + 出诊断。
+     * 判错的题自动收录进错题本。
+     *
+     * 防护（踩过的坑，见 docs/测试报告.md）：
+     *   - answers 为 null / 超长（> 50）直接拒绝，防 NPE 与「批量带图提交」放大攻击；
+     *   - 单张图片 base64 上限 8MB，防内存放大；
+     *   - OCR 识别失败（限流/图片模糊）不计为答错——否则会冤枉拉低 BKT、污染错题本；
+     *   - 单题异常（含 BKT/历史写入）不中断整轮，逐题隔离；整轮加事务保证要么基本完整要么整体回滚。
+     */
+    @Transactional(rollbackFor = Exception.class)
     public AssessmentResult submit(String studentId, List<AssessmentSubmitRequest.AnswerSubmission> answers) {
+        if (answers == null || answers.isEmpty()) {
+            throw new IllegalArgumentException("提交的答案不能为空");
+        }
+        if (answers.size() > 50) {
+            throw new IllegalArgumentException("单次提交最多 50 题");
+        }
+
         List<AssessmentResult.QuestionFeedback> feedback = new ArrayList<>();
         int correct = 0;
+        int invalid = 0;
 
         for (AssessmentSubmitRequest.AnswerSubmission a : answers) {
             Question q = questionMapper.selectOne(
@@ -111,28 +138,49 @@ public class AssessmentService {
             if (q == null) continue;
 
             // 两种提交方式并存：带图片走 OCR，否则走文字判分
-            boolean ok;
+            boolean ok = false;
+            boolean invalidOcr = false;
             String finalUserAnswer;
             boolean fromImage = a.imageBase64() != null && !a.imageBase64().isBlank();
             if (fromImage) {
-                OcrResult ocr = ocrService.recognize(
-                        Base64.getDecoder().decode(a.imageBase64()),
-                        a.imageMime(),
-                        q.getAnswer(),
-                        q.getType());
-                // 判断题用识别字母精确比对（更可靠）；填空题用模型判等 + 归一化精确匹配兜底
-                if ("SINGLE_CHOICE".equals(q.getType())) {
-                    ok = ocr.answer() != null
-                            && ocr.answer().trim().equalsIgnoreCase(q.getAnswer().trim());
-                } else {
-                    ok = ocr.correct() || norm(ocr.answer()).equals(norm(q.getAnswer()));
+                if (a.imageBase64().length() > MAX_IMAGE_BASE64_LEN) {
+                    throw new IllegalArgumentException("答案图片过大（上限约 6MB），请压缩后重试");
                 }
-                String head = (ocr.error() != null) ? "[图片识别失败] " : "[图片识别] ";
-                finalUserAnswer = head + (ocr.answer() == null ? "" : ocr.answer());
+                byte[] imageBytes;
+                try {
+                    imageBytes = Base64.getDecoder().decode(a.imageBase64());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("图片数据格式不正确");
+                }
+                OcrResult ocr = ocrService.recognize(imageBytes, a.imageMime(), q.getAnswer(), q.getType());
+                if (ocr.error() != null) {
+                    // OCR 通道故障（限流/识别失败）≠ 学生答错：本题不计分、不进错题本、不更新 BKT
+                    invalidOcr = true;
+                    finalUserAnswer = "[图片识别失败] " + ocr.error();
+                } else {
+                    // 判断题用识别字母精确比对（更可靠）；填空题用模型判等 + 归一化精确匹配兜底
+                    if ("SINGLE_CHOICE".equals(q.getType())) {
+                        ok = ocr.answer() != null
+                                && ocr.answer().trim().equalsIgnoreCase(q.getAnswer().trim());
+                    } else {
+                        ok = ocr.correct() || norm(ocr.answer()).equals(norm(q.getAnswer()));
+                    }
+                    finalUserAnswer = "[图片识别] " + (ocr.answer() == null ? "" : ocr.answer());
+                }
             } else {
                 ok = grade(q, a.answer());
                 finalUserAnswer = norm(a.answer());
             }
+
+            if (invalidOcr) {
+                // 识别失败的题：只记录反馈（标记不计分），不动 BKT/错题本/历史对错
+                invalid++;
+                feedback.add(new AssessmentResult.QuestionFeedback(
+                        q.getCode(), false, finalUserAnswer,
+                        q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
+                continue;
+            }
+
             if (ok) {
                 correct++;
             } else {
@@ -145,26 +193,34 @@ public class AssessmentService {
                 }
             }
 
-            // 该题涉及的知识点都要更新掌握度
+            // 该题涉及的知识点都要更新掌握度（单题异常不中断整轮）
             for (String pc : splitCodes(q.getPointCodes())) {
-                updateMastery(studentId, pc, ok);
+                try {
+                    updateMastery(studentId, pc, ok);
+                } catch (Exception e) {
+                    System.err.println("[诊断] 掌握度更新失败（" + pc + "）：" + e.getMessage());
+                }
             }
 
             // 落库「做题历史」：每条记录带标准答案，供历史做题记录展示
-            AnswerHistory history = new AnswerHistory();
-            history.setStudentId(studentId);
-            history.setQuestionCode(q.getCode());
-            history.setUserAnswer(finalUserAnswer);
-            history.setCorrectAnswer(q.getAnswer());
-            history.setIsCorrect(ok ? 1 : 0);
-            answerHistoryMapper.insert(history);
+            try {
+                AnswerHistory history = new AnswerHistory();
+                history.setStudentId(studentId);
+                history.setQuestionCode(q.getCode());
+                history.setUserAnswer(finalUserAnswer);
+                history.setCorrectAnswer(q.getAnswer());
+                history.setIsCorrect(ok ? 1 : 0);
+                answerHistoryMapper.insert(history);
+            } catch (Exception e) {
+                System.err.println("[诊断] 做题历史写入失败：" + e.getMessage());
+            }
 
             feedback.add(new AssessmentResult.QuestionFeedback(
                     q.getCode(), ok, finalUserAnswer,
                     q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
         }
 
-        int total = answers.size();
+        int total = answers.size() - invalid; // 总分母剔除识别失败的题，不冤枉学生
         int score = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
 
         // 本次提交的题目同属一个科目（前端按科目抽题），取第一题的科目作诊断维度
@@ -233,11 +289,19 @@ public class AssessmentService {
      * 清除某学生的全部历史学习数据：掌握度（mastery）+ 做题历史（answer_history）。
      * 清除后该学生回到「未测评」状态（诊断仅显示先验值）。
      */
+    /**
+     * 清除某学生的全部历史学习数据：掌握度 + 做题历史 + 错题本。
+     * 三者一起清才与「全部」的语义对齐（原来不清错题本，学生清了历史诊断回到未测评，
+     * 错题本却还剩 N 题，自相矛盾）。加事务保证要么全清要么不清。
+     */
+    @Transactional(rollbackFor = Exception.class)
     public void clearData(String studentId) {
         masteryMapper.delete(new LambdaQueryWrapper<Mastery>()
                 .eq(Mastery::getStudentId, studentId));
         answerHistoryMapper.delete(new LambdaQueryWrapper<AnswerHistory>()
                 .eq(AnswerHistory::getStudentId, studentId));
+        wrongQuestionMapper.delete(new LambdaQueryWrapper<WrongQuestion>()
+                .eq(WrongQuestion::getStudentId, studentId));
     }
 
     public List<KnowledgePoint> allPoints(String subject) {

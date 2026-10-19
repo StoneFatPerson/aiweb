@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onScopeDispose, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { checkHealth } from '@/api'
 
@@ -63,41 +63,58 @@ const navItems = [
 
 const healthy = ref(false)
 
-// 探一次后端；成功转绿，失败保持灰并说明原因
-async function probe() {
+// 探一次后端。
+// notify=true 时才弹提示（仅页面首次加载用，数据库有问题必须让用户知道）；
+// 自动探活（窗口还原 / 定时重试）一律静默——只更新右上角圆点。
+// 上一版在这里无条件弹窗，导致「还原窗口 → 警告框自动弹出」，是 bug 本身的一部分。
+let probing = false
+async function probe({ notify = false } = {}) {
+  if (probing) return healthy.value // 在途去重：visibilitychange 与定时器可能同时触发
+  probing = true
   try {
     await checkHealth()
     healthy.value = true
     return true
   } catch (e) {
     healthy.value = false
-    // 区分两种情况给提示：完全连不上 vs 连上了但数据库有问题（health 返回 503 带说明）
-    const reason = e && e.message ? e.message : ''
-    if (reason.includes('数据库') || reason.includes('503')) {
+    const reason = (e && e.message) || ''
+    if (notify && (reason.includes('数据库') || reason.includes('503'))) {
       ElMessage({ type: 'warning', message: reason, duration: 8000, showClose: true })
     }
     return false
+  } finally {
+    probing = false
   }
 }
 
 onMounted(async () => {
-  await probe()
+  // 首次加载：后端/数据库有问题要明确告知
+  await probe({ notify: true })
 
-  // 修复「最小化窗口后状态不恢复」：
-  //   场景——用户最小化窗口去启动后端，还原后页面还显示「后端未连接」（后端其实已就绪），
-  //   因为健康检查原来只在页面加载时跑一次，之后再也不更新。
-  // 修复 1：窗口从最小化/切标签页还原时（visibilitychange → 可见）主动重查；
-  document.addEventListener('visibilitychange', () => {
+  // 「最小化窗口后状态不恢复」修复：
+  //  场景——用户最小化窗口去启动后端，还原后页面还显示「后端未连接」（后端其实已就绪）。
+  //  机制一：窗口从最小化/切标签页还原时（visibilitychange → visible）主动重查，静默；
+  const onVisibility = () => {
     if (document.visibilityState === 'visible' && !healthy.value) probe()
-  })
-  // 修复 2：检查失败时每 5 秒自动重试，后端在用户等待期间就绪也能自己转绿（成功后停止）
+  }
+  document.addEventListener('visibilitychange', onVisibility)
+
+  //  机制二：检查失败时有限次重试（36 次 × 5 秒 ≈ 3 分钟，覆盖「启动后端+加载模型+建向量库」全程），
+  //  后端就绪后自动转绿并停止；永不无限轮询（上一版会一直转到天荒地老）。
+  let retries = 0
   const timer = setInterval(async () => {
-    if (healthy.value) {
+    if (healthy.value || ++retries > 36) {
       clearInterval(timer)
       return
     }
     if (await probe()) clearInterval(timer)
   }, 5000)
+
+  // 卸载时清理，杜绝监听器/定时器泄漏
+  onScopeDispose(() => {
+    clearInterval(timer)
+    document.removeEventListener('visibilitychange', onVisibility)
+  })
 })
 </script>
 
