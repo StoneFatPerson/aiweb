@@ -3,8 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="面向在校大学生的 AI 考研备考助手：认知科普、学情诊断、备考计划" />
+    <meta name="description" content="面向在校大学生的 AI 考研备考助手：认知科普、学情诊断、错题本" />
     <title>智研 · AI 考研备考助手</title>
+    <script>
+      // ==================== dev 模式专用：阻断 Vite 的断线自动刷新 ====================
+      // 【问题】用户多次反馈「最小化窗口再还原，页面像自动重新打开、状态全丢」。
+      // 【根因（源码级定位）】Vite dev 客户端（node_modules/vite/dist/client/client.mjs:452）
+      //   给 HMR 的 WebSocket 注册了 close 监听：一旦连接断开（笔记本休眠/锁屏/网络瞬断/
+      //   重启 dev server），就派发 vite:ws:disconnect，随后「轮询等待重启」，窗口还原且
+      //   ping 成功时执行 location.reload() 整页刷新。项目在 Desktop（OneDrive 同步目录）下，
+      //   最小化期间文件 mtime 变动还会额外触发 Vite 的 full-reload。
+      // 【为什么 location.reload 拦不住】Chromium 的 location.reload 是 unforgeable 属性
+      //   （实测：实例自身 Cannot redefine property、原型被 own property shadow），
+      //   任何覆盖/defineProperty 都无效——所以从源头掐断：本脚本在 @vite/client 之前
+      //   （内联经典脚本先于 module 脚本执行）包装 window.WebSocket，把 type==='close'
+      //   的监听注册吞掉。Vite 客户端永远收不到断线通知 → 不 polling → 不 reload。
+      // 【代价与边界】仅 dev server（localhost）生效；WebSocket 真断线后 HMR 会静默停止
+      //   （改代码不再自动热更新，需手动 F5）——用「绝不无故丢页面状态」换这一点，值得。
+      //   连接正常时 HMR 完全不受影响。生产构建不含本逻辑（hostname 判断 + 生产模式
+      //   根本没有 @vite/client）。
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        (function () {
+          var NativeWS = window.WebSocket
+          if (typeof NativeWS !== 'function') return
+          function WrappedWebSocket(url, protocols) {
+            var ws = protocols === undefined ? new NativeWS(url) : new NativeWS(url, protocols)
+            var nativeAdd = ws.addEventListener.bind(ws)
+            ws.addEventListener = function (type, listener, opts) {
+              if (type === 'close') {
+                // 吞掉 close 监听注册：Vite 的断线重连刷新链从这里被切断
+                console.info('[aiweb] 已阻断 Vite 的 WebSocket close 监听（最小化还原不会再触发自动刷新）')
+                return
+              }
+              return nativeAdd(type, listener, opts)
+            }
+            return ws
+          }
+          // 保持原型链与静态常量，instanceof / readyState 常量照常工作
+          WrappedWebSocket.prototype = NativeWS.prototype
+          WrappedWebSocket.CONNECTING = NativeWS.CONNECTING
+          WrappedWebSocket.OPEN = NativeWS.OPEN
+          WrappedWebSocket.CLOSING = NativeWS.CLOSING
+          WrappedWebSocket.CLOSED = NativeWS.CLOSED
+          window.WebSocket = WrappedWebSocket
+        })()
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>

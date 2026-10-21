@@ -87,6 +87,20 @@ async function probe({ notify = false } = {}) {
   }
 }
 
+// 窗口可见性监听与重试定时器的句柄（提升到 setup 作用域，供同步注册的清理函数使用）
+let retryTimer = null
+const onVisibility = () => {
+  if (document.visibilityState === 'visible' && !healthy.value) probe()
+}
+
+// 卸载时清理监听器与定时器，杜绝泄漏。
+// 注意：必须在 setup 同步区注册——放在 onMounted 的 async 回调里会脱离 effect scope，
+// Vue 会警告「onScopeDispose() is called when there is no active effect scope」。
+onScopeDispose(() => {
+  if (retryTimer) clearInterval(retryTimer)
+  document.removeEventListener('visibilitychange', onVisibility)
+})
+
 onMounted(async () => {
   // 首次加载：后端/数据库有问题要明确告知
   await probe({ notify: true })
@@ -94,27 +108,22 @@ onMounted(async () => {
   // 「最小化窗口后状态不恢复」修复：
   //  场景——用户最小化窗口去启动后端，还原后页面还显示「后端未连接」（后端其实已就绪）。
   //  机制一：窗口从最小化/切标签页还原时（visibilitychange → visible）主动重查，静默；
-  const onVisibility = () => {
-    if (document.visibilityState === 'visible' && !healthy.value) probe()
-  }
   document.addEventListener('visibilitychange', onVisibility)
 
   //  机制二：检查失败时有限次重试（36 次 × 5 秒 ≈ 3 分钟，覆盖「启动后端+加载模型+建向量库」全程），
   //  后端就绪后自动转绿并停止；永不无限轮询（上一版会一直转到天荒地老）。
   let retries = 0
-  const timer = setInterval(async () => {
+  retryTimer = setInterval(async () => {
     if (healthy.value || ++retries > 36) {
-      clearInterval(timer)
+      clearInterval(retryTimer)
+      retryTimer = null
       return
     }
-    if (await probe()) clearInterval(timer)
+    if (await probe()) {
+      clearInterval(retryTimer)
+      retryTimer = null
+    }
   }, 5000)
-
-  // 卸载时清理，杜绝监听器/定时器泄漏
-  onScopeDispose(() => {
-    clearInterval(timer)
-    document.removeEventListener('visibilitychange', onVisibility)
-  })
 })
 </script>
 
