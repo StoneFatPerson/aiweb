@@ -243,8 +243,10 @@ const images = reactive({})
 const result = ref(null)
 const history = ref([])
 // 做题历史默认收起：记录多了不占版面；空记录时自动展开（见 loadHistory），
-// 让新人一眼看到「还没有做题记录 + 去做测评」的引导
-const historyOpen = ref(false)
+// 让新人一眼看到「还没有做题记录 + 去做测评」的引导。
+// 注意：Element Plus 的 el-collapse 的 v-model 是「激活面板名称数组」，不是布尔值，
+// 所以这里必须是 []（收起）或 ['history']（展开），写布尔值会导致程序化展开失效。
+const historyOpen = ref([])
 
 // 页面加载时取/建匿名 ID，存到 localStorage（无登录，纯本地）
 onMounted(() => {
@@ -261,8 +263,8 @@ async function loadHistory() {
   try {
     history.value = (await getAnswerHistory(studentId.value)) || []
     // 空记录自动展开，让引导空态露出来；有记录时保持用户当前的开合状态，
-    // 不强行展开也不强行收起（默认 false = 收起）
-    if (history.value.length === 0) historyOpen.value = true
+    // 不强行展开也不强行收起（默认 [] = 收起）
+    if (history.value.length === 0) historyOpen.value = ['history']
   } catch {
     history.value = []
   }
