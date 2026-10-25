@@ -18,8 +18,12 @@ public record AssessmentResult(
         List<PointDiagnosis> diagnosis,
         List<String> weakPoints) {
 
-    /** 单题反馈（含正确答案与解析，便于错题学习） */
-    public record QuestionFeedback(String code, boolean correct, String yourAnswer,
+    /**
+     * 单题反馈（含题干、正确答案与解析，便于错题学习）。
+     * stem 必须带上：前端逐题解析要原样再现题目要求，
+     * 只给 code（如 ENGLISH-Q0023）用户根本不知道是哪道题。
+     */
+    public record QuestionFeedback(String code, String stem, boolean correct, String yourAnswer,
                                    String correctAnswer, String explanation, List<String> pointCodes) {
     }
 

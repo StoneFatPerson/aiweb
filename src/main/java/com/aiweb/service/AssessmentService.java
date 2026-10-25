@@ -176,7 +176,7 @@ public class AssessmentService {
                 // 识别失败的题：只记录反馈（标记不计分），不动 BKT/错题本/历史对错
                 invalid++;
                 feedback.add(new AssessmentResult.QuestionFeedback(
-                        q.getCode(), false, finalUserAnswer,
+                        q.getCode(), q.getStem(), false, finalUserAnswer,
                         q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
                 continue;
             }
@@ -216,7 +216,7 @@ public class AssessmentService {
             }
 
             feedback.add(new AssessmentResult.QuestionFeedback(
-                    q.getCode(), ok, finalUserAnswer,
+                    q.getCode(), q.getStem(), ok, finalUserAnswer,
                     q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
         }
 

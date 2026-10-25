@@ -133,10 +133,12 @@
           <el-collapse>
             <el-collapse-item v-for="(f, i) in result.feedback" :key="f.code" :name="i">
               <template #title>
-                <span class="fb-code">{{ f.code }}</span>
                 <el-tag :type="f.correct ? 'success' : 'danger'" size="small" class="fb-tag">
                   {{ f.correct ? '答对' : '答错' }}
                 </el-tag>
+                <!-- 题干原样再现：用户要能看懂是哪道题，而不是只看到 ENGLISH-Q0023 这种内部代码；
+                     兜底 f.code 是防极老数据没有 stem 字段 -->
+                <span class="fb-stem">{{ f.stem || f.code }}</span>
                 <span class="fb-your">你的答案：{{ f.yourAnswer || '（空）' }}</span>
               </template>
               <p class="fb-line"><b>正确答案：</b>{{ f.correctAnswer }}</p>
@@ -450,7 +452,14 @@ async function clearData() {
 .block { margin-top: 28px; }
 .block-title { font-size: 16px; margin: 0 0 14px; }
 
-.fb-code { font-weight: 600; margin-right: 8px; }
+/* 题干：占据剩余宽度自然换行——折叠标题是 flex 行，长题干不能截断，用户要完整读题 */
+.fb-stem {
+  flex: 1;
+  min-width: 0;
+  margin-right: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
 .fb-tag { margin-right: 10px; }
 .fb-your { font-size: 13px; color: var(--text-muted); }
 .fb-line { margin: 6px 0; font-size: 14px; }
