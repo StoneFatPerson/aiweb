@@ -174,28 +174,37 @@
           <el-button type="primary" size="small" @click="$router.push('/wrongbook')">去错题本</el-button>
         </div>
 
-        <!-- 做题历史（含标准答案） -->
+        <!-- 做题历史（含标准答案）：默认收起，记录多了不占版面，想看再展开 -->
         <div class="block">
           <h3 class="block-title">做题历史（含标准答案）</h3>
-          <el-table :data="history" border size="small" class="history-table">
-            <!-- 空态：还没有记录时引导去做一次测评 -->
-            <template #empty>
-              <EmptyState icon="📝" title="还没有做题记录" desc="完成一次测评后，这里会显示每题的作答与标准答案">
-                <el-button size="small" type="primary" @click="step = 'setup'">去做测评</el-button>
-              </EmptyState>
-            </template>
-            <el-table-column prop="createdAt" label="提交时间" width="150" />
-            <el-table-column prop="stem" label="题目" min-width="220" show-overflow-tooltip />
-            <el-table-column prop="yourAnswer" label="你的答案" width="110" show-overflow-tooltip />
-            <el-table-column prop="correctAnswer" label="标准答案" width="110" show-overflow-tooltip />
-            <el-table-column label="结果" width="80" align="center">
-              <template #default="{ row }">
-                <el-tag :type="row.correct ? 'success' : 'danger'" size="small" disable-transitions>
-                  {{ row.correct ? '答对' : '答错' }}
-                </el-tag>
+          <el-collapse v-model="historyOpen" class="history-collapse">
+            <el-collapse-item name="history">
+              <template #title>
+                <span class="history-summary">
+                  {{ history.length ? `共 ${history.length} 条作答记录，点击展开查看` : '还没有做题记录' }}
+                </span>
               </template>
-            </el-table-column>
-          </el-table>
+              <el-table :data="history" border size="small" class="history-table">
+                <!-- 空态：还没有记录时引导去做一次测评 -->
+                <template #empty>
+                  <EmptyState icon="📝" title="还没有做题记录" desc="完成一次测评后，这里会显示每题的作答与标准答案">
+                    <el-button size="small" type="primary" @click="step = 'setup'">去做测评</el-button>
+                  </EmptyState>
+                </template>
+                <el-table-column prop="createdAt" label="提交时间" width="150" />
+                <el-table-column prop="stem" label="题目" min-width="220" show-overflow-tooltip />
+                <el-table-column prop="yourAnswer" label="你的答案" width="110" show-overflow-tooltip />
+                <el-table-column prop="correctAnswer" label="标准答案" width="110" show-overflow-tooltip />
+                <el-table-column label="结果" width="80" align="center">
+                  <template #default="{ row }">
+                    <el-tag :type="row.correct ? 'success' : 'danger'" size="small" disable-transitions>
+                      {{ row.correct ? '答对' : '答错' }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-collapse-item>
+          </el-collapse>
         </div>
 
         <div class="actions">
@@ -233,6 +242,9 @@ const answers = reactive({})
 const images = reactive({})
 const result = ref(null)
 const history = ref([])
+// 做题历史默认收起：记录多了不占版面；空记录时自动展开（见 loadHistory），
+// 让新人一眼看到「还没有做题记录 + 去做测评」的引导
+const historyOpen = ref(false)
 
 // 页面加载时取/建匿名 ID，存到 localStorage（无登录，纯本地）
 onMounted(() => {
@@ -248,6 +260,9 @@ onMounted(() => {
 async function loadHistory() {
   try {
     history.value = (await getAnswerHistory(studentId.value)) || []
+    // 空记录自动展开，让引导空态露出来；有记录时保持用户当前的开合状态，
+    // 不强行展开也不强行收起（默认 false = 收起）
+    if (history.value.length === 0) historyOpen.value = true
   } catch {
     history.value = []
   }
@@ -487,7 +502,15 @@ async function clearData() {
 /* 备考计划：纯文字 + 列表（无图表） */
 .plan-summary { font-size: 14px; margin: 0 0 16px; }
 
+/* 做题历史折叠摘要：收起时的一行提示（记录数 + 操作提示） */
+.history-summary {
+  font-size: 13px;
+  color: var(--text-muted);
+}
 .history-table { font-size: 13px; }
+/* 历史折叠面板：标题文案留出呼吸感，鼠标指针提示可点 */
+.history-collapse { border-radius: var(--radius); }
+.history-summary { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
 
 @media (max-width: 640px) {
   .mastery-name { width: 120px; }
