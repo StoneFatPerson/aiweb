@@ -8,8 +8,11 @@ spring:
   # 数据库配置
   # createDatabaseIfNotExist=true 表示：数据库 aiweb 不存在时自动创建，无需手动建库
   datasource:
-    url: jdbc:mysql://localhost:3306/aiweb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    username: root
+    url: jdbc:mysql://localhost:3306/aiweb?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=${DB_USE_SSL:false}&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    # 用户名从环境变量读取，默认使用专用的低权限账号 aiweb_app。
+    # 生产环境不要再用 root（root 一旦泄露影响整台数据库）；
+    # 建账号语句见 docs 或启动说明：只授予 aiweb 库的增删改查权限即可。
+    username: ${DB_USERNAME:aiweb_app}
     # 从环境变量 DB_PASSWORD 读取。这里故意不写默认值，避免把密码写进代码仓库。
     # 未设置时为空白，程序启动时会在控制台给出警告。
     password: ${DB_PASSWORD:}
@@ -86,12 +89,16 @@ spring:
 
 mybatis-plus:
   configuration:
-    # 在控制台打印 SQL，方便调试
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # SQL 日志交给 SLF4J（跟随 logging.level，默认 info 级别不打印）。
+    # 排查问题时把 com.aiweb.mapper 临时设为 debug 才会输出 SQL；
+    # 不用 StdOutImpl——那个无论什么环境都会无条件把每条 SQL 打到控制台，生产会刷屏。
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
   global-config:
     db-config:
       id-type: auto
 
 logging:
   level:
-    com.aiweb: debug
+    com.aiweb: info
+    # 需要看 SQL 时把下一行改成 debug（会打印 SQL 与参数）
+    com.aiweb.mapper: info

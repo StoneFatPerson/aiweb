@@ -3,7 +3,6 @@ package com.aiweb.controller;
 import com.aiweb.entity.College;
 import com.aiweb.entity.Major;
 import com.aiweb.service.CollegeService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +18,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/majors")
-@CrossOrigin(origins = "*")
 public class MajorController {
 
     private final CollegeService collegeService;

@@ -2,7 +2,6 @@ package com.aiweb.controller;
 
 import com.aiweb.agent.AgentOrchestrator;
 import com.aiweb.agent.AgentResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
  * 作用：POST /api/agent/run 输入目标，返回汇总答案 + 每一步执行轨迹 + 参考来源。
  */
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/agent")
 public class AgentController {
 

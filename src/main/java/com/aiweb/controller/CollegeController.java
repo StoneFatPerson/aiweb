@@ -22,7 +22,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/colleges")
-@CrossOrigin(origins = "*")
 public class CollegeController {
 
     private final CollegeService collegeService;

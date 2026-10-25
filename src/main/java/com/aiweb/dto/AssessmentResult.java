@@ -22,9 +22,14 @@ public record AssessmentResult(
      * 单题反馈（含题干、正确答案与解析，便于错题学习）。
      * stem 必须带上：前端逐题解析要原样再现题目要求，
      * 只给 code（如 ENGLISH-Q0023）用户根本不知道是哪道题。
+     *
+     * @param scoringMode 评分方式：AUTO=系统客观判分 / AI=大模型主观评分
+     * @param aiScore     仅 AI 评分题有值，0-100 分；客观题恒为 null
+     * @param aiComment   仅 AI 评分题有值，阅卷简评；客观题恒为 null
      */
     public record QuestionFeedback(String code, String stem, boolean correct, String yourAnswer,
-                                   String correctAnswer, String explanation, List<String> pointCodes) {
+                                   String correctAnswer, String explanation, List<String> pointCodes,
+                                   String scoringMode, Integer aiScore, String aiComment) {
     }
 
     /** 单个知识点的诊断：掌握概率 + 等级 */

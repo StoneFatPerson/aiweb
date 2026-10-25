@@ -43,7 +43,10 @@ public class QuestionDataInitializer implements ApplicationRunner {
     private static final String[] SEED_FILES = {
             "math-seed-batch1.json",
             "english-seed-batch1.json",
-            "politics-seed-batch1.json"
+            "politics-seed-batch1.json",
+            "math-seed-batch2.json",
+            "english-seed-batch2.json",
+            "politics-seed-batch2.json"
     };
 
     private final QuestionMapper questionMapper;
@@ -81,14 +84,11 @@ public class QuestionDataInitializer implements ApplicationRunner {
             root = objectMapper.readTree(in);
         }
         String subjectCode = root.path("subject").path("code").asText("unknown");
-        String pointPrefix = prefixOf(subjectCode);
 
-        // 1) 导入知识点（该科目知识点不存在才导）
-        long existingPoints = knowledgePointMapper.selectCount(new LambdaQueryWrapper<KnowledgePoint>()
-                .likeRight(KnowledgePoint::getCode, pointPrefix));
-        if (existingPoints == 0 && root.has("chapters")) {
+        // 1) 导入知识点：按「知识点 code」逐条幂等（已存在则跳过，不重复导入）
+        if (root.has("chapters")) {
             Map<String, String> chapterAppl = new HashMap<>();
-            int kpCount = 0;
+            int kpCount = 0, kpSkip = 0;
             for (JsonNode ch : root.get("chapters")) {
                 String chCode = ch.get("code").asText();
                 JsonNode appl = ch.get("applicableTo");
@@ -100,8 +100,12 @@ public class QuestionDataInitializer implements ApplicationRunner {
                 JsonNode points = ch.get("points");
                 if (points != null) {
                     for (JsonNode p : points) {
+                        String code = p.get("code").asText();
+                        long exists = knowledgePointMapper.selectCount(
+                                new LambdaQueryWrapper<KnowledgePoint>().eq(KnowledgePoint::getCode, code));
+                        if (exists > 0) { kpSkip++; continue; }
                         KnowledgePoint kp = new KnowledgePoint();
-                        kp.setCode(p.get("code").asText());
+                        kp.setCode(code);
                         kp.setName(p.get("name").asText());
                         kp.setChapterCode(chCode);
                         kp.setChapterName(ch.get("name").asText());
@@ -111,16 +115,12 @@ public class QuestionDataInitializer implements ApplicationRunner {
                     }
                 }
             }
-            System.out.println("[题库初始化] " + file + "：已导入 " + kpCount + " 个知识点（" + subjectCode + "）。");
-        } else {
-            System.out.println("[题库初始化] " + file + "：" + subjectCode + " 知识点已有数据，跳过。");
+            System.out.println("[题库初始化] " + file + "：导入知识点 " + kpCount + " 个，跳过已存在 " + kpSkip + " 个（" + subjectCode + "）。");
         }
 
-        // 2) 导入题目（该科目题目不存在才导）
-        long existingQuestions = questionMapper.selectCount(new LambdaQueryWrapper<Question>()
-                .eq(Question::getSubjectCode, subjectCode));
-        if (existingQuestions == 0 && root.has("questions")) {
-            // 章节 -> 适用类型 映射，写进每道题
+        // 2) 导入题目：按「题目 code」逐条幂等（已存在则跳过，支持分批新增而不重复）
+        if (root.has("questions")) {
+            // 章节 -> 适用类型 映射（优先用题目自带 applicableTo，回退到章节映射）
             Map<String, String> chapterAppl = new HashMap<>();
             if (root.has("chapters")) {
                 for (JsonNode ch : root.get("chapters")) {
@@ -132,30 +132,46 @@ public class QuestionDataInitializer implements ApplicationRunner {
                 }
             }
 
-            int qCount = 0;
+            int qCount = 0, qSkip = 0;
             for (JsonNode qn : root.get("questions")) {
-                Question q = new Question();
-                q.setCode(qn.get("code").asText());
-                q.setSubjectCode(qn.get("subjectCode").asText());
-                q.setChapterCode(qn.get("chapterCode").asText());
-                q.setPointCodes(joinArray(qn.get("pointCodes")));
-                q.setApplicableTo(chapterAppl.getOrDefault(qn.get("chapterCode").asText(), ""));
-                q.setType(qn.get("type").asText());
-                q.setDifficulty(qn.get("difficulty").asInt());
-                q.setYear(qn.has("year") && !qn.get("year").isNull() ? qn.get("year").asText() : null);
-                q.setSource(qn.has("source") ? qn.get("source").asText() : "ORIGINAL_SEED");
-                q.setStem(qn.get("stem").asText());
-                q.setOptions(qn.has("options") ? qn.get("options").toString() : null);
-                q.setAnswer(qn.get("answer").asText());
-                q.setExplanation(qn.has("explanation") ? qn.get("explanation").asText() : "");
-                q.setKeywords(joinArray(qn.get("keywords")));
-                q.setVerified(1); // 种子题为本项目原创，已核对
-                questionMapper.insert(q);
-                qCount++;
+                String code = qn.path("code").asText();
+                try {
+                    Question existed = questionMapper.selectOne(
+                            new LambdaQueryWrapper<Question>().eq(Question::getCode, code));
+                    if (existed != null) { qSkip++; continue; }
+
+                    Question q = new Question();
+                    q.setCode(code);
+                    // subjectCode 缺失时回退到文件级 subject。
+                    // 教训：之前某题的 subjectCode 漏写，qn.get(...) 返回 null，
+                    // 后续 .asText() 抛 NPE，直接把整批导入中断——该题及之后的题全部静默丢失。
+                    q.setSubjectCode(qn.has("subjectCode") && !qn.get("subjectCode").isNull()
+                            ? qn.get("subjectCode").asText() : subjectCode);
+                    q.setChapterCode(qn.has("chapterCode") && !qn.get("chapterCode").isNull()
+                            ? qn.get("chapterCode").asText() : null);
+                    q.setPointCodes(joinArray(qn.get("pointCodes")));
+                    // 优先用题目显式写的 applicableTo；没写则按所在章节推断
+                    String appl = qn.has("applicableTo") && !qn.get("applicableTo").isNull()
+                            ? qn.get("applicableTo").asText() : "";
+                    q.setApplicableTo(appl.isBlank() ? chapterAppl.getOrDefault(qn.path("chapterCode").asText(), "") : appl);
+                    q.setType(qn.get("type").asText());
+                    q.setDifficulty(qn.path("difficulty").asInt());
+                    q.setYear(qn.has("year") && !qn.get("year").isNull() ? qn.get("year").asText() : null);
+                    q.setSource(qn.has("source") ? qn.get("source").asText() : "ORIGINAL_SEED");
+                    q.setStem(qn.get("stem").asText());
+                    q.setOptions(qn.has("options") ? qn.get("options").toString() : null);
+                    q.setAnswer(qn.get("answer").asText());
+                    q.setExplanation(qn.has("explanation") ? qn.get("explanation").asText() : "");
+                    q.setKeywords(joinArray(qn.get("keywords")));
+                    q.setVerified(1); // 种子题为本项目原创，已核对
+                    questionMapper.insert(q);
+                    qCount++;
+                } catch (Exception e) {
+                    // 单题失败只跳过该题并明确报错，绝不中断整批（否则会像之前那样静默丢题）
+                    System.out.println("[题库初始化] 跳过异常题目 " + code + "：" + e);
+                }
             }
-            System.out.println("[题库初始化] " + file + "：已导入 " + qCount + " 道题目（" + subjectCode + "）。");
-        } else {
-            System.out.println("[题库初始化] " + file + "：" + subjectCode + " 题目已有数据，跳过。");
+            System.out.println("[题库初始化] " + file + "：导入题目 " + qCount + " 道，跳过已存在 " + qSkip + " 道（" + subjectCode + "）。");
         }
     }
 

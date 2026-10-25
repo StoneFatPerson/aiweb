@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS question_bank (
     chapter_code   VARCHAR(16)  COMMENT '章节代码，如 MATH-01',
     point_codes    VARCHAR(255) COMMENT '知识点代码（逗号分隔，可多个）',
     applicable_to  VARCHAR(64)  COMMENT '适用卷种/科目（逗号分隔）：数学 math1/math2/math3，英语 english1/english2，政治 politics',
-    type           VARCHAR(16)  NOT NULL COMMENT '题型：SINGLE_CHOICE / FILL_BLANK',
+    type           VARCHAR(16)  NOT NULL COMMENT '题型：客观题 SINGLE_CHOICE/FILL_BLANK/CLOZE/READING；主观题 ESSAY/COMPOSITION/TRANSLATION/SHORT_ANSWER（主观题由大模型评分）',
     difficulty     TINYINT      NOT NULL DEFAULT 1 COMMENT '难度 1-3',
     year           VARCHAR(8)   COMMENT '年份，种子题多为 null',
     source         VARCHAR(16)  NOT NULL DEFAULT 'ORIGINAL_SEED' COMMENT '来源：ORIGINAL_SEED / AI_GENERATED',

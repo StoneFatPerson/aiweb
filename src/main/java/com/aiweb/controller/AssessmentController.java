@@ -25,7 +25,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/assess")
-@CrossOrigin(origins = "*")
 public class AssessmentController {
 
     private final AssessmentService assessmentService;

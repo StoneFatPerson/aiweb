@@ -1000,6 +1000,7 @@
     },
     {
       "code": "MATH-Q0032",
+      "subjectCode": "math",
       "chapterCode": "MATH-13",
       "pointCodes": [
         "MATH-13-01"
@@ -1017,6 +1018,7 @@
     },
     {
       "code": "MATH-Q0033",
+      "subjectCode": "math",
       "chapterCode": "MATH-14",
       "pointCodes": [
         "MATH-14-01"
@@ -1034,6 +1036,7 @@
     },
     {
       "code": "MATH-Q0034",
+      "subjectCode": "math",
       "chapterCode": "MATH-14",
       "pointCodes": [
         "MATH-14-01"

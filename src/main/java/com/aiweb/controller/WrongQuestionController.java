@@ -21,7 +21,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/wrongbook")
-@CrossOrigin(origins = "*")
 public class WrongQuestionController {
 
     private final WrongQuestionService service;

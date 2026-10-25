@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -137,47 +139,92 @@ public class AssessmentService {
                     new LambdaQueryWrapper<Question>().eq(Question::getCode, a.questionCode()));
             if (q == null) continue;
 
-            // 两种提交方式并存：带图片走 OCR，否则走文字判分
             boolean ok = false;
-            boolean invalidOcr = false;
+            boolean invalidThis = false;          // 本题无法评分（OCR 失败 / AI 不可用）：不计入得分、不污染掌握度
             String finalUserAnswer;
-            boolean fromImage = a.imageBase64() != null && !a.imageBase64().isBlank();
-            if (fromImage) {
-                if (a.imageBase64().length() > MAX_IMAGE_BASE64_LEN) {
-                    throw new IllegalArgumentException("答案图片过大（上限约 6MB），请压缩后重试");
-                }
-                byte[] imageBytes;
-                try {
-                    imageBytes = Base64.getDecoder().decode(a.imageBase64());
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("图片数据格式不正确");
-                }
-                OcrResult ocr = ocrService.recognize(imageBytes, a.imageMime(), q.getAnswer(), q.getType());
-                if (ocr.error() != null) {
-                    // OCR 通道故障（限流/识别失败）≠ 学生答错：本题不计分、不进错题本、不更新 BKT
-                    invalidOcr = true;
-                    finalUserAnswer = "[图片识别失败] " + ocr.error();
-                } else {
-                    // 判断题用识别字母精确比对（更可靠）；填空题用模型判等 + 归一化精确匹配兜底
-                    if ("SINGLE_CHOICE".equals(q.getType())) {
-                        ok = ocr.answer() != null
-                                && ocr.answer().trim().equalsIgnoreCase(q.getAnswer().trim());
-                    } else {
-                        ok = ocr.correct() || norm(ocr.answer()).equals(norm(q.getAnswer()));
+            String scoringMode = scoringModeOf(q.getType());
+            Integer aiScore = null;
+            String aiComment = null;
+
+            if (isAiScored(q.getType())) {
+                // ===== 主观题：交给大模型评分（大题/作文/翻译/简答）=====
+                String text = (a.answer() == null) ? "" : a.answer();
+                // 仅给图片时，先用 OCR 抽出文字，再交给 AI 评判
+                if (text.isBlank() && a.imageBase64() != null && !a.imageBase64().isBlank()) {
+                    if (a.imageBase64().length() > MAX_IMAGE_BASE64_LEN) {
+                        throw new IllegalArgumentException("答案图片过大（上限约 6MB），请压缩后重试");
                     }
-                    finalUserAnswer = "[图片识别] " + (ocr.answer() == null ? "" : ocr.answer());
+                    byte[] img;
+                    try {
+                        img = Base64.getDecoder().decode(a.imageBase64());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("图片数据格式不正确");
+                    }
+                    OcrResult ocr = ocrService.recognize(img, a.imageMime(), "", q.getType());
+                    if (ocr.error() != null) {
+                        invalidThis = true;
+                        aiComment = "图片无法识别，请改用文字输入或重传。";
+                        finalUserAnswer = "[图片识别失败] " + ocr.error();
+                    } else {
+                        text = ocr.answer() == null ? "" : ocr.answer();
+                        finalUserAnswer = "[图片识别] " + text;
+                    }
+                } else {
+                    finalUserAnswer = text;       // 保留原文（含大小写/换行），便于展示
+                }
+
+                if (!invalidThis) {
+                    AiGradeResult g = aiGrade(q, text);
+                    if (g.unavailable()) {
+                        // AI 通道故障（限流/网络）≠ 学生答错：标记待复核，跳过 BKT/历史/错题本
+                        invalidThis = true;
+                        aiComment = g.comment();
+                        finalUserAnswer = finalUserAnswer + " [AI 评分暂不可用，已标记为待复核]";
+                    } else {
+                        aiScore = g.score();
+                        aiComment = g.comment();
+                        ok = aiScore >= AI_PASS_SCORE;   // 达标记为「答对」，用于 BKT
+                    }
                 }
             } else {
-                ok = grade(q, a.answer());
-                finalUserAnswer = norm(a.answer());
+                // ===== 客观题：沿用 OCR 图片 / 文字判分两套逻辑 =====
+                boolean fromImage = a.imageBase64() != null && !a.imageBase64().isBlank();
+                if (fromImage) {
+                    if (a.imageBase64().length() > MAX_IMAGE_BASE64_LEN) {
+                        throw new IllegalArgumentException("答案图片过大（上限约 6MB），请压缩后重试");
+                    }
+                    byte[] imageBytes;
+                    try {
+                        imageBytes = Base64.getDecoder().decode(a.imageBase64());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("图片数据格式不正确");
+                    }
+                    OcrResult ocr = ocrService.recognize(imageBytes, a.imageMime(), q.getAnswer(), q.getType());
+                    if (ocr.error() != null) {
+                        invalidThis = true;
+                        finalUserAnswer = "[图片识别失败] " + ocr.error();
+                    } else {
+                        if (isChoiceLike(q.getType())) {
+                            ok = ocr.answer() != null
+                                    && ocr.answer().trim().equalsIgnoreCase(q.getAnswer().trim());
+                        } else {
+                            ok = ocr.correct() || norm(ocr.answer()).equals(norm(q.getAnswer()));
+                        }
+                        finalUserAnswer = "[图片识别] " + (ocr.answer() == null ? "" : ocr.answer());
+                    }
+                } else {
+                    ok = grade(q, a.answer());
+                    finalUserAnswer = norm(a.answer());
+                }
             }
 
-            if (invalidOcr) {
-                // 识别失败的题：只记录反馈（标记不计分），不动 BKT/错题本/历史对错
+            if (invalidThis) {
+                // 无法评分的题：只记录反馈（标记不计分），不动 BKT/错题本/历史对错
                 invalid++;
                 feedback.add(new AssessmentResult.QuestionFeedback(
                         q.getCode(), q.getStem(), false, finalUserAnswer,
-                        q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
+                        q.getAnswer(), aiComment != null ? aiComment : q.getExplanation(),
+                        splitCodes(q.getPointCodes()), scoringMode, aiScore, aiComment));
                 continue;
             }
 
@@ -217,7 +264,8 @@ public class AssessmentService {
 
             feedback.add(new AssessmentResult.QuestionFeedback(
                     q.getCode(), q.getStem(), ok, finalUserAnswer,
-                    q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes())));
+                    q.getAnswer(), q.getExplanation(), splitCodes(q.getPointCodes()),
+                    scoringMode, aiScore, aiComment));
         }
 
         int total = answers.size() - invalid; // 总分母剔除识别失败的题，不冤枉学生
@@ -353,7 +401,7 @@ public class AssessmentService {
     private AssessmentStartResponse.QuestionView toView(Question q) {
         List<String> pointCodes = splitCodes(q.getPointCodes());
         List<AssessmentStartResponse.QuestionView.OptionView> opts = null;
-        if ("SINGLE_CHOICE".equals(q.getType()) && q.getOptions() != null) {
+        if (isChoiceLike(q.getType()) && q.getOptions() != null) {
             try {
                 opts = objectMapper.readValue(q.getOptions(),
                         objectMapper.getTypeFactory().constructCollectionType(
@@ -366,21 +414,143 @@ public class AssessmentService {
                 q.getCode(), q.getType(), q.getDifficulty(), q.getStem(), opts, pointCodes);
     }
 
-    /** 判分：选择题大小写不敏感，填空题做归一化（去空格、转小写）。包级可见以便单元测试 */
+    /** 选择题类题型（系统客观判分，用选项 key 精确比对） */
+    private static final Set<String> CHOICE_LIKE = Set.of("SINGLE_CHOICE", "CLOZE", "READING");
+    /** 主观题（交给大模型评分） */
+    private static final Set<String> AI_SCORED = Set.of("ESSAY", "COMPOSITION", "TRANSLATION", "SHORT_ANSWER");
+    /** AI 评分达标阈值：达到该比例记为「达标」，用于 BKT 掌握度更新 */
+    private static final int AI_PASS_SCORE = 60;
+
+    /** 判分：选择题类大小写不敏感，其余（填空等）做归一化精确匹配。包级可见以便单元测试 */
     boolean grade(Question q, String userAnswer) {
         if (userAnswer == null) return false;
         String u = norm(userAnswer);
         String a = norm(q.getAnswer());
-        if ("FILL_BLANK".equals(q.getType())) {
-            return u.equals(a);
+        if (isChoiceLike(q.getType())) {
+            return u.equalsIgnoreCase(a);
         }
-        return u.equalsIgnoreCase(a);
+        // 填空题等：归一化后精确比对（去空白、转小写）
+        return u.equals(a);
+    }
+
+    private boolean isChoiceLike(String type) {
+        return type != null && CHOICE_LIKE.contains(type);
+    }
+
+    private boolean isAiScored(String type) {
+        return type != null && AI_SCORED.contains(type);
+    }
+
+    /** 题型 -> 评分方式：AI / AUTO */
+    private String scoringModeOf(String type) {
+        return isAiScored(type) ? "AI" : "AUTO";
+    }
+
+    /** 题型 -> 中文名（用于 AI 评分提示词） */
+    private String typeName(String type) {
+        return switch (type == null ? "" : type) {
+            case "SINGLE_CHOICE" -> "单选题";
+            case "FILL_BLANK" -> "填空题";
+            case "CLOZE" -> "完形填空";
+            case "READING" -> "阅读理解";
+            case "ESSAY" -> "数学解答题";
+            case "COMPOSITION" -> "英语作文";
+            case "TRANSLATION" -> "翻译题";
+            case "SHORT_ANSWER" -> "简答题";
+            default -> "客观题";
+        };
     }
 
     /** 答案归一化：去空白、转小写，避免「 c 」与「C」被判错。包级可见以便单元测试 */
     String norm(String s) {
         if (s == null) return "";
         return s.trim().replaceAll("[\\s　]", "").toLowerCase();
+    }
+
+    /**
+     * 主观题（大题/作文/翻译/简答）的大模型评分结果。
+     * unavailable=true 表示 AI 调用失败（限流/网络），此时本题不计入得分、不更新掌握度。
+     */
+    private record AiGradeResult(Integer score, boolean correct, String comment, boolean unavailable) {
+        /** 正常结果（未标记不可用） */
+        AiGradeResult(Integer score, boolean correct, String comment) {
+            this(score, correct, comment, false);
+        }
+        /** 降级结果：AI 不可用 / 解析失败 */
+        AiGradeResult(String comment, boolean unavailable) {
+            this(null, false, comment, unavailable);
+        }
+    }
+
+    /**
+     * 调用智谱 GLM 给主观题打分。健壮性设计（与 OCR / 对话一致的降级策略）：
+     *   - 限流/网络异常被捕获，返回 unavailable，主流程降级为「待复核」，绝不 500；
+     *   - 要求模型只返回 JSON，解析失败同样降级，不污染掌握度与错题本；
+     *   - 评分口径：覆盖主要得分点给 60 分及以上记为「达标」，严重偏离/空白给 60 分以下。
+     */
+    private AiGradeResult aiGrade(Question q, String studentAnswer) {
+        if (studentAnswer == null || studentAnswer.isBlank()) {
+            return new AiGradeResult(0, false, "作答为空，未得分。", false);
+        }
+        String sys = "你是严谨的考研阅卷老师，负责给主观题打分。请依据【参考答案/评分要点】评估学生作答的" +
+                "要点覆盖、逻辑与表述，给出 0-100 的整数分。" +
+                "达到主要得分点给 60 分及以上（记为达标 correct=true），严重偏离题意或空白给 60 分以下（correct=false）。" +
+                "只返回一个 JSON 对象，不要包含任何额外文字或 markdown 代码块，格式严格为：" +
+                "{\"score\":<0到100的整数>,\"correct\":<true或false>,\"comment\":\"<中文简评，指出优点或不足，不超过60字>\"}";
+
+        String user = "【科目】" + subjectName(q.getSubjectCode()) + "\n" +
+                "【题型】" + typeName(q.getType()) + "\n" +
+                "【题目】" + (q.getStem() == null ? "" : q.getStem()) + "\n" +
+                "【参考答案/评分要点】" + (q.getAnswer() == null ? "" : q.getAnswer()) + "\n" +
+                "【学生作答】" + studentAnswer + "\n" +
+                "请严格只返回上面的 JSON。";
+
+        try {
+            String resp = chatClient.prompt()
+                    .system(sys)
+                    .user(user)
+                    .call()
+                    .content();
+            return parseAi(resp);
+        } catch (Exception e) {
+            return new AiGradeResult("AI 评分暂不可用（免费接口限流或网络波动），本题已标记为待复核，不影响客观题得分。", true);
+        }
+    }
+
+    /** 从模型返回里稳妥取出 score / correct / comment（容错，失败即降级） */
+    private AiGradeResult parseAi(String raw) {
+        if (raw == null) return new AiGradeResult("AI 评分结果解析失败，已标记为待复核。", true);
+        String s = raw.trim();
+        if (s.startsWith("```")) {
+            s = s.replaceAll("^```[a-zA-Z]*", "").replaceAll("```$", "").trim();
+        }
+        Matcher block = Pattern.compile("\\{.*\\}", Pattern.DOTALL).matcher(s);
+        if (block.find()) s = block.group();
+        try {
+            String scoreStr = extractJsonField(s, "score");
+            String comment = extractJsonField(s, "comment");
+            // 兼容整数与小数（如 85 / 85.0），四舍五入成 0-100 整数
+            int score = (int) Math.round(Double.parseDouble(scoreStr.trim()));
+            if (score < 0) score = 0;
+            if (score > 100) score = 100;
+            // 是否「达标」统一以阈值判定，避免模型漏给/错给 correct 字段
+            boolean correct = score >= AI_PASS_SCORE;
+            return new AiGradeResult(score, correct, comment == null ? "" : comment, false);
+        } catch (Exception e) {
+            return new AiGradeResult("AI 评分结果解析失败，已标记为待复核。", true);
+        }
+    }
+
+    /** 简化的 JSON 字段提取，避免严格类型绑定带来的脆弱性 */
+    private String extractJsonField(String json, String key) {
+        Matcher m = Pattern.compile("\"" + key + "\"\\s*:\\s*(\"([^\"]*)\"|true|false|-?\\d+)")
+                .matcher(json);
+        if (m.find()) {
+            String g = m.group(1);
+            if (g.startsWith("\"")) return g.substring(1, g.length() - 1);
+            return g;
+        }
+        return "";
     }
 
     /** 用 BKT 更新某学生在某知识点上的掌握度 */

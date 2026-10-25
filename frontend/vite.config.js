@@ -32,6 +32,17 @@ export default defineConfig({
   build: {
     // 打包产物输出到 dist，后续可整体拷贝进后端的 static 目录
     outDir: 'dist',
-    chunkSizeWarningLimit: 1200
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        // 把体积大的第三方依赖拆成独立文件：入口包变小、首屏更快；
+        // 且这些库很少变，浏览器能长期缓存（改业务代码时用户不必重下整个 vendor）。
+        manualChunks: {
+          'vendor-vue': ['vue', 'vue-router'],
+          'vendor-element': ['element-plus'],
+          'vendor-axios': ['axios']
+        }
+      }
+    }
   }
 })

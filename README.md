@@ -28,9 +28,11 @@
 |---|---|
 | 后端骨架（Spring Boot + Spring AI + MyBatis-Plus + MySQL） | ✅ 已完成 |
 | 考研院校专业库（28 所院校 / 104 个专业，山东为主） | ✅ 已完成 |
-| 数学题库第一批（14 章节 / 25 知识点 / 34 道原创题） | ✅ 已完成 |
-| 英语题库第一批（4 章 / 12 知识点 / 26 道原创题：词汇语法 / 完形 / 阅读 / 写作翻译基础） | ✅ 已完成 |
-| 政治题库第一批（5 章 / 10 知识点 / 24 道原创题：马原 / 毛中特 / 史纲 / 思修 / 形策） | ✅ 已完成 |
+| 数学题库（14 章 / 25 知识点 / 49 道原创题：选择 / 填空 / 解答大题） | ✅ 已完成 |
+| 英语题库（4 章 / 12 知识点 / 37 道原创题：词汇语法 / 完形 / 阅读 / 翻译 / 作文） | ✅ 已完成 |
+| 政治题库（5 章 / 10 知识点 / 34 道原创题：选择 / 简答） | ✅ 已完成 |
+| 主观题 AI 评分（解答大题 / 作文 / 翻译 / 简答由 GLM 评分，客观题系统判分） | ✅ 已完成 |
+| 安全加固（CORS 白名单 / 专用低权限数据库账号 / 日志框架 / 生产配置） | ✅ 已完成 |
 | 知识点体系与统一数据格式 | ✅ 已完成 |
 | 测评 / 掌握度 / 诊断（BKT 掌握度建模） | ✅ 已完成 |
 | 错题本（诊断答错自动收录 + 用户导入 + 随机重做，答对即攻克） | ✅ 已完成 |
@@ -79,8 +81,8 @@ aiweb/
 ├── pom.xml                                 依赖与构建配置
 ├── src/main/java/com/aiweb/
 │   ├── AiwebApplication.java               启动入口 + 环境变量检查
-│   ├── config/                             RagConfig / CollegeDataInitializer / CorpusInitializer / QuestionDataInitializer
-│   ├── controller/                         Chat / College / Major / Assessment / Science / Agent（共 6 个）
+│   ├── config/                             CorsConfig / RagConfig / CollegeDataInitializer / CorpusInitializer / QuestionDataInitializer
+│   ├── controller/                         Chat / College / Major / Assessment / Science / Agent / WrongQuestion（共 7 个）
 │   ├── entity/                             ChatMessage / College / Major / 题目与作答 / 掌握度 等
 │   ├── mapper/                             数据访问接口
 │   ├── mcp/                                 MCP 工具服务：KaoyanMcpTools（@McpTool 暴露 5 个标准工具）
@@ -92,10 +94,13 @@ aiweb/
 │   ├── kaoyan-corpus.json                  认知科普语料（RAG 检索源；不收录分数线，全是稳定的结构化事实）
 │   ├── data/colleges.json                  院校专业数据（28 所 / 104 个专业）
 │   ├── data/math-seed-batch1.json          数学第一批种子题（34 题）
+│   ├── data/math-seed-batch2.json          数学第二批种子题（15 题：选择/填空/解答大题）
 │   ├── data/english-seed-batch1.json       英语第一批种子题（26 题）
+│   ├── data/english-seed-batch2.json       英语第二批种子题（11 题：阅读/完形/翻译/作文）
 │   ├── data/politics-seed-batch1.json      政治第一批种子题（24 题）
-│   └── static/index.html                  后端根路径引导页（展示服务入口，前端在 5173）
-├── src/test/java/com/aiweb/               单元测试（35 个用例：BKT/判分/计划/意图/编排兜底/输入防护）
+│   ├── data/politics-seed-batch2.json      政治第二批种子题（10 题：选择/简答）
+│   └── static/                             前端生产构建产物（index.html + assets，8080 直接访问）
+├── src/test/java/com/aiweb/               单元测试与 Web 层测试（66 个用例）
 ├── frontend/                               Vue 3 前端（详见 frontend/README.md）
 ├── scripts/                                题库生成器与校验器 + 一键启动脚本（start-backend.bat / start-frontend.bat）
 ├── docs/题库数据格式说明.md                  统一数据格式规范
@@ -123,13 +128,17 @@ aiweb/
 |---|---|---|
 | `ZHIPU_API_KEY` | ✅ | 智谱开放平台 API Key（https://open.bigmodel.cn） |
 | `DB_PASSWORD` | ❌ | MySQL 密码，未设置时以空密码连接 |
+| `DB_USERNAME` | ❌ | 数据库用户名，默认 `aiweb_app`（专用低权限账号，不建议用 root） |
+| `DB_USE_SSL` | ❌ | 是否启用 MySQL SSL，默认 `false`；生产建议 `true` |
+| `APP_CORS_ALLOWED_ORIGINS` | ❌ | 允许跨域的前端来源（逗号分隔），默认 `http://localhost:5173,http://localhost:8080` |
 
 ### Windows 配置步骤
 
 1. `Win + S` → 搜索「编辑系统环境变量」→ 打开 → 点「环境变量」
 2. 「用户变量」→ 新建 → 变量名 `ZHIPU_API_KEY`，变量值填你的 Key
-3. 需要的话再新建 `DB_PASSWORD`
-4. 确定后**重启 IDE**（不重启读不到）
+3. 再新建 `DB_PASSWORD`（必填）；需要专用账号时再设 `DB_USERNAME`（默认 `aiweb_app`）
+4. 生产部署额外设 `APP_CORS_ALLOWED_ORIGINS`（你的站点域名）与 `DB_USE_SSL=true`
+5. 确定后**重启 IDE**（不重启读不到）
 
 验证：`echo %ZHIPU_API_KEY%`
 
@@ -160,7 +169,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 
 | 地址 | 内容 |
 |---|---|
-| http://localhost:8080 | 后端服务引导页（应用首页提示，前端在 5173） |
+| http://localhost:8080 | 生产模式：完整前端页面（static 构建产物，可直接使用） |
 | http://localhost:8080/api/health | 健康检查 |
 | http://localhost:8080/swagger-ui.html | 接口文档 |
 
@@ -197,6 +206,19 @@ npm run dev
 | GET | `/api/majors` | 专业查询（支持门类/学位类型/关键词） |
 | GET | `/api/majors/categories` | 学科门类（筛选用） |
 | GET | `/api/colleges/cities` | 院校所在城市（筛选用） |
+| GET | `/api/colleges/stats` | 院校库统计 |
+| POST | `/api/assess/start` | 按学情抽题（不含答案） |
+| POST | `/api/assess/submit` | 提交答案 → 判分 + 诊断 + 计划（主观题走 AI 评分） |
+| GET | `/api/assess/points` | 知识点列表（按学科） |
+| GET | `/api/assess/stats` | 题库统计（题量/题型分布） |
+| GET | `/api/assess/diagnosis` | 查看诊断与计划 |
+| GET | `/api/assess/history` | 做题历史（含标准答案） |
+| DELETE | `/api/assess/clear` | 清除该学生的历史与掌握度 |
+| GET/POST/DELETE | `/api/wrongbook/*` | 错题本：列表 / 统计 / 重做 / 判分 / 导入 / 删除 |
+| GET | `/api/science/topics` | 科普主题列表 |
+| POST | `/api/science/explain` | 主动说明式讲解 |
+| POST | `/api/science/chat` | 会话式 AI 答疑 |
+| POST | `/api/agent/run` | Agent 编排（多步工具调用 + 执行轨迹） |
 | GET | `/api/colleges/stats` | 院校 / 专业库统计 |
 | GET | `/api/colleges/{id}/majors` | 某院校的专业列表 |
 | POST | `/api/assess/start` | 开始测评（按学科抽题，不含答案；body 传 `subject`，不传默认 math） |
@@ -275,7 +297,7 @@ npm run dev
 | 项 | 说明 |
 |---|---|
 | 院校专业数据 | 自行整理的结构化信息，**不收录分数线**（每年变动且易产生幻觉）。当前标记 `verified=0`，正式提交前需与研招网逐条核对 |
-| 题库 | **全部原创编写**，不照搬任何真实真题原文；题目来源用 `source` 字段严格区分（原创种子题 / AI 生成题 / 用户导入 / 官方公开）。当前覆盖数学（34 题）/ 英语（26 题）/ 政治（24 题）三科，英语政治仅收适合客观化考查的部分（翻译写作为主观题，暂不收录）；各科掌握度独立追踪、互不影响 |
+| 题库 | **全部原创编写**，不照搬任何真实真题原文；题目来源用 `source` 字段严格区分（原创种子题 / AI 生成题 / 用户导入 / 官方公开）。当前覆盖数学（49 题）/ 英语（37 题）/ 政治（34 题）三科共 120 道；题型含客观题（选择/填空/完形/阅读，系统判分）与主观题（解答大题/作文/翻译/简答，GLM 自动评分并标注「AI 评分」或「待复核」）；各科掌握度独立追踪、互不影响 |
 | 第三方内容 | **不抓取**任何需要登录或有反爬的站点，避免著作权与个人信息风险 |
 | 密钥 | 全部走环境变量，不进入版本库 |
 
@@ -285,10 +307,10 @@ npm run dev
 
 | 项 | 内容 |
 |---|---|
-| 参赛组别 | 待填写 |
-| 成员 | 待填写 |
-| 指导教师 | 待填写 |
-| 院校 | 待填写 |
+| 参赛组别 | B 组 |
+| 成员 | 王传志、付赐凡、王启轩 |
+| 指导教师 | 无 |
+| 院校 | 山东建筑大学 |
 
 ---
 

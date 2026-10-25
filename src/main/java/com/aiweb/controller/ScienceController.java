@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import java.util.Map;
  *  - POST /api/science/ask     旧版问答（保留兼容）
  */
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/science")
 public class ScienceController {
 

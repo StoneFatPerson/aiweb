@@ -62,19 +62,19 @@
         <div v-for="(q, i) in questions" :key="q.code" class="q-card">
           <div class="q-title">
             <span class="q-no">{{ i + 1 }}.</span>
-            <span class="q-type" :class="q.type === 'FILL_BLANK' ? 'fill' : 'choice'">
-              {{ q.type === 'FILL_BLANK' ? '填空' : '选择' }}
+            <span class="q-type" :class="q.type === 'FILL_BLANK' ? 'fill' : (isEssay(q.type) ? 'essay' : 'choice')">
+              {{ typeLabel(q.type) }}
             </span>
             <span class="q-stem">{{ q.stem }}</span>
           </div>
 
-          <el-radio-group v-if="q.type === 'SINGLE_CHOICE'" v-model="answers[q.code]" class="q-options">
+          <el-radio-group v-if="isChoice(q.type)" v-model="answers[q.code]" class="q-options">
             <el-radio v-for="opt in q.options" :key="opt.key" :value="opt.key" border>
               {{ opt.key }}. {{ opt.content }}
             </el-radio>
           </el-radio-group>
 
-          <div v-else class="q-fill-wrap">
+          <div v-else-if="q.type === 'FILL_BLANK'" class="q-fill-wrap">
             <el-input
               v-model="answers[q.code]"
               placeholder="请输入答案，如 1/2"
@@ -99,6 +99,16 @@
                 <el-button size="small" text type="danger" @click="removeImage(q.code)">移除</el-button>
               </div>
             </div>
+          </div>
+
+          <div v-else class="q-essay-wrap">
+            <el-input
+              v-model="answers[q.code]"
+              type="textarea"
+              :rows="6"
+              :placeholder="essayPlaceholder(q.type)"
+            />
+            <span class="q-essay-tip">主观题由 AI 自动评分（免费接口限流时显示「待复核」，不影响客观题得分）</span>
           </div>
         </div>
 
@@ -133,16 +143,18 @@
           <el-collapse>
             <el-collapse-item v-for="(f, i) in result.feedback" :key="f.code" :name="i">
               <template #title>
-                <el-tag :type="f.correct ? 'success' : 'danger'" size="small" class="fb-tag">
-                  {{ f.correct ? '答对' : '答错' }}
+                <el-tag :type="tagType(f)" size="small" class="fb-tag">
+                  {{ tagText(f) }}
                 </el-tag>
                 <!-- 题干原样再现：用户要能看懂是哪道题，而不是只看到 ENGLISH-Q0023 这种内部代码；
                      兜底 f.code 是防极老数据没有 stem 字段 -->
                 <span class="fb-stem">{{ f.stem || f.code }}</span>
-                <span class="fb-your">你的答案：{{ f.yourAnswer || '（空）' }}</span>
               </template>
-              <p class="fb-line"><b>正确答案：</b>{{ f.correctAnswer }}</p>
-              <p class="fb-line"><b>解析：</b>{{ f.explanation }}</p>
+              <p class="fb-line"><b>你的答案：</b></p>
+              <div class="fb-answer">{{ f.yourAnswer || '（空）' }}</div>
+              <p class="fb-line"><b>{{ f.scoringMode === 'AI' ? '参考答案：' : '正确答案：' }}</b>{{ f.correctAnswer }}</p>
+              <p class="fb-line" v-if="f.aiComment"><b>AI 评语：</b>{{ f.aiComment }}</p>
+              <p class="fb-line" v-else-if="f.explanation"><b>解析：</b>{{ f.explanation }}</p>
             </el-collapse-item>
           </el-collapse>
         </div>
@@ -236,6 +248,51 @@ const count = ref(10)
 const SUBJECT_NAMES = { math: '数学', english: '英语', politics: '政治' }
 const subjectName = computed(() => SUBJECT_NAMES[subject.value] || '数学')
 
+// ===== 题型展示与渲染辅助 =====
+// 题型中文标签
+const TYPE_LABEL = {
+  SINGLE_CHOICE: '选择',
+  FILL_BLANK: '填空',
+  CLOZE: '完形填空',
+  READING: '阅读理解',
+  ESSAY: '大题',
+  COMPOSITION: '作文',
+  TRANSLATION: '翻译',
+  SHORT_ANSWER: '简答'
+}
+function typeLabel(type) {
+  return TYPE_LABEL[type] || '题目'
+}
+// 选择题类（单选 / 完形 / 阅读）：渲染为单选按钮
+function isChoice(type) {
+  return type === 'SINGLE_CHOICE' || type === 'CLOZE' || type === 'READING'
+}
+// 主观题类（大题 / 作文 / 翻译 / 简答）：渲染为文本域，由 AI 评分
+function isEssay(type) {
+  return type === 'ESSAY' || type === 'COMPOSITION' || type === 'TRANSLATION' || type === 'SHORT_ANSWER'
+}
+function essayPlaceholder(type) {
+  if (type === 'TRANSLATION') return '请把上方英文翻译成中文……'
+  if (type === 'COMPOSITION') return '请在此写下你的作文（英文）……'
+  if (type === 'SHORT_ANSWER') return '请简要作答，分点说明更佳……'
+  return '请写出解题过程与最终结果……'
+}
+// 结果页：AI 评分题显示「AI 评分 XX」或「待复核」；客观题显示答对/答错
+function tagType(f) {
+  if (f.scoringMode === 'AI') {
+    if (f.aiScore == null) return 'warning'      // AI 不可用，待复核
+    return f.aiScore >= 60 ? 'success' : 'danger'
+  }
+  return f.correct ? 'success' : 'danger'
+}
+function tagText(f) {
+  if (f.scoringMode === 'AI') {
+    if (f.aiScore == null) return '待复核'
+    return 'AI 评分 ' + f.aiScore
+  }
+  return f.correct ? '答对' : '答错'
+}
+
 const questions = ref([])
 const answers = reactive({})
 // 图片答案：以题号 code 为键，存 { base64, mime, dataUrl }（与文字答案并存）
@@ -291,7 +348,7 @@ async function start() {
 }
 
 async function submit() {
-  const missing = questions.value.filter((q) => !answers[q.code])
+  const missing = questions.value.filter((q) => !answers[q.code] && !images[q.code])
   if (missing.length) {
     ElMessage.warning(`还有 ${missing.length} 题没作答`)
     return
@@ -445,6 +502,9 @@ async function clearData() {
 .q-type { font-size: 12px; padding: 1px 8px; border-radius: 6px; color: #fff; }
 .q-type.choice { background: #2563eb; }
 .q-type.fill { background: #f59e0b; }
+.q-type.essay { background: #7c3aed; }
+.q-essay-wrap { margin-top: 10px; }
+.q-essay-tip { display: block; margin-top: 6px; font-size: 12px; color: var(--text-muted); }
 .q-stem { flex: 1; min-width: 200px; }
 .q-options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 /* 选项对齐修复：Element Plus 的 border 单选默认 inline-flex + 右侧 32px margin + 高度固定，
@@ -480,6 +540,20 @@ async function clearData() {
 .fb-tag { margin-right: 10px; }
 .fb-your { font-size: 13px; color: var(--text-muted); }
 .fb-line { margin: 6px 0; font-size: 14px; }
+/* 学生作答框：主观题可能很长，用带边框的可滚动区域，避免把折叠标题撑爆 */
+.fb-answer {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  max-height: 160px;
+  overflow: auto;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 
 .weak-box { margin-bottom: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .weak-label { font-size: 13px; color: var(--text-muted); }
