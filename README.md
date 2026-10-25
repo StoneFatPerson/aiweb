@@ -38,7 +38,7 @@
 | 错题本（诊断答错自动收录 + 用户导入 + 随机重做，答对即攻克） | ✅ 已完成 |
 | 认知科普：左侧固定讲解 + 右侧 AI 答疑（本地 RAG） | ✅ 已完成 |
 | Vue 3 前端（Element Plus，响应式 + 无障碍） | ✅ 已完成 |
-| AI 规划助手（Agent 编排：多步工具调用 + 透明执行轨迹，后端能力 + MCP 工具暴露） | ✅ 已完成 |
+| AI 咨询助手（Agent 编排：意图识别 + 4 个工具多步调用 + 结构化执行轨迹；经 MCP 对外暴露） | ✅ 已完成 |
 | MCP 工具服务（5 个工具按 MCP 协议暴露，SSE 传输，可被第三方 AI 客户端调用） | ✅ 已完成 |
 
 ---
@@ -232,7 +232,7 @@ npm run dev
 | POST | `/api/science/explain` | 主动说明式讲解（RAG 合成文章） |
 | POST | `/api/science/ask` | RAG 问答（保留兼容） |
 | POST | `/api/science/chat` | 右侧 AI 答疑（会话式 RAG，带历史与上下文） |
-| POST | `/api/agent/run` | AI 规划助手（后端能力，经 MCP 工具 `run_kaoyan_agent` 暴露；前端页面已精简） |
+| POST | `/api/agent/run` | AI 咨询助手（后端能力，返回结构化执行轨迹；前端页面已精简） |
 | GET | `/api/wrongbook` | 错题列表（`?studentId=&subject=`） |
 | GET | `/api/wrongbook/stats` | 错题统计 |
 | POST | `/api/wrongbook/redo` | 随机抽题重做（返回不带答案的题） |
